@@ -1,0 +1,6 @@
+FileVersion = 1
+
+[Project]
+Name = "Atma.Entities"
+TargetType = "BeefLib"
+StartupObject = "Atma.Entities.Program"

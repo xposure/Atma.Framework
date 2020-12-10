@@ -1,0 +1,2 @@
+FileVersion = 1
+Projects = {"Atma.Common" = {Path = "src/Atma.Common"}, "Atma.Entities" = {Path = "src/Atma.Entities"}, "Atma.Math" = {Path = "src/Atma.Math"}, MiniZ = "*", SDL2 = "*", "Atma.SDL2" = {Path = "src/Atma.SDL2"}, "Atma.OpenGL" = {Path = "src/Atma.OpenGL"}}

@@ -1,0 +1,7 @@
+FileVersion = 1
+Dependencies = {corlib = "*", "Atma.Math" = "*"}
+
+[Project]
+Name = "Atma.Math.Tests"
+TargetType = "BeefTest"
+StartupObject = "Atma.Math.Tests.Program"

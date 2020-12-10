@@ -1,0 +1,6 @@
+FileVersion = 1
+Dependencies = {corlib = "*", "Atma.Common" = "*", "Atma.Entities" = "*", "Atma.OpenGL" = "*", "Atma.SDL2" = "*"}
+
+[Project]
+Name = "NeonShooter"
+StartupObject = "NeonShooter.Program"

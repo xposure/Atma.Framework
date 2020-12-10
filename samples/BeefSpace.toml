@@ -1,0 +1,5 @@
+FileVersion = 1
+Projects = {NeonShooter = {Path = "NeonShooter"}, "Atma.Common" = {Path = "../src/Atma.Common"}, SDL2 = "*", "Atma.Math" = {Path = "../src/Atma.Math"}, "Atma.Entities" = {Path = "../src/Atma.Entities"}, "Atma.OpenGL" = {Path = "../src/Atma.OpenGL"}, "Atma.SDL2" = {Path = "../src/Atma.SDL2"}, MiniZ = "*"}
+
+[Workspace]
+StartupProject = "NeonShooter"

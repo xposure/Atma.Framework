@@ -1,0 +1,6 @@
+FileVersion = 1
+
+[Project]
+Name = "Atma.Common.Tests"
+TargetType = "BeefTest"
+StartupObject = "Atma.Common.Tests.Program"
