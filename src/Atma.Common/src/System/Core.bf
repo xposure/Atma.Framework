@@ -10,8 +10,10 @@ namespace Atma
 	/// <summary>
 	/// Core System Module, used for managing Windows and Input
 	/// </summary>
-	public static class Core
+	public class Core
 	{
+		private static Core _instance;
+
 		public static bool DebugRenderEnabled = false;
 
 		public readonly static Emitter Emitter = new .() ~ delete _;
@@ -25,10 +27,7 @@ namespace Atma
 		public static Atlas2 Atlas ~ delete _;
 		public static Input Input ~ delete _;
 		public static Batch2D Draw ~ delete _;
-		public static Scene Scene ~ delete _;
 		public static Random Random = new .() ~ delete _;
-
-
 
 		public static bool ForceFixedTimestep { get; set; }
 
@@ -41,28 +40,41 @@ namespace Atma
 		private static int64[MAXSAMPLES] framelist;
 
 		public static uint64 FrameCount;
-		public static uint64 UpdateCount;
+		public static uint64 FixedUpdateCount;
 
 		public static int FPS;
 
-		static this()
+		protected static void Integrate(int64 time)
 		{
-			ForceFixedTimestep = true;
-			Throttling = true;
+			let t = Time.Integrate(time);
+			Core.Integration.Integrate(t);
 		}
 
-		protected static void FixedUpdate()
+		protected static extern void Update();
+		protected static extern void Render();
+		protected static extern void Initialize();
+		protected static extern void Unload();
+
+		private static void InternalInitialize()
+		{
+			Atlas = new .();
+			Draw = new .();
+			Initialize();
+		}
+
+		private static void InternalFixedUpdate()
 		{
 			Core.Window.Title = scope $"FPS @{FPS}";
 
-			UpdateCount++;
+			FixedUpdateCount++;
 			Platform_Update();
 			Input.Update();
 			Emitter.Signal();
-			Scene?.FixedUpdate();
+
+			Update();
 		}
 
-		protected static void Render()
+		protected static void InternalRender()
 		{
 			FrameCount++;
 
@@ -73,18 +85,14 @@ namespace Atma
 			FPS = (int)(1.0 / (frameSum / MAXSAMPLES / Time.MicroToSeconds));
 
 			Graphics.BeforeFrame();
-			Scene?.[Friend]Render();
+			Render();
 			Platform_Present();
 		}
 
-		public static int Run<T>(StringView title, int width, int height, Window.WindowFlags flags = .ScaleToMonitor)
-			where T : Scene
+		public static void Run(Window.WindowArgs _windowArgs)
 		{
-			Window.WindowArgs _windowArgs = ?;
-			_windowArgs.Title = scope String(title);
-			_windowArgs.Width = width;
-			_windowArgs.Height = height;
-			_windowArgs.Flags = flags;
+			Core.ForceFixedTimestep = true;
+			Core.Throttling = true;
 
 			Platform_Initialize(_windowArgs);
 			Platform_GetDisplays(Screen._resolutions);
@@ -94,10 +102,8 @@ namespace Atma
 
 			Atlas = new .();
 			Draw = new .();
-			Scene = new T();
 
-			//TODO: once we handle scene transitions we need to handle init better
-			Scene.Initialize();
+			Initialize();
 
 			int64 prevTime = Internal.GetTickCountMicro() - Time.FixedTimestep;
 
@@ -118,22 +124,20 @@ namespace Atma
 					Core.Integration.Integrate(1f);
 
 					Time.Update(prevTime, prevTime + Time.FixedTimestep);
-					FixedUpdate();
+					InternalFixedUpdate();
 					Core.Integration.Advance();
 
 					msCounter -= Time.FixedTimestep;
 					prevTime += Time.FixedTimestep;
 				}
 
-				let t = Time.Integrate(time);
-				Core.Integration.Integrate(t);
-
-				Render();
+				Integrate(time);
+				InternalRender();
 			}
 
+			Unload();
 			Platform_Destroy();
 			Log.Message("Exited");
-			return 0;
 		}
 
 		/// <summary>

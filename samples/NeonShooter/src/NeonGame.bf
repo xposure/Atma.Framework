@@ -99,9 +99,7 @@ namespace NeonShooter
 		public void Reset()
 		{
 			inverseSpawnChance = 60;
-		}
-
-		protected override void Render()
+		} internal protected override void Render()
 		{
 			base.Render();
 

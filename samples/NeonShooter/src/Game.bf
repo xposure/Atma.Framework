@@ -4,11 +4,11 @@ namespace NeonShooter
 	using Atma;
 	using System.Collections;
 
-	static public class Program
+	public static class Program
 	{
 		static public int Main(String[] args)
 		{
-			return Core.Run<NeonGame>("Test", 1280, 760, .Hidden);
+			return Core.RunScene<NeonGame>("NeonShooter", 1280, 760);
 		}
 	}
 }

@@ -1,4 +1,5 @@
 FileVersion = 1
+Dependencies = {corlib = "*", "Atma.Common" = "*"}
 
 [Project]
 Name = "Atma.Entities"

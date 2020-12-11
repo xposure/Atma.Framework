@@ -161,9 +161,7 @@ namespace Atma
 
 			// we update our renderables after entity.update in case any new Renderables were added
 			RenderableComponents.UpdateLists();
-		}
-
-		protected virtual void Render()
+		} protected internal virtual void Render()
 		{
 			Core.Graphics.Clear(Core.Window, Core.Graphics.ClearColor);
 
