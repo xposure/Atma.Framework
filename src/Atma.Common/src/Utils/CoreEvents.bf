@@ -1,8 +1,7 @@
 using System;
 namespace Atma
 {
-	[Union]
-	public struct CoreEvents
+	public static class CoreEvents
 	{
 		public struct OrientationChanged
 		{
