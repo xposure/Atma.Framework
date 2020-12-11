@@ -125,10 +125,19 @@ namespace Atma
 
 		private int _hotreloadIndex = -1;
 
+		private List<Assets> _children = new .() ~ delete _;
+		private Assets _parent;
 
 		public this(StringView contentRoot)
 		{
 			_contentRoot.Set(contentRoot);
+		}
+
+		public this(Assets parent)
+		{
+			parent._children.Add(this);
+			_parent = parent;
+			_contentRoot.Set(_parent._contentRoot);
 		}
 
 #if !DEBUG
@@ -147,6 +156,9 @@ namespace Atma
 
 			for (var it in _assetTrackers)
 				it.Check();
+
+			for (var it in _children)
+				it.CheckForChangedAssets();
 		}
 
 		public Aseprite LoadAseprite(StringView path)
@@ -159,21 +171,18 @@ namespace Atma
 			filePath.ToLower();
 			let key = filePath.GetHashCode();
 
-			let assetList = GetAssetList<Aseprite>();
-			if (assetList.Assets.TryAdd(key, ?, var ptr))
-			{
-				let ext = scope String();
-				System.IO.Path.GetExtension(path, ext);
-				ext.ToLower();
-				switch (ext) {
-				case ".aseprite":
-					*ptr = new Aseprite(path);
-				default:
-					Runtime.FatalError(scope $"Invalid extension [{ext}].");
-				}
-			}
-
-			return *ptr;
+			return GetOrLoadAsset<Aseprite>(key, scope () =>
+				{
+					let ext = scope String();
+					System.IO.Path.GetExtension(path, ext);
+					ext.ToLower();
+					switch (ext) {
+					case ".aseprite":
+						return new Aseprite(path);
+					default:
+						Runtime.FatalError(scope $"Invalid extension [{ext}].");
+					}
+				});
 		}
 
 		public bool GetContentDirectory(StringView path, String directoryPath)
@@ -227,24 +236,21 @@ namespace Atma
 
 			filePath.ToLower();
 			let key = filePath.GetHashCode();
-			let assetList = GetAssetList<Image>();
-			if (assetList.Assets.TryAdd(key, ?, var ptr))
-			{
-				let ext = scope String();
-				System.IO.Path.GetExtension(filePath, ext);
-				ext.ToLower();
-				switch (ext) {
-				case ".aseprite":
-					let ase = scope Aseprite(filePath);
-					let image = new Image(ase.Width, ase.Height);
-					ase.Frame(image, 0);
-					*ptr = image;
-				default:
-					*ptr = PlatformLoadImage(filePath);
-				}
-			}
-
-			return *ptr;
+			return GetOrLoadAsset<Image>(key, scope () =>
+				{
+					let ext = scope String();
+					System.IO.Path.GetExtension(filePath, ext);
+					ext.ToLower();
+					switch (ext) {
+					case ".aseprite":
+						let ase = scope Aseprite(filePath);
+						let image = new Image(ase.Width, ase.Height);
+						ase.Frame(image, 0);
+						return image;
+					default:
+						return PlatformLoadImage(filePath);
+					}
+				});
 		}
 
 		private AssetList<T> GetAssetList<T>()
@@ -257,6 +263,40 @@ namespace Atma
 			return (AssetList<T>)*ptr;
 		}
 
+		private T GetOrLoadAsset<T>(int key, Func<T> dlg)
+			where T : delete
+		{
+			let id = typeof(T).TypeId;
+
+			let stk = scope List<Assets>();
+			var current = this;
+			while (current != null)
+			{
+				stk.Add(current);
+				current = current._parent;
+			}
+
+			for (var i = stk.Count; --i >= 0;)
+			{
+				let assets = stk[i]._assets;
+				if (assets.TryGetValue(id, let list))
+				{
+					let typedList = (AssetList<T>)list;
+					if (typedList.Assets.TryGetValue(key, let asset))
+						return asset;//we found it in ours or our parents asset list
+				}
+			}
+
+			//we didn't find it, so lets load it to our asset list
+			if (_assets.TryAdd(id, ?, var ptr))
+				*ptr = new AssetList<T>();
+
+			let list = *(AssetList<T>*)ptr;
+			let t = dlg();
+			list.Assets.Add(key, t);
+			return t;
+		}
+
 		public Texture LoadTexture(StringView path)
 		{
 			let filePath = scope String();
@@ -267,28 +307,24 @@ namespace Atma
 			filePath.ToLower();
 			let key = filePath.GetHashCode();
 
-			let assetList = GetAssetList<Texture>();
-			if (assetList.Assets.TryAdd(key, ?, var ptr))
-			{
-				let ext = scope String();
-				System.IO.Path.GetExtension(path, ext);
-				ext.ToLower();
-				switch (ext) {
-				case ".aseprite":
-					let ase = scope Aseprite(filePath);
-					let image = new Image(ase.Width, ase.Height);
-					ase.Frame(image, 0);
+			return GetOrLoadAsset<Texture>(key, scope () =>
+				{
+					let ext = scope String();
+					System.IO.Path.GetExtension(path, ext);
+					ext.ToLower();
+					switch (ext) {
+					case ".aseprite":
+						let ase = scope Aseprite(filePath);
+						let image = new Image(ase.Width, ase.Height);
+						defer delete image;
 
-					let texture = new Texture(image);
-					*ptr = texture;
-					//TrackAssetPath(filePath);
-					delete image;
-				default:
-					*ptr = LoadTexture(path);
-				}
-			}
+						ase.Frame(image, 0);
+						return new Texture(image);
 
-			return *ptr;
+					default:
+						return LoadTexture(path);
+					}
+				});
 		}
 
 		public Shader LoadShader(StringView path)
@@ -311,33 +347,30 @@ namespace Atma
 			keyString.Append(fragmentPath);
 
 			let key = keyString.GetHashCode();
-			let assetList = GetAssetList<Shader>();
-			if (assetList.Assets.TryAdd(key, ?, var ptr))
-			{
-				let vp = scope $"{ContentRoot}/{vertexPath}";
-				let fp = scope $"{ContentRoot}/{fragmentPath}";
-				if (!System.IO.File.Exists(vp)) Runtime.FatalError(scope $"Vertex file missing: {vertexPath}");
-				if (!System.IO.File.Exists(fp)) Runtime.FatalError(scope $"Fragment file missing: {fragmentPath}");
 
-				let vertex = scope String();
-				let frag = scope String();
+			return GetOrLoadAsset<Shader>(key, scope () =>
+				{
+					let vp = scope $"{ContentRoot}/{vertexPath}";
+					let fp = scope $"{ContentRoot}/{fragmentPath}";
+					if (!System.IO.File.Exists(vp)) Runtime.FatalError(scope $"Vertex file missing: {vertexPath}");
+					if (!System.IO.File.Exists(fp)) Runtime.FatalError(scope $"Fragment file missing: {fragmentPath}");
 
-				if (System.IO.File.ReadAllText(vp, vertex) case .Err(let err)) Runtime.FatalError(scope $"{err}");
-				if (System.IO.File.ReadAllText(fp, frag) case .Err(let err)) Runtime.FatalError(scope $"{err}");
+					let vertex = scope String();
+					let frag = scope String();
 
-				let shaderSource = scope ShaderSource(vertex, frag);
-				let shader = new Shader(shaderSource);
+					if (System.IO.File.ReadAllText(vp, vertex) case .Err(let err)) Runtime.FatalError(scope $"{err}");
+					if (System.IO.File.ReadAllText(fp, frag) case .Err(let err)) Runtime.FatalError(scope $"{err}");
 
-				TrackAsset(shader, vp, fp);
+					let shaderSource = scope ShaderSource(vertex, frag);
+					let shader = new Shader(shaderSource);
 
-				shader.[Friend]_assetKey = key;
-				shader.[Friend]_assets = this;
+					TrackAsset(shader, vp, fp);
 
+					shader.[Friend]_assetKey = key;
+					shader.[Friend]_assets = this;
 
-				*ptr = shader;
-			}
-
-			return *ptr;
+					return shader;
+				});
 		}
 
 #if !DEBUG
@@ -374,22 +407,18 @@ namespace Atma
 
 			filePath.ToLower();
 			let key = filePath.GetHashCode();
-
-			let assetList = GetAssetList<SpriteFont>();
-			if (assetList.Assets.TryAdd(key, ?, var ptr))
-			{
-				let ext = scope String();
-				System.IO.Path.GetExtension(path, ext);
-				ext.ToLower();
-				switch (ext) {
-				case ".ttf":
-					*ptr = PlatformLoadFont(filePath, size);
-				default:
-					*ptr = null;
-				}
-			}
-
-			return *ptr;
+			return GetOrLoadAsset<SpriteFont>(key, scope () =>
+				{
+					let ext = scope String();
+					System.IO.Path.GetExtension(path, ext);
+					ext.ToLower();
+					switch (ext) {
+					case ".ttf":
+						return PlatformLoadFont(filePath, size);
+					default:
+						Runtime.FatalError("Unsupported font file.");
+					}
+				});
 		}
 
 		public void Unload(Shader shader)
