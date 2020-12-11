@@ -1,7 +1,6 @@
 using Atma;
 using System;
 using System.Collections;
-using NeonShooter.Scenes;
 using NeonShooter.Components;
 namespace NeonShooter.Entities
 {
@@ -26,7 +25,7 @@ namespace NeonShooter.Entities
 				const int numParticles = 150;
 				float startOffset = Core.Random.nextFloat(0, 1f / numParticles);
 
-				let scene = this.Scene as TestScene;
+				let scene = this.Scene as NeonGame;
 				let particles = scene.Particles;
 				let line = Core.Atlas["main/Laser"];
 
@@ -77,7 +76,7 @@ namespace NeonShooter.Entities
 			}
 
 
-			let scene = this.Scene as TestScene;
+			let scene = this.Scene as NeonGame;
 			let particles = scene.Particles;
 			let line = Core.Atlas["main/Laser"];
 

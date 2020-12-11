@@ -4,6 +4,7 @@ namespace Atma
 	{
 		public static SpriteFont DefaultFont;
 
+		//These don't work currently https://github.com/beefytech/Beef/issues/705
 		static this
 		{
 			//works with specifying the type

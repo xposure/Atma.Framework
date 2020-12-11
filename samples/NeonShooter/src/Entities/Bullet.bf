@@ -1,6 +1,5 @@
 using Atma;
 using NeonShooter.Components;
-using NeonShooter.Scenes;
 namespace NeonShooter.Entities
 {
 	public class Bullet : Entity
@@ -22,7 +21,7 @@ namespace NeonShooter.Entities
 
 			if (!this.Scene.Camera.WorldBounds.Intersects(WorldPosition))
 			{
-				let scene = this.Scene as TestScene;
+				let scene = this.Scene as NeonGame;
 				let particles = scene.Particles;
 				let line = Core.Atlas["main/Laser"];
 				let position = WorldPosition;
@@ -36,7 +35,7 @@ namespace NeonShooter.Entities
 			}
 			else
 			{
-				let scene = this.Scene as TestScene;
+				let scene = this.Scene as NeonGame;
 
 				Position += Velocity;
 

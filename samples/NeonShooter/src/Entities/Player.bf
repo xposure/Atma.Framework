@@ -2,7 +2,6 @@ using Atma;
 using NeonShooter.Components;
 using Atma;
 using System;
-using NeonShooter.Scenes;
 namespace NeonShooter.Entities
 {
 	public class Player : Entity
@@ -99,7 +98,7 @@ namespace NeonShooter.Entities
 					dead = false;
 					Position = Screen.Size / 2;
 
-					let scene = this.Scene as TestScene;
+					let scene = this.Scene as NeonGame;
 					scene.Grid.ApplyImplosiveForce(1000, float3(WorldPosition, 0), 50);
 				}
 
@@ -147,7 +146,7 @@ namespace NeonShooter.Entities
 			{
 				let line = Core.Atlas["main/Laser"];
 				let glow = Core.Atlas["main/Glow"];
-				let scene = this.Scene as TestScene;
+				let scene = this.Scene as NeonGame;
 				let particles = scene.Particles;
 
 				// set up some variables
@@ -204,7 +203,7 @@ namespace NeonShooter.Entities
 
 				Color explosionColor = Color(0.8f, 0.8f, 0.4f);// yellow
 
-				let scene = this.Scene as TestScene;
+				let scene = this.Scene as NeonGame;
 				let particles = scene.Particles;
 				let line = Core.Atlas["main/Laser"];
 

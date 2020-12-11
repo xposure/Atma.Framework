@@ -92,7 +92,7 @@ namespace Atma
 			Platform_Present();
 		}
 
-		public static void Run<T>(StringView title, int width, int height, WindowFlags flags = WindowFlags.ScaleToMonitor)
+		public static int Run<T>(StringView title, int width, int height, WindowFlags flags = WindowFlags.ScaleToMonitor)
 			where T : Scene
 		{
 			WindowArgs _windowArgs = ?;
@@ -148,6 +148,7 @@ namespace Atma
 
 			Platform_Destroy();
 			Log.Message("Exited");
+			return 0;
 		}
 
 		/// <summary>

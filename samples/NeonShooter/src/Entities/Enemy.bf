@@ -2,7 +2,6 @@ using System;
 using Atma;
 using NeonShooter.Components;
 using System.Collections;
-using NeonShooter.Scenes;
 
 namespace NeonShooter.Entities
 {
@@ -55,7 +54,7 @@ namespace NeonShooter.Entities
 			if (!IsDestroying)
 			{
 				let player = this.EntityList.FindFirstByType<Player>();
-				let scene = this.Scene as TestScene;
+				let scene = this.Scene as NeonGame;
 				float hue1 = Core.Random.nextFloat(0, 6);
 				float hue2 = (hue1 + Core.Random.nextFloat(0, 2)) % 6f;
 				Color color1 = Color.HSVToColor(hue1, 0.5f, 1);

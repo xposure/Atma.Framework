@@ -5,9 +5,9 @@ using System;
 using NeonShooter.PostProcessors;
 using NeonShooter.PostEffects;
 using System.Collections;
-namespace NeonShooter.Scenes
+namespace NeonShooter
 {
-	public class TestScene : Scene
+	public class NeonGame : Scene
 	{
 		public ParticleManager<ParticleState> Particles;
 		public GridComponent Grid;
@@ -30,6 +30,9 @@ namespace NeonShooter.Scenes
 			CreateEntity("grid").Components.Add(Grid);
 			CreateEntity("particles").Components.Add(Particles);
 
+			//TODO REMOVE
+			//Static block initializer doesn't work right now so we are setting the default font here
+			//https://github.com/beefytech/Beef/issues/705
 			Core.DefaultFont = Core.Assets.LoadFont(@"fonts/PressStart2P.ttf", 16);
 
 			this.Camera.AddRenderer(new DefaultRenderer() { BlendMode = .Add });
@@ -38,30 +41,15 @@ namespace NeonShooter.Scenes
 
 			Core.Graphics.ClearColor = .Black;
 			Camera.ClearColor = .(0, 0, 0, 255);
-			//Camera.Origin = .(0.5f, 0.5f);
 
-			/*Camera.AddPostProcessor(new PostProcessor<BloomExtractEffect>());
-			Camera.AddPostProcessor(new PostProcessor<GaussianBlurEffect>());*/
 			Camera.AddPostProcessor(new Bloom());
 			Camera.AddPostProcessor(new Vignette());
-
-			//AddEntity(new Entity("test")).Components.Add(new RectComponent());
 
 
 			player = AddEntity(new Player());
 			player.Components.Add(new PlayerCamera());
 			player.Position = Screen.Size / 2;
 
-
-			//hdrMaterial = new .(Shaders.HDR);
-			/*let minimap = CreateEntity("Minimap");
-			let minimapCamera = minimap.Components.Add(new Camera(.ExactFit, .(100, 100), .Zero));
-			minimapCamera.RenderLayer1 = 1;
-			minimapCamera.Viewport = .FromDimensions(.(400,400), .(100,100));
-
-			let entity2 = CreateEntity("Test2");
-			let sprite2 = entity2.Components.Add(new Sprite(.(texture)));
-			sprite2.SetRenderLayer(1);*/
 			Camera.SetDesignResolution(Screen.Width, Screen.Height, .ExactFit, 0, 0);
 		}
 
