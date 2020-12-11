@@ -13,11 +13,6 @@ namespace Atma
 
 	public extension Core
 	{
-		public static void* SdlGetProcAddress(StringView string)
-		{
-			return SDL.SDL_GL_GetProcAddress(string.ToScopeCStr!());
-		}
-
 		protected static override bool Platform_OnBattery()
 		{
 			//TODO: Possibly cache this and use OnInterval?
@@ -29,9 +24,6 @@ namespace Atma
 
 		private static Window _window ~ delete _;
 		public static override Window Window => _window;
-
-		private static GraphicsManager _graphics ~ delete _;
-		public static override GraphicsManager Graphics => _graphics;
 
 		private static bool _isExiting = false;
 		public static override bool IsExiting => _isExiting;
@@ -103,10 +95,6 @@ namespace Atma
 
 
 			SDL.GL_SetSwapInterval(1);
-
-			_graphics = new GraphicsManager(_window);
-
-			GL.Init( => SdlGetProcAddress);
 
 
 			//TODO IMGUI _imgui = ImGui.ImGui.CreateContext();

@@ -21,7 +21,8 @@ namespace Atma
 
 		public static extern bool IsExiting { get; }
 		public static extern Window Window { get; }
-		public static extern GraphicsManager Graphics { get; }
+
+		public static GraphicsManager Graphics ~ delete _;
 
 		public static Assets Assets ~ delete _;
 		public static Atlas2 Atlas ~ delete _;
@@ -99,6 +100,9 @@ namespace Atma
 
 			Platform_Initialize(_windowArgs);
 			Platform_GetDisplays(Screen._resolutions);
+
+			Core.Graphics = new .(Window);
+
 			Input = new .();
 
 			Screen.UpdateMatrix();
