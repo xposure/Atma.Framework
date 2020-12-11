@@ -32,7 +32,7 @@ namespace Atma.Math
 
             var basePath = System.Environment.CurrentDirectory;
             var exePath = System.Environment.CurrentDirectory;
-            var path = Path.Combine(basePath, "..\\src");
+            var path = Path.Combine(basePath, "..\\src\\Math");
             var testpath = Path.Combine(basePath, "..\\tests\\Atma\\Math");
             Console.WriteLine($"Path: {path}");
             Console.WriteLine($"TestPath: {testpath}");

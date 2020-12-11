@@ -1,6 +1,0 @@
-FileVersion = 1
-
-[Project]
-Name = "Atma.Math"
-TargetType = "BeefLib"
-StartupObject = "Atma.Math.Program"

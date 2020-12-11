@@ -1,8 +1,35 @@
 FileVersion = 1
-Dependencies = {corlib = "*", "Atma.Math" = "*", corlib = "*", MiniZ = "*"}
+Dependencies = {corlib = "*", corlib = "*", MiniZ = "*"}
 
 [Project]
 Name = "Atma.Common"
 TargetType = "BeefLib"
 StartupObject = "Atma.Common.Program"
 DefaultNamespace = "Atma"
+
+[Configs.Debug.Win64]
+CLibType = "Dynamic"
+
+[Configs.Debug.Win64]
+LibPaths = ["$(ProjectDir)/dist/$(Configuration)-$(Platform)/cimgui.lib"]
+
+[Configs.Debug.Win32]
+LibPaths = ["$(ProjectDir)/dist/$(Configuration)-$(Platform)/cimgui.lib"]
+
+[Configs.Release.Win64]
+LibPaths = ["$(ProjectDir)/dist/$(Configuration)-$(Platform)/cimgui.lib"]
+
+[Configs.Release.Win32]
+LibPaths = ["$(ProjectDir)/dist/$(Configuration)-$(Platform)/cimgui.lib"]
+
+[Configs.Paranoid.Win32]
+LibPaths = ["$(ProjectDir)/dist/$(Configuration)-$(Platform)/cimgui.lib"]
+
+[Configs.Paranoid.Win64]
+LibPaths = ["$(ProjectDir)/dist/$(Configuration)-$(Platform)/cimgui.lib"]
+
+[Configs.Test.Win32]
+LibPaths = ["$(ProjectDir)/dist/$(Configuration)-$(Platform)/cimgui.lib"]
+
+[Configs.Test.Win64]
+LibPaths = ["$(ProjectDir)/dist/$(Configuration)-$(Platform)/cimgui.lib"]
