@@ -58,6 +58,8 @@ namespace NeonShooter
 			HandleEnemySpawn();
 
 			base.FixedUpdate();
+
+			Camera.Inspect();
 		}
 
 		float inverseSpawnChance = 60;

@@ -42,7 +42,7 @@ namespace NeonShooter.Components
 			//float2.Add(ref particle.Position, ref vel, out particle.Position);
 
 			// fade the particle if its PercentLife or speed is low.
-			float alpha = Math.Min(1, Math.Min(particle.PercentLife * 2, speed * 1f));
+			float alpha = Math.Min(1, Math.Min(particle.PercentLife, speed * 1f));
 			alpha *= alpha;
 
 			particle.Tint.A = (uint8)(255 * alpha);
