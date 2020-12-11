@@ -2,6 +2,7 @@ namespace NeonShooter
 {
 	using System;
 	using Atma;
+	using System.Collections;
 
 	static public class Program
 	{
