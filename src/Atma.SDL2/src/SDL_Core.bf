@@ -72,7 +72,7 @@ namespace Atma
 			return .(index, false, scope String(name), .(rect.x, rect.y, rect.w, rect.h), .(float2.Ones * (ddpi / hidpiRes)));
 		}
 
-		protected static override void Platform_Initialize(WindowArgs windowArgs)
+		protected static override void Platform_Initialize(Window.WindowArgs windowArgs)
 		{
 			//SDL will change our output location so we need to capture prior to init
 			let startupDirectory = scope String();

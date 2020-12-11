@@ -21,7 +21,6 @@ namespace Atma
 
 		protected readonly Window _window;
 
-		protected readonly Monitor _backgroundMonitor = new .() ~ delete _;
 		protected GraphicsContext _context ~ delete _;
 
 		public Color ClearColor = .Red;
@@ -46,37 +45,6 @@ namespace Atma
 			if (_current == null)
 				_current = this;
 		}
-
-		/*
-		/// <summary>
-		/// The Underlying Graphics Device Name
-		/// </summary>
-		public String DeviceName { get; protected set; }
-
-		/// <summary>
-		/// The Maximum Texture Width and Height supported, in pixels
-		/// </summary>
-		public int MaxTextureSize { get; protected set; }
-
-		/*/// <summary>
-		/// Whether the Frame Buffer origin is in the bottom left
-		/// </summary>
-		public bool OriginBottomLeft { get; protected set; } = false;*/
-
-		/// <summary>
-		/// The Renderer this Graphics Module implements
-		/// </summary>
-		public abstract Renderer Renderer { get; }
-
-		protected this() : base(200)
-		{
-			ApiName = "Unknown";
-			ApiVersion = .(0, 0);
-			DeviceName = "Unknown";
-			MaxTextureSize = 0;
-		}
-
-		*/
 
 		public void BeforeFrame()
 		{
@@ -114,10 +82,6 @@ namespace Atma
 			ClearInternal(target, flags, color, depth, stencil);
 		}
 
-		/// <summary>
-		/// Clears the Target
-		/// </summary>
-		protected extern void ClearInternal(RenderTarget target, Clear flags, Color color, float depth, int stencil);
 
 		/// <summary>
 		/// Draws the data from the Render pass to the Render Target.
@@ -142,7 +106,6 @@ namespace Atma
 			RenderInternal(pass);
 		}
 
-		protected extern void RenderInternal(RenderPass pass);
 
 		public this(Window window) : this()
 		{
@@ -153,7 +116,6 @@ namespace Atma
 		/// <summary>
 		/// Gets the Shader Source for the Batch2D
 		/// </summary>
-		protected extern Shader CreateShaderForBatch2D();
 
 	}
 }

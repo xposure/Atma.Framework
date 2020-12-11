@@ -4,16 +4,6 @@ namespace Atma
 
 	public class VertexBuffer
 	{
-		protected extern void Platform_SetData(void* vertices, int count);
-
-		protected extern void Platform_Bind(GraphicsContext context, Material material);
-
-		protected extern void Platform_Resize(uint elements);
-
-		protected extern void Platform_Init();
-
-		protected extern void Platform_Destroy();
-
 		protected readonly GraphicsManager _graphics;
 
 		protected uint _id;

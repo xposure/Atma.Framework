@@ -25,11 +25,7 @@ namespace Atma
 
 		public int Version = 0;
 
-		protected extern void Platform_Init(ShaderSource source, bool log);
 
-		protected extern void Platform_Destroy();
-
-		protected extern void Platform_Bind(GraphicsContext context, Material material);
 
 		protected readonly GraphicsManager _graphics;
 

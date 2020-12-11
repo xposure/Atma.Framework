@@ -4,16 +4,6 @@ namespace Atma
 
 	public class IndexBuffer
 	{
-		protected extern void Platform_SetData(void* indices, int count);
-
-		protected extern void Platform_Bind(GraphicsContext context, Material material);
-
-		protected extern void Platform_Resize(uint elements);
-
-		protected extern void Platform_Init();
-
-		protected extern void Platform_Destroy();
-
 		private GraphicsManager _graphics;
 
 		protected uint _id;
@@ -26,7 +16,7 @@ namespace Atma
 
 		public uint BufferSize => (uint)ElementSize.Stride * ElementCount;
 
-		public this(IndexElementSize indexSize, uint elementCount):this(GraphicsManager.Current, indexSize, elementCount){}
+		public this(IndexElementSize indexSize, uint elementCount) : this(GraphicsManager.Current, indexSize, elementCount) { }
 		public this(GraphicsManager graphics, IndexElementSize indexSize, uint elementCount)
 		{
 			_graphics = GraphicsManager.Current;

@@ -9,22 +9,6 @@ namespace Atma
 		internal static bool _capsLock = false;
 		internal static bool _numLock = false;
 
-		protected extern bool Platform_PollKeyboard(Keys key);
-
-		protected extern bool Platform_PollMouse(MouseButtons button);
-
-		protected extern bool Platform_PollGamepadButton(int gamepadID, Buttons button);
-
-		protected extern float Platform_PollGamepadAxis(int gamepadID, Axes axis);
-
-		protected extern void Platform_SetMouseCursor(Cursors cursors);
-
-		protected extern bool Platform_GetClipboardString(String output);
-
-		protected extern void Platform_SetClipboardString(String value);
-
-		protected extern void Platform_Update();
-
 		public List<VirtualInput> VirtualInputs = new .() ~ DeleteContainerAndItems!(_);
 
 		private bool[Keys.Count] previousKeyboard;

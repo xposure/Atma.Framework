@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using internal Atma;
+
 namespace Atma
 {
 	/// <summary>
@@ -16,29 +17,55 @@ namespace Atma
 	/// </summary>
 	public sealed class Window : RenderTarget
 	{
-		protected extern int2 PlatformPosition { get; set; }
-		protected extern int2 PlatformSize { get; set; }
-		protected extern int2 PlatformRenderSize { get; }
-		protected extern float2 PlatformContentScale { get; }
-		protected extern bool PlatformOpened { get; }
+		public struct WindowArgs
+		{
+			public String Title;
+			public int Width;
+			public int Height;
+			public WindowFlags Flags;
+		}
 
-		protected extern StringView PlatformTitle { get; set; }
-		protected extern bool PlatformBordered { get; set; }
-		protected extern bool PlatformResizable { get; set; }
-		protected extern bool PlatformFullscreen { get; set; }
-		protected extern bool PlatformVisible { get; set; }
-		protected extern bool PlatformVSync { get; set; }
+		/// <summary>
+		/// Window Creation Flags
+		/// </summary>
+		//[Flags]
+		public enum WindowFlags
+		{
+			/// <summary>
+			/// No Flags
+			/// </summary>
+			None = 0,
 
-		protected extern bool PlatformFocused { get; }
-		protected extern int2 PlatformMouse { get; }
-		protected extern int2 PlatformScreenMouse { get; }
-		protected extern bool PlatformMouseOver { get; }
+			/// <summary>
+			/// Hides the Window when it is created
+			/// </summary>
+			Hidden = 1,
 
-		protected extern void PlatformFocus();
-		protected extern void PlatformPresent();
-		protected extern void PlatformClose();
-		protected extern void PlatformResize(int2 size);
-		protected extern GraphicsContext PlatformGraphicsContext { get; }
+			/// <summary>
+			/// Gives the Window a Transparent background
+			/// </summary>
+			Transparent = 2,
+
+			/// <summary>
+			/// Whether the Window should automatically scale to the Monitor
+			/// Ex. if a 1280x720 window is created, but the Monitor DPI is 2, this will
+			/// create a window at 2560x1440
+			/// </summary>
+			ScaleToMonitor = 4,
+
+			/// <summary>
+			/// Whether the Window BackBuffer should use Multi Sampling. The exact value
+			/// of multisampling depends on the platform
+			/// </summary>
+			MultiSampling = 8,
+
+			/// <summary>
+			/// Whether the Window should start fullscreen
+			/// </summary>
+			Fullscreen = 16
+		}
+
+
 
 		/*/// <summary>
 		/// A pointer to the underlying OS Window

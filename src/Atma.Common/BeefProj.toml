@@ -5,3 +5,4 @@ Dependencies = {corlib = "*", "Atma.Math" = "*", corlib = "*", MiniZ = "*"}
 Name = "Atma.Common"
 TargetType = "BeefLib"
 StartupObject = "Atma.Common.Program"
+DefaultNamespace = "Atma"

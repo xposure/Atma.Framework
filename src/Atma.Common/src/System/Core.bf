@@ -7,14 +7,6 @@ using internal Atma;
 
 namespace Atma
 {
-	public struct WindowArgs
-	{
-		public String Title;
-		public int Width;
-		public int Height;
-		public WindowFlags Flags;
-	}
-
 	/// <summary>
 	/// Core System Module, used for managing Windows and Input
 	/// </summary>
@@ -36,14 +28,7 @@ namespace Atma
 		public static Scene Scene ~ delete _;
 		public static Random Random = new .() ~ delete _;
 
-		protected extern static void Platform_BeginFrame();
-		protected extern static void Platform_Initialize(WindowArgs windowArgs);
-		protected extern static void Platform_Destroy();
-		protected extern static void Platform_GetDisplays(List<Display> displays);
-		protected extern static void Platform_Exit();
-		protected extern static bool Platform_OnBattery();
-		protected extern static void Platform_Update();
-		protected extern static void Platform_Present();
+
 
 		public static bool ForceFixedTimestep { get; set; }
 
@@ -92,10 +77,10 @@ namespace Atma
 			Platform_Present();
 		}
 
-		public static int Run<T>(StringView title, int width, int height, WindowFlags flags = WindowFlags.ScaleToMonitor)
+		public static int Run<T>(StringView title, int width, int height, Window.WindowFlags flags = .ScaleToMonitor)
 			where T : Scene
 		{
-			WindowArgs _windowArgs = ?;
+			Window.WindowArgs _windowArgs = ?;
 			_windowArgs.Title = scope String(title);
 			_windowArgs.Width = width;
 			_windowArgs.Height = height;

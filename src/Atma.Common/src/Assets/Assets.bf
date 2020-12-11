@@ -125,8 +125,6 @@ namespace Atma
 
 		private int _hotreloadIndex = -1;
 
-		protected static extern SpriteFont PlatformLoadFont(StringView path, int size);
-		protected static extern Image PlatformLoadImage(StringView path);
 
 		public this(GraphicsManager graphics, StringView contentRoot)
 		{

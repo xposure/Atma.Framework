@@ -5,10 +5,6 @@ using System.IO;
 
 namespace Atma
 {
-	public interface ITexture
-	{
-	}
-
 	//TODO IMGUI
 	/*public extension Texture
 	{
@@ -56,20 +52,6 @@ namespace Atma
   /// </summary>
 	public class Texture//: ITexture//: IDisposable
 	{
-		protected extern void Platform_Destroy();
-
-		protected extern void Platform_Init();
-
-		protected extern void Platform_SetFilter(TextureFilter filter);
-
-		protected extern void Platform_SetWrap(TextureWrap x, TextureWrap y);
-
-		protected extern void Platform_Resize(int width, int height);
-
-		protected extern void Platform_SetData(void* buffer, int x, int y, int w, int h);
-
-		protected extern void Platform_GetData(void* buffer);
-
 		/// <summary>
 		/// Default Texture Filter used for all Textures
 		/// </summary>
