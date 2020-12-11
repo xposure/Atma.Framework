@@ -22,9 +22,6 @@ namespace Atma
 
 		//TODO IMGUI private static ImGui.ImGui.Context _imgui;
 
-		private static Window _window ~ delete _;
-		public static override Window Window => _window;
-
 		private static bool _isExiting = false;
 		public static override bool IsExiting => _isExiting;
 
@@ -89,12 +86,8 @@ namespace Atma
 			SDL.GL_SetAttribute(.GL_CONTEXT_FLAGS, (.)SDL.SDL_GLContextFlags.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
 			SDL.GL_SetAttribute(.GL_DOUBLEBUFFER, 1);
 
-			_window = new Window(windowArgs.Title, windowArgs.Width, windowArgs.Height, windowArgs.Flags);
-			_window.Visible = true;
 
 
-
-			SDL.GL_SetSwapInterval(1);
 
 
 			//TODO IMGUI _imgui = ImGui.ImGui.CreateContext();
@@ -109,7 +102,7 @@ namespace Atma
 			Atma.Input._capsLock = SDL.GetModState() & .Caps > 0;
 			Atma.Input._numLock = SDL.GetModState() & .Num > 0;
 			Atma.Input._mouseWheel = int2.Zero;
-			Atma.Input._mousePosition = (int2)_window.Mouse;
+			Atma.Input._mousePosition = (int2)Window.Mouse;
 
 			while (SDL.PollEvent(let e) != 0)
 			{
@@ -127,11 +120,11 @@ namespace Atma
 						switch (e.window.windowEvent)
 						{
 						case .Resized:
-							_window.OnResize.Invoke(_window);
+							Window.OnResize.Invoke(Window);
 							break;
 
 						case .Close:
-							_window.OnCloseRequested.Invoke(_window);
+							Window.OnCloseRequested.Invoke(Window);
 							break;
 
 							// Update visible
@@ -147,7 +140,7 @@ namespace Atma
 							// Call onFocus
 						case .TAKE_FOCUS: fallthrough;
 						case .FocusGained:
-							_window.OnFocus.Invoke(_window);
+							Window.OnFocus.Invoke(Window);
 							break;
 
 						default:
@@ -204,7 +197,7 @@ namespace Atma
 			//TODO IMGUI let drawData = &ImGui.ImGui.GetDrawData();
 			//TODO IMGUI ImGui.ImGuiImplOpenGL3.RenderDrawData(drawData);
 
-			_window.Present();
+			Window.Present();
 		}
 	}
 }

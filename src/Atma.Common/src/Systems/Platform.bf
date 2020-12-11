@@ -103,6 +103,8 @@ namespace Atma
 		protected extern int2 PlatformScreenMouse { get; }
 		protected extern bool PlatformMouseOver { get; }
 
+		protected extern void PlatformInitialize(Window.WindowArgs windowArgs);
+		protected extern void PlatformDestroy();
 		protected extern void PlatformFocus();
 		protected extern void PlatformPresent();
 		protected extern void PlatformClose();

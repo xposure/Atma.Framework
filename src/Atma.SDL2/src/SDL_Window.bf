@@ -5,12 +5,10 @@ namespace Atma
 {
 	public extension Window//: Window.Platform
 	{
-		private SDL.Window* _window ~ SDL.DestroyWindow(_window);
+		internal SDL.Window* _window;
 		private String _title = new .() ~ delete _;
 
-		public readonly uint SDLWindowID;
-
-		//private readonly SDL_GraphicsContext glContext ~ delete _;
+		internal uint SDLWindowID;
 
 		private bool isBordered = true;
 		private bool isFullscreen = false;
@@ -19,9 +17,6 @@ namespace Atma
 		private bool isVSyncEnabled = true;
 		private bool isClosed = false;
 
-		public SDL.Window* SDLWindow => _window;
-
-		//protected override  IGraphicsContext GraphicsContext => glContext;
 
 		protected override int2 PlatformPosition
 		{
@@ -186,14 +181,19 @@ namespace Atma
 			get => (SDL.GetWindowFlags(_window) & (uint)SDL.WindowFlags.MouseFocus) > 0;
 		}
 
-		public this(String title, int width, int height, WindowFlags flags)
+		protected override void PlatformInitialize(WindowArgs windowArgs)
 		{
+			let title = windowArgs.Title;
+			let flags = windowArgs.Flags;
+			let width = windowArgs.Width;
+			let height = windowArgs.Height;
+
 			var sdlWindowFlags =
 				SDL.WindowFlags.AllowHighDPI |
 				SDL.WindowFlags.Hidden |
 				SDL.WindowFlags.Resizable;
 
-			//sdlWindowFlags |= .InputGrabbed;
+				//sdlWindowFlags |= .InputGrabbed;
 
 			if (flags.HasFlag(WindowFlags.Fullscreen))
 			{
@@ -203,10 +203,10 @@ namespace Atma
 
 			sdlWindowFlags |= SDL.WindowFlags.OpenGL;
 
-			//if (system.Windows.Count > 0)
+				//if (system.Windows.Count > 0)
 			SDL.GL_SetAttribute(SDL.SDL_GLAttr.GL_SHARE_WITH_CURRENT_CONTEXT, SDL.SDL_GLProfile.GL_CONTEXT_PROFILE_CORE);
 
-			// create the window
+				// create the window
 			_window = SDL.CreateWindow(title, (.)0x2FFF0000, (.)0x2FFF0000, (.)width, (.)height, sdlWindowFlags);
 			Runtime.Assert(_window != null, "Failed to create a new Window");
 			SDLWindowID = SDL.GetWindowID(_window);
@@ -214,7 +214,7 @@ namespace Atma
 			if (flags.HasFlag(WindowFlags.Transparent))
 				SDL.SetWindowOpacity(_window, 0f);
 
-			// scale to monitor for HiDPI displays
+				// scale to monitor for HiDPI displays
 			if (flags.HasFlag(WindowFlags.ScaleToMonitor))
 			{
 				float hidpiRes = 72f;
@@ -233,7 +233,7 @@ namespace Atma
 				}
 			}
 
-			// show window
+				// show window
 			isVisible = false;
 			if (!flags.HasFlag(WindowFlags.Hidden))
 			{
@@ -242,7 +242,15 @@ namespace Atma
 			}
 
 			_context = new SDL_GraphicsContext(_window);
+
+			SDL.GL_SetSwapInterval(1);
 		}
+
+		protected override void PlatformDestroy()
+		{
+			SDL.DestroyWindow(_window);
+		}
+
 
 		private SDL_GraphicsContext _context;
 

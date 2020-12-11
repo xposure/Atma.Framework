@@ -20,14 +20,14 @@ namespace Atma
 		public readonly static Integrator Integration = new .() ~ delete _;
 
 		public static extern bool IsExiting { get; }
-		public static extern Window Window { get; }
 
+		public static Window Window ~ delete _;
 		public static GraphicsManager Graphics ~ delete _;
-
 		public static Assets Assets ~ delete _;
 		public static Atlas2 Atlas ~ delete _;
 		public static Input Input ~ delete _;
 		public static Batch2D Draw ~ delete _;
+
 		public static Random Random = new .() ~ delete _;
 
 		public static bool ForceFixedTimestep { get; set; }
@@ -99,6 +99,11 @@ namespace Atma
 			Core.Throttling = true;
 
 			Platform_Initialize(_windowArgs);
+
+			Window = new Window();
+			Window.[Friend]PlatformInitialize(_windowArgs);
+			Window.Visible = true;
+
 			Platform_GetDisplays(Screen._resolutions);
 
 			Core.Graphics = new .(Window);
@@ -144,6 +149,7 @@ namespace Atma
 			}
 
 			Unload();
+			Window.[Friend]PlatformDestroy();
 			Platform_Destroy();
 			Log.Message("Exited");
 		}
