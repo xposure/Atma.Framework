@@ -14,7 +14,7 @@ namespace NeonShooter
 
 		private Texture texture;
 		private Sprite sprite;
-		private Player player;
+		public Player player;
 
 		public override void Initialize()
 		{
@@ -177,7 +177,10 @@ namespace NeonShooter
 			{
 				for (int j = 0; j < enemies.Count; j++)
 					if (enemies[j].IsActive && Entity.IsColliding(blackHoles[i], enemies[j]))
+					{
+						enemies[j].PointValue = 0;
 						enemies[j].WasShot();
+					}
 
 				for (int j = 0; j < bullets.Count; j++)
 				{

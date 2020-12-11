@@ -62,7 +62,7 @@ namespace NeonShooter.Components
 			Score += basePoints * Multiplier;
 			while (Score >= scoreForExtraLife)
 			{
-				scoreForExtraLife += 2000;
+				scoreForExtraLife += 20000;
 				Lives++;
 			}
 		}

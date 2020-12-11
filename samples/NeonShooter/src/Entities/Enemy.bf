@@ -69,8 +69,12 @@ namespace NeonShooter.Entities
 					scene.Particles?.CreateParticle(Core.Atlas["main/Laser"], position, color, 190, float2(1.5f), state, Calc.Turn(state.Velocity));
 				}
 
-				player?.status.AddPoints(PointValue);
-				player?.status.IncreaseMultiplier();
+				if (PointValue > 0)
+				{
+					player?.status.AddPoints(PointValue);
+					player?.status.IncreaseMultiplier();
+				}
+
 				Destroy();
 			}
 		}
