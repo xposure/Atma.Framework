@@ -101,22 +101,6 @@ public static
 		}
 	}
 
-	[Inline]
-	public static bool Is<T>(this Object self, out T t)
-		where T : class
-	{
-		if (self == null || !(self is T))
-		{
-			t = default;
-			return false;
-		}
-
-		t = (T)self;
-		return true;
-	}
-
-	public static Span<T> Take<T>(this List<T> self, int count) => .(self.GrowUnitialized(count), count);
-
 	public static int IndexOf<T, K>(this List<T> self, K dlg) where K : delegate bool(T t)
 	{
 		for (var i < self.Count)

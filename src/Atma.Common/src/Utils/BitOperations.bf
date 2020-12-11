@@ -1,4 +1,3 @@
-
 using System;
 namespace Atma
 {
@@ -275,10 +274,10 @@ namespace Atma
 				return aggregated.ToScalar();
 			}
 	 
-#if TARGET_32BIT
+		#if TARGET_32BIT
 			return PopCount((uint)value) // lo
 				+ PopCount((uint)(value >> 32)); // hi
-#else
+		#else
 			return SoftwareFallback(value);
 	 
 			static int SoftwareFallback(ulong value)
@@ -294,7 +293,7 @@ namespace Atma
 	 
 				return (int)value;
 			}
-#endif
+		#endif
 		}
 	 
 		/// <summary>

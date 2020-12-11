@@ -1,4 +1,3 @@
-
 using System;
 namespace Atma
 {
@@ -58,8 +57,8 @@ namespace Atma
 		private const uint Prime4 = 668265263U;
 		private const uint Prime5 = 374761393U;
 
-		private uint _v1 , _v2 , _v3 , _v4;
-		private uint _queue1 , _queue2 , _queue3;
+		private uint _v1, _v2, _v3, _v4;
+		private uint _queue1, _queue2, _queue3;
 		private uint _length;
 
 		public static int Combine<T1>(T1 value1)
@@ -448,7 +447,7 @@ namespace Atma
 		[Obsolete("HashCode is a mutable struct and should not be compared with other HashCodes.", error: true)]
 		[EditorBrowsable(EditorBrowsableState.Never)]
 		public override bool Equals(object? obj) => throw new NotSupportedException(SR.HashCode_EqualityNotSupported);
-#pragma warning restore 0809*/
+	#pragma warning restore 0809*/
 	}
 }
 
