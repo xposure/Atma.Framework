@@ -27,8 +27,8 @@ namespace NeonShooter.PostEffects
 		protected override void OnInspect()
 		{
 			base.OnInspect();
-			//TODO IMGUI Power.IfExists( (p) => ImGui.SliderFloat("Power", p, 0, 100));
-			//TODO IMGUI Radius.IfExists( (p) => ImGui.SliderFloat("Radius", p, 0, 1));
+			Power.Inspect(0, 100);
+			Radius.Inspect(0, 1);
 		}
 	}
 }
