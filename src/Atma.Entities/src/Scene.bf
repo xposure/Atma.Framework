@@ -8,6 +8,7 @@ namespace Atma
 	{
 		typealias FastList<T> = System.Collections.List<T>;
 
+		public Assets Assets ~ delete _;
 
 		/// <summary>
 		/// default scene Camera
@@ -102,6 +103,7 @@ namespace Atma
 		public this()
 		{
 			Entities = new EntityList(this);
+			Assets = new .(Core.Assets);
 			//TODO: Content = new NezContentManager();
 
 			var cameraEntity = CreateEntity("camera");
