@@ -126,7 +126,7 @@ namespace Atma
 		private int _hotreloadIndex = -1;
 
 
-		public this(GraphicsManager graphics, StringView contentRoot)
+		public this(StringView contentRoot)
 		{
 			_contentRoot.Set(contentRoot);
 		}

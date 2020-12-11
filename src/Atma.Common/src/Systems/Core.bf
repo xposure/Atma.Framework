@@ -22,8 +22,8 @@ namespace Atma
 		public static extern bool IsExiting { get; }
 		public static extern Window Window { get; }
 		public static extern GraphicsManager Graphics { get; }
-		public static extern Assets Assets { get; }
 
+		public static Assets Assets ~ delete _;
 		public static Atlas2 Atlas ~ delete _;
 		public static Input Input ~ delete _;
 		public static Batch2D Draw ~ delete _;
@@ -91,6 +91,9 @@ namespace Atma
 
 		public static void Run(Window.WindowArgs _windowArgs)
 		{
+			let startupDirectory = scope String();
+			System.IO.Directory.GetCurrentDirectory(startupDirectory);
+
 			Core.ForceFixedTimestep = true;
 			Core.Throttling = true;
 
@@ -100,6 +103,7 @@ namespace Atma
 
 			Screen.UpdateMatrix();
 
+			Assets = new .(scope $"{startupDirectory}\\content");
 			Atlas = new .();
 			Draw = new .();
 

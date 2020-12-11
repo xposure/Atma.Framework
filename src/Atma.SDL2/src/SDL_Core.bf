@@ -33,9 +33,6 @@ namespace Atma
 		private static GraphicsManager _graphics ~ delete _;
 		public static override GraphicsManager Graphics => _graphics;
 
-		private static Assets _assets ~ delete _;
-		public static override Assets Assets => _assets;
-
 		private static bool _isExiting = false;
 		public static override bool IsExiting => _isExiting;
 
@@ -111,7 +108,6 @@ namespace Atma
 
 			GL.Init( => SdlGetProcAddress);
 
-			_assets = new .(_graphics, scope $"{startupDirectory}\\content");
 
 			//TODO IMGUI _imgui = ImGui.ImGui.CreateContext();
 
