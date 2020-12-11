@@ -24,7 +24,7 @@ namespace Atma
 		public static Window Window ~ delete _;
 		public static GraphicsManager Graphics ~ delete _;
 		public static Assets Assets ~ delete _;
-		public static Atlas2 Atlas ~ delete _;
+		public static SpriteAtlas Atlas ~ delete _;
 		public static Input Input ~ delete _;
 		public static Batch2D Draw ~ delete _;
 

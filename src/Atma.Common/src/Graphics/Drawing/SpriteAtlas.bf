@@ -7,16 +7,16 @@ namespace Atma
 	/// <summary>
 	/// A Texture Atlas
 	/// </summary>
-	public class Atlas2
+	public class SpriteAtlas
 	{
 		private abstract class AssetMap
 		{
 			public readonly String Name = new .() ~ delete _;
 			public readonly String Path = new .() ~ delete _;
 			protected Assets _assets;
-			protected Atlas2 _atlas;
+			protected SpriteAtlas _atlas;
 
-			public this(Atlas2 atlas, StringView name, StringView path)
+			public this(SpriteAtlas atlas, StringView name, StringView path)
 			{
 				_atlas = atlas;
 				_assets = _atlas._assets;
@@ -37,7 +37,7 @@ namespace Atma
 			private int2 size;
 			private rect source;
 
-			public this(Atlas2 atlas, StringView name, StringView path) : base(atlas, name, path)
+			public this(SpriteAtlas atlas, StringView name, StringView path) : base(atlas, name, path)
 			{
 			}
 
@@ -86,7 +86,7 @@ namespace Atma
 
 			public readonly List<AsepriteFrame> Frames = new .() ~ delete _;
 
-			public this(Atlas2 atlas, StringView name, StringView path) : base(atlas, name, path)
+			public this(SpriteAtlas atlas, StringView name, StringView path) : base(atlas, name, path)
 			{
 			}
 
