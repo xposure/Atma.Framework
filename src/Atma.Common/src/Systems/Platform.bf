@@ -2,6 +2,14 @@ using System;
 using System.Collections;
 namespace Atma
 {
+	public extension RenderTexture
+	{
+		protected extern void Platform_Resize(int width, int height);
+		protected extern void Platform_Destroy();
+		protected extern void Platform_Init(TextureFormat[] attachments);
+		protected extern void Platform_Bind();
+	}
+
 	public extension GraphicsManager
 	{
 		protected extern void ClearInternal(RenderTarget target, Clear flags, Color color, float depth, int stencil);

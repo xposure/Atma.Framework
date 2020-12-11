@@ -25,14 +25,7 @@ namespace Atma
 	/// </summary>
 	public class RenderTexture : RenderTarget
 	{
-		protected extern void Platform_Resize(int width, int height);
 
-		protected extern void Platform_Destroy();
-
-		protected extern void Platform_Init(TextureFormat[] attachments);
-
-		//[LinkName("FrameBuffer_Bind")]
-		protected extern void Platform_Bind();
 
 		/// <summary>
 		/// Render Target Width
