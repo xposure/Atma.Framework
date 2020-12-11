@@ -18,6 +18,8 @@ namespace NeonShooter
 
 		public override void Initialize()
 		{
+			ImGuiImpl.Initialize();
+
 			base.Initialize();
 			Time.SetTargetFramerate(60);
 
@@ -29,11 +31,6 @@ namespace NeonShooter
 
 			CreateEntity("grid").Components.Add(Grid);
 			CreateEntity("particles").Components.Add(Particles);
-
-			//TODO REMOVE
-			//Static block initializer doesn't work right now so we are setting the default font here
-			//https://github.com/beefytech/Beef/issues/705
-			Core.DefaultFont = Core.Assets.LoadFont(@"fonts/PressStart2P.ttf", 16);
 
 			this.Camera.AddRenderer(new DefaultRenderer() { BlendMode = .Add });
 			Core.Atlas.AddDirectory("main", "textures");
@@ -55,6 +52,8 @@ namespace NeonShooter
 
 		public override void FixedUpdate()
 		{
+			ImGui.ShowDemoWindow();
+
 			HandleCollisions();
 			HandleEnemySpawn();
 

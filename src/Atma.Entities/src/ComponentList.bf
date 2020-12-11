@@ -1,31 +1,10 @@
 using System.Collections;
 using System;
 using internal Atma;
+
 namespace Atma
 {
-	//TODO IMGUI
-	/*public extension ComponentList
-	{
-		using ImGui;
-		public void Inspect()
-		{
-			for (var i < _components.Count)
-			{
-				let name = scope String();
-				let type = _components[i].GetType();
-				type.GetName(name);
-
-				ImGui.PushID(&_components[i]);
-				if (ImGui.CollapsingHeader(name))
-				{
-					_components[i].Component.Inspect();
-				}
-				ImGui.PopID();
-			}
-		}
-	}*/
-
-	public struct ComponentList : IDisposable
+	public struct ComponentList//: IDisposable
 	{
 		typealias ComponentState = (ComponentMode Mode, Component Component);
 

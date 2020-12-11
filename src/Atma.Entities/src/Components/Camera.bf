@@ -2,20 +2,6 @@ using System.Collections;
 using System;
 namespace Atma
 {
-	//TODO IMGUI
-	/*public extension Camera{
-		using ImGui;
-		public override void Inspect()
-		{
-			base.Inspect();
-
-			_renderTarget.Inspect();
-
-			for (var it in _postProcessors)
-				it.Inspect();
-		}
-	}*/
-
 	public class Camera : Component
 	{
 		public enum ResolutionPolicy

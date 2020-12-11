@@ -180,5 +180,14 @@ namespace Atma
 		{
 			return Platform_PollGamepadAxis(gamepadID, axis);
 		}
+
+		public void GetClipboardString(String output) => Platform_GetClipboardString(output);
+		public void SetClipboardString(String input) => Platform_SetClipboardString(input);
+
+		public void SetMouseCursor(Cursors cursor) => Platform_SetMouseCursor(cursor);
+
+		public bool HasGamepad(int gamepadID) => Platform_HasGamepad(gamepadID);
+
+		public bool HasInputFocus => false;
 	}
 }

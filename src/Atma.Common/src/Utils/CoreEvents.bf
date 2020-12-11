@@ -3,6 +3,116 @@ namespace Atma
 {
 	public static class CoreEvents
 	{
+		public struct Initialize
+		{
+			public override void ToString(String strBuffer)
+			{
+				strBuffer.Append(scope $"Initialize");
+			}
+		}
+
+		public static Initialize Initialize() => .();
+
+		public struct Shutdown
+		{
+			public override void ToString(String strBuffer)
+			{
+				strBuffer.Append(scope $"Shutdown");
+			}
+		}
+
+		public static Shutdown Shutdown() => .();
+
+		public struct FrameBegin
+		{
+			public override void ToString(String strBuffer)
+			{
+				strBuffer.Append(scope $"FrameBegin");
+			}
+		}
+
+		public static FrameBegin FrameBegin() => .();
+
+		public struct FrameEnd
+		{
+			public override void ToString(String strBuffer)
+			{
+				strBuffer.Append(scope $"FrameEnd");
+			}
+		}
+
+		public static FrameEnd FrameEnd() => .();
+
+		public struct UpdateBegin
+		{
+			public override void ToString(String strBuffer)
+			{
+				strBuffer.Append(scope $"UpdateBegin");
+			}
+		}
+
+		public static UpdateBegin UpdateBegin() => .();
+
+		public struct UpdateEnd
+		{
+			public override void ToString(String strBuffer)
+			{
+				strBuffer.Append(scope $"UpdateEnd");
+			}
+		}
+
+		public static UpdateEnd UpdateEnd() => .();
+
+		public struct RenderBegin
+		{
+			public override void ToString(String strBuffer)
+			{
+				strBuffer.Append(scope $"RenderBegin");
+			}
+		}
+
+		public static RenderBegin RenderBegin() => .();
+
+		public struct RenderEnd
+		{
+			public override void ToString(String strBuffer)
+			{
+				strBuffer.Append(scope $"RenderEnd");
+			}
+		}
+
+		public static RenderEnd RenderEnd() => .();
+
+		public struct IntegrateBegin
+		{
+			public override void ToString(String strBuffer)
+			{
+				strBuffer.Append(scope $"IntegrateBegin");
+			}
+		}
+
+		public static IntegrateBegin IntegrateBegin() => .();
+
+		public struct IntegrateEnd
+		{
+			public override void ToString(String strBuffer)
+			{
+				strBuffer.Append(scope $"IntegrateEnd");
+			}
+		}
+
+		public static IntegrateEnd IntegrateEnd() => .();
+
+		public struct Present
+		{
+			public override void ToString(String strBuffer)
+			{
+				strBuffer.Append(scope $"Present");
+			}
+		}
+
+		public static Present Present() => .();
+
 		public struct OrientationChanged
 		{
 			public enum Orientation
@@ -98,14 +208,5 @@ namespace Atma
 
 		public static AssetChanged AssetChanged(StringView path) => .(path);
 
-		public struct GameInitialize
-		{
-			public override void ToString(String strBuffer)
-			{
-				strBuffer.Append(scope $"GameInitialize");
-			}
-		}
-
-		public static GameInitialize GameInitialize() => .();
 	}
 }

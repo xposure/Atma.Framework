@@ -4,20 +4,17 @@ namespace Atma
 	{
 		public static SpriteFont DefaultFont;
 
-		//These don't work currently https://github.com/beefytech/Beef/issues/705
-		static this
+		static this()
 		{
-			//works with specifying the type
-			Core.Emitter.AddObserver<CoreEvents.GameInitialize>(new => GameInit);
+			Core.Emitter.AddObserver<CoreEvents.Initialize>(new => Initialize);
 		}
 
 		static ~this()
 		{
-			//compiler can't determine type (should be CoreEvents.GameInitialize)
-			Core.Emitter.RemoveObserver<CoreEvents.GameInitialize>(scope => GameInit);
+			Core.Emitter.RemoveObserver<CoreEvents.Initialize>(scope => Initialize);
 		}
 
-		static void GameInit(CoreEvents.GameInitialize e)
+		static void Initialize(CoreEvents.Initialize e)
 		{
 			DefaultFont = Core.Assets.LoadFont(@"fonts/PressStart2P.ttf", 16);
 		}

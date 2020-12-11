@@ -30,6 +30,8 @@ namespace Atma
 
 		protected override float Platform_PollGamepadAxis(int gamepadID, Axes axis) => _axis[gamepadID][(int)axis];
 
+		protected override bool Platform_HasGamepad(int gamepadID) => sdlGamepads[gamepadID] != null;
+
 		public ~this()
 		{
 			for (var i < sdlCursors.Count)
@@ -173,25 +175,32 @@ namespace Atma
 			_keycodeToKeys.Add(SDL.Keycode.RCTRL, Keys.RCtrl);
 			_keycodeToKeys.Add(SDL.Keycode.RSHIFT, Keys.RShift);
 
+			for (var index < Cursors.COUNT)
+				sdlCursors[index] = SDL.CreateSystemCursor(GetSDLCursorIndex((.)index));
+
 			/*_keycodeToKeys.Add(SDL.Keycode.LGUI, Keys.LeftSuper);
 			_keycodeToKeys.Add(SDL.Keycode.RGUI, Keys.RightSuper);*/
 		}
 
 		protected override void Platform_SetMouseCursor(Cursors cursors)
 		{
-			let index = GetSDLCursorIndex(cursors);
-
-			if (sdlCursors[index] == null)
-				sdlCursors[index] = SDL.CreateSystemCursor((SDL.SDL_SystemCursor)index);
-
-			SDL.SetCursor(sdlCursors[index]);
+			if (cursors == .Hidden)
+				SDL.ShowCursor(0);
+			else
+			{
+				SDL.SetCursor(sdlCursors[(int)cursors]);
+				SDL.ShowCursor(1);
+			}
 		}
 
 		protected override bool Platform_GetClipboardString(String output)
 		{
 			if (SDL.HasClipboardText() == SDL.Bool.True)
 			{
-				output.Append(SDL.GetClipboardText());
+				let ptr = SDL.GetClipboardText();
+				output.Clear();
+				output.Append(ptr);
+				SDL.free(ptr);
 				return true;
 			}
 			return false;
@@ -203,19 +212,19 @@ namespace Atma
 		}
 
 
-		private static int GetSDLCursorIndex(Cursors cursors)
+		private static SDL.SDL_SystemCursor GetSDLCursorIndex(Cursors cursors)
 		{
-			switch (cursors)
-			{
-			case Cursors.Default: return (int)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW;
-			case Cursors.Crosshair: return (int)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_CROSSHAIR;
-			case Cursors.Hand: return (int)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_HAND;
-			case Cursors.HorizontalResize: return (int)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEWE;
-			case Cursors.VerticalResize: return (int)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZENS;
-			case Cursors.IBeam: return (int)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_IBEAM;
-			default:
-				Log.Error("Cursor not supported");
-				return (int)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW;
+			switch (cursors) {
+			case .Arrow: return (.)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW;
+			case .TextInput: return (.)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_IBEAM;
+			case .ResizeAll: return (.)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEALL;
+			case .ResizeNS: return (.)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZENS;
+			case .ResizeEW: return (.)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEWE;
+			case .ResizeNESW: return (.)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZENESW;
+			case .ResizeNWSE: return (.)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZENWSE;
+			case .Hand: return (.)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_HAND;
+			case .NotAllowed: return (.)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_NO;
+			case .Hidden: return (.)SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW;
 			}
 		}
 

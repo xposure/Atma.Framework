@@ -1,5 +1,5 @@
 FileVersion = 1
-Dependencies = {corlib = "*", "Atma.Common" = "*", SDL2 = "*", "Atma.OpenGL" = "*"}
+Dependencies = {corlib = "*", SDL2 = "*", corlib = "*", "Atma.Common" = "*", "Atma.OpenGL" = "*"}
 
 [Project]
 Name = "Atma.SDL2"

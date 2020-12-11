@@ -56,41 +56,7 @@ namespace Atma
 		protected static extern void Initialize();
 		protected static extern void Unload();
 
-		private static void InternalInitialize()
-		{
-			Atlas = new .();
-			Draw = new .();
-			Initialize();
-		}
-
-		private static void InternalFixedUpdate()
-		{
-			Core.Window.Title = scope $"FPS @{FPS}";
-
-			FixedUpdateCount++;
-			Platform_Update();
-			Input.Update();
-			Emitter.Signal();
-
-			Update();
-		}
-
-		protected static void InternalRender()
-		{
-			FrameCount++;
-
-			int64 frameSum = 0;
-			for (var i < MAXSAMPLES)
-				frameSum += framelist[i];
-
-			FPS = (int)(1.0 / (frameSum / MAXSAMPLES / Time.MicroToSeconds));
-
-			Graphics.BeforeFrame();
-			Render();
-			Platform_Present();
-		}
-
-		public static void Run(Window.WindowArgs _windowArgs)
+		private static void InternalInitialize(Window.WindowArgs windowArgs)
 		{
 			let startupDirectory = scope String();
 			System.IO.Directory.GetCurrentDirectory(startupDirectory);
@@ -98,10 +64,10 @@ namespace Atma
 			Core.ForceFixedTimestep = true;
 			Core.Throttling = true;
 
-			Platform_Initialize(_windowArgs);
+			Platform_Initialize(windowArgs);
 
 			Window = new Window();
-			Window.[Friend]PlatformInitialize(_windowArgs);
+			Window.[Friend]PlatformInitialize(windowArgs);
 			Window.Visible = true;
 
 			Platform_GetDisplays(Screen._resolutions);
@@ -118,8 +84,47 @@ namespace Atma
 
 			Initialize();
 
-			int64 prevTime = Internal.GetTickCountMicro() - Time.FixedTimestep;
+			Emitter.EmitNow(CoreEvents.Initialize());
+		}
 
+		private static void InternalFixedUpdate()
+		{
+			Time.Step();
+
+			Core.Window.Title = scope $"FPS @{FPS}";
+
+			FixedUpdateCount++;
+			Platform_Update();
+			Input.Update();
+			Emitter.Signal();
+
+			Emitter.EmitNow(CoreEvents.UpdateBegin());
+			Update();
+			Emitter.EmitNow(CoreEvents.UpdateEnd());
+		}
+
+		protected static void InternalRender()
+		{
+			FrameCount++;
+
+			int64 frameSum = 0;
+			for (var i < MAXSAMPLES)
+				frameSum += framelist[i];
+
+			FPS = (int)(1.0 / (frameSum / MAXSAMPLES / Time.MicroToSeconds));
+
+			Emitter.EmitNow(CoreEvents.RenderBegin());
+			Graphics.BeforeFrame();
+			Render();
+			Emitter.EmitNow(CoreEvents.RenderEnd());
+			Platform_Present();
+		}
+
+		public static void Run(Window.WindowArgs windowArgs)
+		{
+			InternalInitialize(windowArgs);
+
+			int64 prevTime = Internal.GetTickCountMicro() - Time.FixedTimestep;
 			while (!IsExiting)
 			{
 				//TODO: Check if window is focused or on battery and perhaps throttle down
@@ -131,23 +136,33 @@ namespace Atma
 				framelist[FrameCount % MAXSAMPLES] = Math.Max(time - prevTime, 1);
 
 				var msCounter = (time - prevTime);
-				while (msCounter >= Time.FixedTimestep)
+				if (msCounter >= Time.FixedTimestep)
 				{
 					//Make sure everything is at its next state
 					Core.Integration.Integrate(1f);
 
-					Time.Update(prevTime, prevTime + Time.FixedTimestep);
-					InternalFixedUpdate();
-					Core.Integration.Advance();
+					var steps = Time.MaxSteps;
+					while (msCounter >= Time.FixedTimestep)
+					{
+						//only step X frames and then let time catch up
+						//this needs to be handled better and probably should leverage
+						//the integration code to catch up at say 1.5x?
+						if (steps-- > 0)
+							InternalFixedUpdate();
 
-					msCounter -= Time.FixedTimestep;
-					prevTime += Time.FixedTimestep;
+						msCounter -= Time.FixedTimestep;
+						prevTime += Time.FixedTimestep;
+					}
+
+					//Snapshot state
+					Core.Integration.Advance();
 				}
 
 				Integrate(time);
 				InternalRender();
 			}
 
+			Emitter.EmitNow(CoreEvents.Shutdown());
 			Unload();
 			Window.[Friend]PlatformDestroy();
 			Platform_Destroy();

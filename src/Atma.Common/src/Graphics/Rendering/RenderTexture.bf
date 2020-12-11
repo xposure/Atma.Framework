@@ -4,21 +4,7 @@ using System.Text;
 
 namespace Atma
 {
-	//TODO IMGUI
-	/*public extension RenderTexture
-	{
-		using ImGui;
-		public void Inspect()
-		{
-			ImGui.PushID(Internal.UnsafeCastToPtr(this));
 
-			ImGui.Text(scope $"RenderTexture [{ID}]");
-			for (var it in _attachments)
-				it.Inspect();
-
-			ImGui.PopID();
-		}
-	}*/
 
 	/// <summary>
 	/// A 2D buffer that can be drawn to

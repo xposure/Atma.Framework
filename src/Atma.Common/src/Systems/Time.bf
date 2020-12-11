@@ -124,6 +124,7 @@ namespace Atma
 		public static int64 TargetMilliseconds = 1666;
 
 		public static int64 FixedTimestep = (.)(1.0 / 50 * MicroToSeconds);
+		public static int64 MaxSteps => 3;
 
 		/// <summary>
 		/// total time the game has been running
@@ -174,12 +175,12 @@ namespace Atma
 
 		internal static float Integrate(int64 time) => (time - _time) / (float)FixedTimestep;
 
-		internal static void Update(int64 prevTime, int64 time)
+		internal static void Step()
 		{
-			_prevTime = prevTime;
-			_time = time;
+			_prevTime = _time;
+			_time += FixedTimestep;
 
-			let dt = (time - prevTime) / MicroToSeconds;
+			let dt = (_time - _prevTime) / MicroToSeconds;
 
 			Delta = (float)(dt * TimeScale);
 			AltDelta = (float)(dt * AltTimeScale);

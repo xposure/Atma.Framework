@@ -16,52 +16,7 @@ namespace Atma
 
 	}
 
-	//TODO IMGUI
-	/*public extension PostProcessor<T>
-	{
-		protected override void OnInspect()
-		{
-			base.OnInspect();
-			_effect.Inspect();
-		}
-	}
 
-	public extension PostProcessor
-	{
-		using ImGui;
-		public void Inspect()
-		{
-			ImGui.PushID(Internal.UnsafeCastToPtr(this));
-			let name = scope String();
-			let type = this.GetType();
-			type.GetName(name);
-
-			if (ImGui.CollapsingHeader(name))
-			{
-				ImGui.Checkbox("Enabled", &Enabled);
-				if (!_captureInput && ImGui.Button("Capture Input"))
-					_captureInput = true;
-				else if (_debugInput != null)
-				{
-					ImGui.Text("Input:");
-					_debugInput.Inspect();
-				}
-
-				if (!_captureOutput && ImGui.Button("Capture Output"))
-					_captureOutput = true;
-				else if (_debugOutput != null)
-				{
-					ImGui.Text("Output:");
-					_debugOutput.Inspect();
-				}
-
-				OnInspect();
-			}
-			ImGui.PopID();
-		}
-
-		public virtual void OnInspect() { }
-	}*/
 
 		/// <summary>
 		/// Post Processing step for rendering actions after everthing done.

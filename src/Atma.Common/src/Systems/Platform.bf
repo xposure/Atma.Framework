@@ -75,6 +75,7 @@ namespace Atma
 	{
 		protected extern bool Platform_PollKeyboard(Keys key);
 		protected extern bool Platform_PollMouse(MouseButtons button);
+		protected extern bool Platform_HasGamepad(int gamepadID);
 		protected extern bool Platform_PollGamepadButton(int gamepadID, Buttons button);
 		protected extern float Platform_PollGamepadAxis(int gamepadID, Axes axis);
 		protected extern void Platform_SetMouseCursor(Cursors cursors);

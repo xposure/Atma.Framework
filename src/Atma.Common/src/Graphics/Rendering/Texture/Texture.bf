@@ -5,47 +5,7 @@ using System.IO;
 
 namespace Atma
 {
-	//TODO IMGUI
-	/*public extension Texture
-	{
-		using ImGui;
 
-		public void Inspect()
-		{
-			ImGui.PushID(Internal.UnsafeCastToPtr(this));
-
-			ImGui.Text(scope $"Texture [{ID}] Size: {Size}");
-			if (ImGui.IsItemHovered())
-			{
-				ImGui.BeginTooltip();
-				ImGui.Image((.)_id, .(200, 200));
-				ImGui.EndTooltip();
-			}
-
-			if (ImGui.BeginCombo("Filter", scope $"{filter}"))
-			{
-				if (ImGui.Selectable("Linear", Filter == .Linear)) Filter = .Linear;
-				if (ImGui.Selectable("Nearest", Filter == .Nearest)) Filter = .Nearest;
-				ImGui.EndCombo();
-			}
-
-			if (ImGui.BeginCombo("WrapX", scope $"{wrapX}"))
-			{
-				if (ImGui.Selectable("Wrap", wrapX == .Wrap)) WrapX = .Wrap;
-				if (ImGui.Selectable("Clamp", wrapX == .Clamp)) WrapX = .Clamp;
-				ImGui.EndCombo();
-			}
-
-			if (ImGui.BeginCombo("WrapY", scope $"{wrapY}"))
-			{
-				if (ImGui.Selectable("Wrap", wrapY == .Wrap)) WrapY = .Wrap;
-				if (ImGui.Selectable("Clamp", wrapY == .Clamp)) WrapY = .Clamp;
-				ImGui.EndCombo();
-			}
-
-			ImGui.PopID();
-		}
-	}*/
 
   /// <summary>
   /// A 2D Texture used for Rendering

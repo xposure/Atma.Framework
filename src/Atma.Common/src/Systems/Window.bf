@@ -174,6 +174,8 @@ namespace Atma
 		/// </summary>
 		public override int Height => PlatformRenderSize.y;
 
+		public int2 RenderSize => PlatformRenderSize;
+
 		/// <summary>
 		/// The drawable bounds of the Window, in Pixels
 		/// </summary>

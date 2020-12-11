@@ -20,16 +20,11 @@ namespace Atma
 			return powerState == .SDL_POWERSTATE_ON_BATTERY;
 		}
 
-		//TODO IMGUI private static ImGui.ImGui.Context _imgui;
-
 		private static bool _isExiting = false;
 		public static override bool IsExiting => _isExiting;
 
 		protected override static void Platform_Destroy()
 		{
-			//TODO IMGUI ImGui.ImGuiImplOpenGL3.Shutdown();
-			//TODO IMGUI ImGui.ImGuiImplSDL.Shutdown();
-			//TODO IMGUI ImGui.ImGui.DestroyContext();
 		}
 
 		protected static override void Platform_Exit()
@@ -85,16 +80,6 @@ namespace Atma
 			SDL.GL_SetAttribute(.GL_CONTEXT_PROFILE_MASK, (.)SDL.SDL_GLProfile.GL_CONTEXT_PROFILE_CORE);
 			SDL.GL_SetAttribute(.GL_CONTEXT_FLAGS, (.)SDL.SDL_GLContextFlags.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
 			SDL.GL_SetAttribute(.GL_DOUBLEBUFFER, 1);
-
-
-
-
-
-			//TODO IMGUI _imgui = ImGui.ImGui.CreateContext();
-
-			//TODO IMGUI ImGui.ImGuiImplSDL.Init(_window.SDLWindow);
-			//TODO IMGUI ImGui.ImGuiImplOpenGL3.Init();
-			//ImGui.ImGuiImplOpengl3.Init( => SdlGetProcAddress);
 		}
 
 		protected static override void Platform_Update()
@@ -180,23 +165,14 @@ namespace Atma
 			}
 		}
 
-		protected override static void Platform_BeginFrame()
-		{
-			//TODO IMGUI ImGui.ImGuiImplOpenGL3.NewFrame();
-			//TODO IMGUI ImGui.ImGuiImplSDL.NewFrame(_window.SDLWindow);
-			//TODO IMGUI ImGui.ImGui.NewFrame();
-		}
+		protected override static void Platform_BeginFrame() { }
 
 		protected static override void Platform_Present()
 		{
 			GL.BindVertexArray(0);
-
 			GL.BindFramebuffer((.)GLEnum.FRAMEBUFFER, 0);
-			//TODO IMGUI ImGui.ImGui.Render();
 
-			//TODO IMGUI let drawData = &ImGui.ImGui.GetDrawData();
-			//TODO IMGUI ImGui.ImGuiImplOpenGL3.RenderDrawData(drawData);
-
+			Core.Emitter.EmitNow<CoreEvents.Present>(CoreEvents.Present());
 			Window.Present();
 		}
 	}

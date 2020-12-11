@@ -102,11 +102,11 @@ namespace Atma
 #if DEBUG
 		[SkipCall]
 #endif
-		public static void IsFalse<T>(T actual)
+		public static void IsFalse<T>(T actual, StringView msg = default)
 			where bool : operator T == bool
 		{
 			if (!(actual == false))
-				Runtime.FatalError(scope $"IsFalse -> Was True");
+				Runtime.FatalError(scope $"IsFalse -> Was True\n{msg}");
 		}
 
 		[Inline]

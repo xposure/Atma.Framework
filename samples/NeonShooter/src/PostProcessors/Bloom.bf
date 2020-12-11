@@ -96,8 +96,7 @@ namespace NeonShooter.PostProcessors
 			_combine.Render(source, destination);
 		}
 
-		//TODO IMGUI
-		/*protected override void OnInspect()
+		protected override void OnInspect()
 		{
 			base.OnInspect();
 
@@ -113,6 +112,6 @@ namespace NeonShooter.PostProcessors
 			Settings.BaseIntensity = _combine.BaseIntensity.Value;
 			Settings.BloomSaturation = _combine.BloomSaturation.Value;
 			Settings.BaseSaturation = _combine.BaseSaturation.Value;
-		}*/
+		}
 	}
 }

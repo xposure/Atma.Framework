@@ -1,5 +1,5 @@
 FileVersion = 1
-Dependencies = {corlib = "*", "Atma.Common" = "*", "Atma.Entities" = "*", "Atma.OpenGL" = "*", "Atma.SDL2" = "*"}
+Dependencies = {corlib = "*", "Atma.Common" = "*", "Atma.Entities" = "*", "Atma.OpenGL" = "*", "Atma.SDL2" = "*", "Atma.DearImGui" = "*"}
 
 [Project]
 Name = "NeonShooter"

@@ -98,8 +98,6 @@ namespace Atma
 		public void EmitNow<K>(K k)
 			where K : struct
 		{
-			Log.Debug(scope $"EmitNow :: {k}");
-
 			let type = typeof(K);
 			if (!_observers.TryGetValue(type, var list))
 				return;

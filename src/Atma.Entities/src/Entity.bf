@@ -4,34 +4,6 @@ using internal Atma;
 
 namespace Atma
 {
-
-	//TODO IMGUI
-	/*public extension Entity
-	{
-		using ImGui;
-		public void Inspect()
-		{
-			UpdateFromParent();
-
-			if (!Core.DebugRenderEnabled)
-				DebugRender();
-
-			if (ImGui.Begin(_name))
-			{
-				if (ImGui.CollapsingHeader("Transform"))
-				{
-					ImGui.SliderFloat2("Position", _localPosition.values, -1000, 1000);
-					ImGui.SliderFloat("Rotation", _localRotation, -1, 1);
-				}
-				Components.Inspect();
-				ImGui.End();
-			}
-		}
-
-		private bool _inspectComponents = false;
-	}*/
-
-
 	public class Entity
 	{
 		private static uint64 _nextid = 0;

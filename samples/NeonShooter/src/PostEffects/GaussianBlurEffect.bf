@@ -102,7 +102,7 @@ namespace NeonShooter.PostEffects
 
 			/*ImGui.Checkbox("Down sample", &DownSample);
 			ImGui.SliderInt("Passes", &Passes, 1, 4);*/
-			//TODO IMGUI ImGui.SliderFloat("Blur", &BlurAmount, 0, Math.PI_f * 2);
+			ImGui.SliderFloat("Blur", &BlurAmount, 0, Math.PI_f * 2);
 		}
 	}
 }
