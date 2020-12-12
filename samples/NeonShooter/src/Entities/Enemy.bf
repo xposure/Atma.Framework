@@ -75,6 +75,9 @@ namespace NeonShooter.Entities
 					player?.status.IncreaseMultiplier();
 				}
 
+				let sound = scene.Explosion;
+				sound.Play(0.5f, Core.Random.nextFloat(-0.2f, 0.2f), 0);
+
 				Destroy();
 			}
 		}

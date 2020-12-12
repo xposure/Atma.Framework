@@ -421,6 +421,53 @@ namespace Atma
 				});
 		}
 
+		public SoundEffect LoadSoundEffect(StringView path)
+		{
+			let filePath = scope String();
+
+			if (!GetContentFile(path, filePath))
+				return null;
+
+			filePath.ToLower();
+			let key = filePath.GetHashCode();
+			return GetOrLoadAsset<SoundEffect>(key, scope () =>
+				{
+					let ext = scope String();
+					System.IO.Path.GetExtension(path, ext);
+					ext.ToLower();
+					switch (ext) {
+					case ".wav":
+						return PlatformLoadSoundEffect(filePath);
+					default:
+						Runtime.FatalError("Unsupported sound file.");
+					}
+				});
+		}
+
+		public Music LoadMusic(StringView path)
+		{
+			let filePath = scope String();
+
+			if (!GetContentFile(path, filePath))
+				return null;
+
+			filePath.ToLower();
+			let key = filePath.GetHashCode();
+			return GetOrLoadAsset<Music>(key, scope () =>
+				{
+					let ext = scope String();
+					System.IO.Path.GetExtension(path, ext);
+					ext.ToLower();
+					switch (ext) {
+					case ".mp3":
+						return PlatformLoadMusic(filePath);
+					default:
+						Runtime.FatalError("Unsupported sound file.");
+					}
+				});
+		}
+
+
 		public void Unload(Shader shader)
 		{
 			let assetList = GetAssetList<Shader>();
@@ -437,5 +484,6 @@ namespace Atma
 				_assetTrackers.RemoveAtFast(index);
 			}
 		}
+
 	}
 }

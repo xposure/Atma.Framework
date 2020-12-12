@@ -87,6 +87,7 @@ namespace NeonShooter.Entities
 		{
 			sprite.Visible = !dead;
 
+			let scene = this.Scene as NeonGame;
 			if (dead)
 			{
 				framesUntilRespawn--;
@@ -98,7 +99,6 @@ namespace NeonShooter.Entities
 					dead = false;
 					Position = Screen.Size / 2;
 
-					let scene = this.Scene as NeonGame;
 					scene.Grid.ApplyImplosiveForce(1000, float3(WorldPosition, 0), 50);
 				}
 
@@ -120,6 +120,9 @@ namespace NeonShooter.Entities
 
 					AddRoot(new Bullet(WorldPosition + aim.Perpendicular * 8 + aim * 25, vel));
 					AddRoot(new Bullet(WorldPosition + aim.Perpendicular * -8 + aim * 25, vel));
+
+					let shot = scene.Shot;
+					shot.Play(0.2f, Core.Random.nextFloat(-0.2f, 0.2f), 0);
 				}
 			}
 

@@ -16,8 +16,28 @@ namespace NeonShooter
 		private Sprite sprite;
 		public Player player;
 
+		public Music Music;
+
+		private List<SoundEffect> explosions = new .() ~ delete _;
+		// return a random explosion sound
+		public SoundEffect Explosion { get { return explosions[Core.Random.Next(explosions.Count)]; } }
+
+		private List<SoundEffect> shots = new .() ~ delete _;
+		public SoundEffect Shot { get { return shots[Core.Random.Next(shots.Count)]; } }
+
+		private List<SoundEffect> spawns = new .() ~ delete _;
+		public SoundEffect Spawn { get { return spawns[Core.Random.Next(spawns.Count)]; } }
+
+
 		public override void Initialize()
 		{
+			Music = Core.Assets.LoadMusic("music/music.mp3");
+			Music.Play();
+
+			for (var i < 8) explosions.Add(Core.Assets.LoadSoundEffect(scope $"sounds/explosion-0{i+1}.wav"));
+			for (var i < 4) shots.Add(Core.Assets.LoadSoundEffect(scope $"sounds/shoot-0{i+1}.wav"));
+			for (var i < 8) spawns.Add(Core.Assets.LoadSoundEffect(scope $"sounds/spawn-0{i+1}.wav"));
+
 			ImGuiImpl.Initialize();
 
 			base.Initialize();
@@ -72,15 +92,27 @@ namespace NeonShooter
 			if (!player.IsDead && Entities.Count < 200)
 			{
 				if (gRand.Next((int)inverseSpawnChance) == 0)
+				{
 					AddEntity(new Seeker(GetSpawnPosition()));
+					let spawn = Spawn;
+					spawn.Play(0.5f, Core.Random.nextFloat(-0.2f, 0.2f), 0);
+				}
 
 				if (gRand.Next((int)inverseSpawnChance) == 0)
+				{
 					AddEntity(new Wanderer(GetSpawnPosition()));
+					let spawn = Spawn;
+					spawn.Play(0.5f, Core.Random.nextFloat(-0.2f, 0.2f), 0);
+				}
+
 
 				if (blackHoleCount < 2 && gRand.Next((int)inverseBlackHoleChance) == 0)
+				{
 					AddEntity(new BlackHole(GetSpawnPosition()));
-
-			// slowly increase the spawn rate as time progresses
+					let spawn = Spawn;
+					spawn.Play(0.5f, Core.Random.nextFloat(-0.2f, 0.2f), 0);
+				}
+				// // slowly increase the spawn rate as time progresses
 				if (inverseSpawnChance > 20)
 					inverseSpawnChance -= 0.005f;
 			}
@@ -151,7 +183,7 @@ namespace NeonShooter
 					}
 				}
 
-			// handle collisions between bullets and enemies
+				// handle collisions between bullets and enemies
 			for (int i = 0; i < enemies.Count; i++)
 				for (int j = 0; j < bullets.Count; j++)
 				{
@@ -162,7 +194,7 @@ namespace NeonShooter
 					}
 				}
 
-			// handle collisions between the player and enemies
+				// handle collisions between the player and enemies
 			for (int i = 0; i < enemies.Count; i++)
 			{
 				if (enemies[i].IsActive && Entity.IsColliding(player, enemies[i]))
@@ -176,7 +208,7 @@ namespace NeonShooter
 				}
 			}
 
-			// handle collisions with black holes
+				// handle collisions with black holes
 			for (int i = 0; i < blackHoles.Count; i++)
 			{
 				for (int j = 0; j < enemies.Count; j++)

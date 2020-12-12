@@ -25,6 +25,7 @@ namespace Atma
 
 		protected override static void Platform_Destroy()
 		{
+			SDL2.SDLMixer.CloseAudio();
 		}
 
 		protected static override void Platform_Exit()
@@ -80,6 +81,25 @@ namespace Atma
 			SDL.GL_SetAttribute(.GL_CONTEXT_PROFILE_MASK, (.)SDL.SDL_GLProfile.GL_CONTEXT_PROFILE_CORE);
 			SDL.GL_SetAttribute(.GL_CONTEXT_FLAGS, (.)SDL.SDL_GLContextFlags.GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
 			SDL.GL_SetAttribute(.GL_DOUBLEBUFFER, 1);
+
+			// Init fonts
+			SDL2.SDLTTF.Init();
+
+
+			/* Open the audio device and start playing sound! */
+			if (SDL2.SDLMixer.OpenAudio(22050, SDL2.SDL.AUDIO_S16, 2, 512) < 0)
+			{
+				let error = SDL2.SDL.GetError();
+				Log.Error(scope $"Unable to open audio: {StringView(error)}\n");
+				SDL2.SDL.free(error);
+			}
+			else
+			{
+				SDL2.SDLMixer.AllocateChannels(64);
+				SDL2.SDLMixer.Pause(0);
+				SDL2.SDLMixer.Volume(-1, 32);
+				SDL2.SDLMixer.VolumeMusic(64);
+			}
 		}
 
 		protected static override void Platform_Update()

@@ -9,9 +9,9 @@ namespace NeonShooter.Components
 		private const float multiplierExpiryTime = 0.8f;
 		private const int maxMultiplier = 20;
 
-		public int Lives { get; private set; }
-		public int Score { get; private set; }
-		public int Multiplier { get; private set; }
+		public int Lives;
+		public int Score;
+		public int Multiplier;
 
 		private float multiplierTimeLeft;// time until the current multiplier expires
 		public int scoreForExtraLife;// score required to gain an extra life
@@ -67,15 +67,14 @@ namespace NeonShooter.Components
 			}
 		}
 
-		public void IncreaseMultiplier()
+		public void IncreaseMultiplier(int amount = 1)
 		{
 			let player = Entity as Player;
 			if (player.IsDead == true)
 				return;
 
 			multiplierTimeLeft = multiplierExpiryTime;
-			if (Multiplier < maxMultiplier)
-				Multiplier++;
+			Multiplier = Math.Min(Multiplier + amount, maxMultiplier);
 		}
 
 		public void ResetMultiplier()

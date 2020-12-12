@@ -2,7 +2,7 @@ namespace Atma
 {
 	using SDL2;
 
-	public class SDL_GraphicsContext : GraphicsContext
+	class SDL_GraphicsContext : GraphicsContext
 	{
 		public readonly SDL.SDL_GLContext context;
 		public readonly SDL.Window* window;

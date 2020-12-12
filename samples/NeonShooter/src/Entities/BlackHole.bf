@@ -17,8 +17,13 @@ namespace NeonShooter.Entities
 		public override void WasShot()
 		{
 			hitpoints--;
+			let scene = this.Scene as NeonGame;
 			if (hitpoints <= 0)
+			{
+				scene.player.status.IncreaseMultiplier(20);
+				scene.player.status.AddPoints(10);
 				this.Destroy();
+			}
 			else
 			{
 				let hue = (float)((3 * Time.Elapsedf) % 6);
@@ -26,7 +31,6 @@ namespace NeonShooter.Entities
 				const int numParticles = 150;
 				float startOffset = Core.Random.nextFloat(0, 1f / numParticles);
 
-				let scene = this.Scene as NeonGame;
 				let particles = scene.Particles;
 				let line = Core.Atlas["main/Laser"];
 
@@ -38,6 +42,9 @@ namespace NeonShooter.Entities
 
 					particles.CreateParticle(line, pos, color, 90, float2(1.5f), state, Calc.Turn(state.Velocity));
 				}
+
+				let sound = scene.Explosion;
+				sound.Play(0.5f, Core.Random.nextFloat(-0.2f, 0.2f), 0);
 			}
 		}
 

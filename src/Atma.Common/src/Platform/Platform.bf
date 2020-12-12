@@ -67,6 +67,8 @@ namespace Atma
 
 	public extension Assets
 	{
+		protected static extern SoundEffect PlatformLoadSoundEffect(StringView path);
+		protected static extern Music PlatformLoadMusic(StringView path);
 		protected static extern SpriteFont PlatformLoadFont(StringView path, int size);
 		protected static extern Image PlatformLoadImage(StringView path);
 	}

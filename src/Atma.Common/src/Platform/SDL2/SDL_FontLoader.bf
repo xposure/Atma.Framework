@@ -19,8 +19,6 @@ namespace Atma
 
 		protected override static SpriteFont PlatformLoadFont(StringView path, int size)
 		{
-			SDL2.SDLTTF.Init();
-
 			let font = SDL2.SDLTTF.OpenFont(path.ToScopeCStr!(), (.)size);
 			Runtime.Assert(font != null, "Could not init the font");
 
