@@ -1,0 +1,7 @@
+FileVersion = 1
+Dependencies = {corlib = "*", "Atma.Common" = "*"}
+
+[Project]
+Name = "Atma.OpenGL"
+TargetType = "BeefLib"
+StartupObject = "Atma.OpenGL.Program"

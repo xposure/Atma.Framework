@@ -1,13 +1,16 @@
 FileVersion = 1
-Dependencies = {corlib = "*", corlib = "*", MiniZ = "*", corlib = "*", SDL2 = "*"}
+Dependencies = {corlib = "*", corlib = "*", MiniZ = "*"}
 
 [Project]
-Name = "Atma"
+Name = "Atma.Common"
 TargetType = "BeefLib"
-StartupObject = "Atma.Program"
+StartupObject = "Atma.Common.Program"
+DefaultNamespace = "Atma"
 
 [Configs.Debug.Win64]
 CLibType = "Dynamic"
+
+[Configs.Debug.Win64]
 LibPaths = ["$(ProjectDir)/dist/$(Configuration)-$(Platform)/cimgui.lib"]
 
 [Configs.Debug.Win32]
