@@ -28,6 +28,7 @@ namespace NeonShooter
 			const int maxGridPoints = 1600;
 			let gridSpacing = float2((float)Math.Sqrt(Screen.Width * Screen.Height / maxGridPoints));
 			Grid = new .(.(0, 0, Screen.Width, Screen.Height), gridSpacing);
+			//Grid.Visible = false;
 
 			CreateEntity("grid").Components.Add(Grid);
 			CreateEntity("particles").Components.Add(Particles);

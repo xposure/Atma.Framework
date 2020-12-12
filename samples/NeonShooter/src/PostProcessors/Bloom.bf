@@ -58,13 +58,15 @@ namespace NeonShooter.PostProcessors
 		private BloomExtractEffect _extract ~ delete _;
 		private GaussianBlurEffect _gaussian ~ delete _;
 		private BloomCombineEffect _combine ~ delete _;
-		private RenderTexture _bloomTexture ~ delete _;
+		private RenderTexture[2] _bloomTexture ~ Release(_);
 
+		public int Passes = 2;
 		//public bool EnableGaussianBlur = true;
 
 		public this()
 		{
-			_bloomTexture = new RenderTexture(Screen.Width, Screen.Height, .Color);
+			_bloomTexture[0] = new RenderTexture(Screen.Width, Screen.Height, .Color);
+			_bloomTexture[1] = new RenderTexture(Screen.Width, Screen.Height, .Color);
 			_extract = new .();
 			_gaussian = new .();
 
@@ -73,7 +75,8 @@ namespace NeonShooter.PostProcessors
 
 		protected override void OnProcess(Texture source, RenderTexture destination, Camera camera)
 		{
-			_bloomTexture.Resize(destination.Size);
+			_bloomTexture[0].Resize(destination.Size);
+			_bloomTexture[1].Resize(destination.Size);
 
 			_gaussian.BlurAmount = Settings.BlurAmount;
 			_extract.BloomThreshold.Value = Settings.BloomThreshold;
@@ -82,17 +85,22 @@ namespace NeonShooter.PostProcessors
 			_combine.BloomSaturation.Value = Settings.BloomSaturation;
 			_combine.BaseSaturation.Value = Settings.BaseSaturation;
 
-			_extract.Render(source, _bloomTexture);
+
+			/*Core.Graphics.Clear(_bloomTexture[0], .Color, .Transparent, 0, 0);
+			Core.Graphics.Clear(_bloomTexture[1], .Color, .Transparent, 0, 0);*/
+
+			_extract.Render(source, _bloomTexture[0]);
 
 			//if (EnableGaussianBlur)
+			for (var i < Passes)
 			{
 				_gaussian.BlurDirection = .Horizontal;
-				_gaussian.Render(_bloomTexture, _bloomTexture);
+				_gaussian.Render(_bloomTexture[0], _bloomTexture[1]);
 				_gaussian.BlurDirection = .Vertical;
-				_gaussian.Render(_bloomTexture, _bloomTexture);
+				_gaussian.Render(_bloomTexture[1], _bloomTexture[0]);
 			}
 
-			_combine.BloomTexture.Value = _bloomTexture;
+			_combine.BloomTexture.Value = _bloomTexture[0];
 			_combine.Render(source, destination);
 		}
 
@@ -102,7 +110,8 @@ namespace NeonShooter.PostProcessors
 			_gaussian.Inspect();
 			_combine.Inspect();
 
-			_bloomTexture.Inspect();
+			_bloomTexture[0].Inspect();
+			_bloomTexture[0].Inspect();
 
 			Settings.BlurAmount = _gaussian.BlurAmount;
 			Settings.BloomThreshold = _extract.BloomThreshold.Value;

@@ -400,12 +400,12 @@ namespace Atma
 	{
 		public static void Inspect(this MaterialParam<float> it, float min, float max)
 		{
-			//TODO IMGUI it.IfExists( (p) => ImGui.SliderFloat(it._name, p, 0, 5));
+			it.IfExists( (p) => ImGui.SliderFloat(it._name, p, 0, 5));
 		}
 
 		public static void Inspect(this MaterialParam<float2> it, float min, float max)
 		{
-			//TODO IMGUI it.IfExists( (p) => ImGui.SliderFloat2(it._name, p.values, 0, 5));
+			it.IfExists( (p) => ImGui.SliderFloat2(it._name, p.values, 0, 5));
 		}
 	}
 }
