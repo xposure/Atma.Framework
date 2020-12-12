@@ -1,7 +1,0 @@
-FileVersion = 1
-Dependencies = {corlib = "*", SDL2 = "*", corlib = "*", "Atma.Common" = "*", "Atma.OpenGL" = "*"}
-
-[Project]
-Name = "Atma.SDL2"
-TargetType = "BeefLib"
-StartupObject = "Atma.SDL2.Program"
