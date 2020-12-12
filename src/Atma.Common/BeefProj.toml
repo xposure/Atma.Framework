@@ -1,5 +1,5 @@
 FileVersion = 1
-Dependencies = {corlib = "*", corlib = "*", MiniZ = "*"}
+Dependencies = {corlib = "*", corlib = "*", MiniZ = "*", SDL2 = "*"}
 
 [Project]
 Name = "Atma.Common"
@@ -9,8 +9,6 @@ DefaultNamespace = "Atma"
 
 [Configs.Debug.Win64]
 CLibType = "Dynamic"
-
-[Configs.Debug.Win64]
 LibPaths = ["$(ProjectDir)/dist/$(Configuration)-$(Platform)/cimgui.lib"]
 
 [Configs.Debug.Win32]
