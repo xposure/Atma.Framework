@@ -5,8 +5,14 @@ namespace HelloWorld
 {
 	class Program : Scene
 	{
-		protected internal override void Render()
+		public override void Initialize()
 		{
+			base.Initialize();
+			this.Camera.Origin = .(0.5f, 0.5f);
+		} protected internal override void Render()
+		{
+			Core.Draw.Rect(aabb2.FromDimensions(.(0, 0), .(100, 100)), .White);
+
 			base.Render();
 		}
 
