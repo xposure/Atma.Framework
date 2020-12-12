@@ -1,0 +1,6 @@
+FileVersion = 1
+Dependencies = {corlib = "*", "Atma.Common" = "*"}
+
+[Project]
+Name = "HelloWorld"
+StartupObject = "HelloWorld.Program"
