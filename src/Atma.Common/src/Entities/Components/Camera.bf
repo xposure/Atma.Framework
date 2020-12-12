@@ -750,5 +750,14 @@ namespace Atma
 
 		#endregion
 
+		public override void Inspect()
+		{
+			base.Inspect();
+
+			_renderTarget.Inspect();
+
+			for (var it in _postProcessors)
+				it.Inspect();
+		}
 	}
 }

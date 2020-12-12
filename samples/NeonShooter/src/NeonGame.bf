@@ -117,6 +117,7 @@ namespace NeonShooter
 				Core.Draw.Text(Core.DefaultFont, float2(5), scope $"Lives: {status.Lives}", Color.White);
 				DrawRightAlignedString(scope $"Score: {status.Score}", 5);
 				DrawRightAlignedString(scope $"Multiplier: {status.Multiplier}", 35);
+				DrawRightAlignedString(scope $"Next Life: {status.scoreForExtraLife}", 65);
 			}
 
 			Core.Draw.Render(Core.Window, Screen.Matrix);

@@ -98,8 +98,6 @@ namespace NeonShooter.PostProcessors
 
 		protected override void OnInspect()
 		{
-			base.OnInspect();
-
 			_extract.Inspect();
 			_gaussian.Inspect();
 			_combine.Inspect();

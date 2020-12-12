@@ -13,10 +13,12 @@ namespace Atma
 			_effect.Render(source, destination);
 		}
 
+		protected override void OnInspect()
+		{
+			_effect.Inspect();
+		}
 
 	}
-
-
 
 		/// <summary>
 		/// Post Processing step for rendering actions after everthing done.
@@ -93,11 +95,38 @@ namespace Atma
 		{
 		}
 
-
-
-
-		protected virtual void OnInspect()
+		public void Inspect()
 		{
+			ImGui.PushID(Internal.UnsafeCastToPtr(this));
+			let name = scope String();
+			let type = this.GetType();
+			type.GetName(name);
+
+			if (ImGui.CollapsingHeader(name))
+			{
+				ImGui.Checkbox("Enabled", &Enabled);
+				if (!_captureInput && ImGui.Button("Capture Input"))
+					_captureInput = true;
+				else if (_debugInput != null)
+				{
+					ImGui.Text("Input:");
+					_debugInput.Inspect();
+				}
+
+				if (!_captureOutput && ImGui.Button("Capture Output"))
+					_captureOutput = true;
+				else if (_debugOutput != null)
+				{
+					ImGui.Text("Output:");
+					_debugOutput.Inspect();
+				}
+
+				OnInspect();
+			}
+			ImGui.PopID();
 		}
+
+		//change to public for crash
+		protected virtual void OnInspect() { }
 	}
 }

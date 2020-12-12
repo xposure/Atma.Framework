@@ -14,7 +14,7 @@ namespace NeonShooter.Components
 		public int Multiplier { get; private set; }
 
 		private float multiplierTimeLeft;// time until the current multiplier expires
-		private int scoreForExtraLife;// score required to gain an extra life
+		public int scoreForExtraLife;// score required to gain an extra life
 
 		public override bool Track => true;
 
@@ -62,7 +62,7 @@ namespace NeonShooter.Components
 			Score += basePoints * Multiplier;
 			while (Score >= scoreForExtraLife)
 			{
-				scoreForExtraLife += 20000;
+				scoreForExtraLife += scoreForExtraLife * 3 / 2;
 				Lives++;
 			}
 		}

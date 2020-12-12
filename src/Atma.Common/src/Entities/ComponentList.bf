@@ -211,5 +211,21 @@ namespace Atma
 			}
 		}
 
+		public void Inspect()
+		{
+			for (var i < _components.Count)
+			{
+				let name = scope String();
+				let type = _components[i].GetType();
+				type.GetName(name);
+
+				ImGui.PushID(&_components[i]);
+				if (ImGui.CollapsingHeader(name))
+				{
+					_components[i].Component.Inspect();
+				}
+				ImGui.PopID();
+			}
+		}
 	}
 }

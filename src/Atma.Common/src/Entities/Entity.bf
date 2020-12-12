@@ -339,6 +339,27 @@ namespace Atma
 			Position += amount;
 		}
 
+		public void Inspect()
+		{
+			UpdateFromParent();
+
+			if (!Core.DebugRenderEnabled)
+				DebugRender();
+
+			if (ImGui.Begin(_name))
+			{
+				if (ImGui.CollapsingHeader("Transform"))
+				{
+					ImGui.SliderFloat2("Position", _localPosition.values, -1000, 1000);
+					ImGui.SliderFloat("Rotation", _localRotation, -1, 1);
+				}
+
+				Components.Inspect();
+				ImGui.End();
+			}
+		}
+
+		private bool _inspectComponents = false;
 	}
 }
 

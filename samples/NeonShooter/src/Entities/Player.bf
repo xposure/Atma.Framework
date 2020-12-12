@@ -112,7 +112,7 @@ namespace NeonShooter.Entities
 			{
 				if (input.Fire)
 				{
-					cooldownRemaining = cooldownFrames;
+					cooldownRemaining = (.)Math.Lerp(cooldownFrames, cooldownFrames / 2, status.Multiplier / 20f);
 
 					let randomSpread = gRand.nextFloat(-0.004f, 0.004f) + gRand.nextFloat(-0.004f, 0.004f);
 					let aimDir = Calc.Turn(Calc.Turn(aim) + randomSpread);

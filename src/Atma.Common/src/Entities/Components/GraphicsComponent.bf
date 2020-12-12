@@ -101,5 +101,23 @@ namespace Atma
 
 			Core.Draw.Rect(aabb2.FromRect(WorldPosition, int2.Ones), Color.Red);
 		}
+
+		public override void Inspect()
+		{
+			base.Inspect();
+
+			ImGui.SliderFloat("OriginX", &Origin.values[0], 0, Width);
+			ImGui.SliderFloat("OriginY", &Origin.values[1], 0, Height);
+			if (ImGui.Button("Center Origin"))
+			{
+				CenterOrigin();
+			}
+			ImGui.InputFloat2("Scale", Scale.values);
+			ImGui.InputFloat2("Offset", Offset.values);
+			ImGui.SliderAngle("Rotation", &SpriteRotation);
+
+			ImGui.Checkbox("FlipX", &FlipX); ImGui.SameLine(); ImGui.Checkbox("FlipY", &FlipY);
+			ImGui.Checkbox("Parent Rotation", &UseParentRotation);
+		}
 	}
 }
