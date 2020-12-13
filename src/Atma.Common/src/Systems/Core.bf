@@ -132,8 +132,8 @@ namespace Atma
 		public static void Run(Window.WindowArgs windowArgs)
 		{
 			InternalInitialize(windowArgs);
-			Core.TimeRuler.Enabled = true;
-			Core.TimeRuler.ShowLog = true;
+			/*Core.TimeRuler.Enabled = true;
+			Core.TimeRuler.ShowLog = true;*/
 
 			int64 prevTime = Internal.GetTickCountMicro() - Time.FixedTimestep;
 			while (!IsExiting)
