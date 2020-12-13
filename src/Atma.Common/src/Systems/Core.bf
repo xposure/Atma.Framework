@@ -27,6 +27,8 @@ namespace Atma
 		public static SpriteAtlas Atlas ~ delete _;
 		public static Input Input ~ delete _;
 		public static Batch2D Draw ~ delete _;
+		public static SpriteFont DefaultFont;
+		public static TimeRuler TimeRuler ~ delete _;
 
 		public static Random Random = new .() ~ delete _;
 
@@ -72,12 +74,12 @@ namespace Atma
 
 			Platform_GetDisplays(Screen._resolutions);
 
-			Core.Graphics = new .(Window);
-
-			Input = new .();
-
 			Screen.UpdateMatrix();
 
+			Core.Graphics = new .(Window);
+
+			TimeRuler = new .();
+			Input = new .();
 			Assets = new .(scope $"{startupDirectory}\\content");
 			Atlas = new .();
 			Draw = new .();
@@ -89,6 +91,7 @@ namespace Atma
 
 		private static void InternalFixedUpdate()
 		{
+			Core.TimeRuler.BeginMark("Update", .Green);
 			Time.Step();
 
 			Core.Window.Title = scope $"FPS @{FPS}";
@@ -101,10 +104,12 @@ namespace Atma
 			Emitter.EmitNow(CoreEvents.UpdateBegin());
 			Update();
 			Emitter.EmitNow(CoreEvents.UpdateEnd());
+			Core.TimeRuler.EndMark("Update");
 		}
 
 		protected static void InternalRender()
 		{
+			Core.TimeRuler.BeginMark("Render", .Red);
 			FrameCount++;
 
 			int64 frameSum = 0;
@@ -117,16 +122,23 @@ namespace Atma
 			Graphics.BeforeFrame();
 			Render();
 			Emitter.EmitNow(CoreEvents.RenderEnd());
+			Core.TimeRuler.EndMark("Render");
+
+			Core.TimeRuler.Render();
+
 			Platform_Present();
 		}
 
 		public static void Run(Window.WindowArgs windowArgs)
 		{
 			InternalInitialize(windowArgs);
+			Core.TimeRuler.Enabled = true;
+			Core.TimeRuler.ShowLog = true;
 
 			int64 prevTime = Internal.GetTickCountMicro() - Time.FixedTimestep;
 			while (!IsExiting)
 			{
+				Core.TimeRuler.StartFrame();
 				//TODO: Check if window is focused or on battery and perhaps throttle down
 				Assets.CheckForChangedAssets();
 				Platform_BeginFrame();

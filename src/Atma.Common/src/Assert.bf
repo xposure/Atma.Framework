@@ -8,6 +8,14 @@ namespace Atma
 	using System.IO;
 	using System.Text;
 
+	public static class Exceptions
+	{
+		public static void ArgumentOutOfRangeException(StringView arg)
+		{
+			Runtime.FatalError(scope $"Argument [{arg}] was out of range.");
+		}
+	}
+
 	public static class Contract
 	{
 		[Inline]

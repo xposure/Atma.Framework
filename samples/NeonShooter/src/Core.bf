@@ -2,8 +2,6 @@ namespace Atma
 {
 	public extension Core
 	{
-		public static SpriteFont DefaultFont;
-
 		static this()
 		{
 			Core.Emitter.AddObserver<CoreEvents.Initialize>(new => Initialize);

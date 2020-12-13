@@ -130,12 +130,12 @@ namespace Atma
 		{
 			let projMatrix = float4x4.Ortho(0, Screen.Width, Screen.Height, 0, MaxDepth, 0);
 
-			let cameraFront = float3(0, 0, -1);
+			/*let cameraFront = float3(0, 0, -1);
 			let cameraUp = float3(0, 1, 0);
-			var viewMatrix = float4x4.LookAt(float3(.Zero, MaxDepth), cameraFront, cameraUp);
+			var viewMatrix = float4x4.LookAt(float3(.Zero, MaxDepth), cameraFront, cameraUp);*/
 			//viewMatrix = viewMatrix * float4x4.Translate(float3(Screen.Size, 0)) * float4x4.Scale(float3(1));
 
-			Matrix = projMatrix * viewMatrix;
+			Matrix = projMatrix;//* viewMatrix;
 		}
 
 		public static float4x4 Matrix = .Identity;
