@@ -10,7 +10,7 @@ namespace Atma
 	/// <summary>
 	/// Core System Module, used for managing Windows and Input
 	/// </summary>
-	public class Core
+	public abstract class Core
 	{
 		private static Core _instance;
 
@@ -30,6 +30,7 @@ namespace Atma
 		public static SpriteFont DefaultFont;
 		public static TimeRuler TimeRuler ~ delete _;
 
+
 		public static Random Random = new .() ~ delete _;
 
 		public static bool ForceFixedTimestep { get; set; }
@@ -46,6 +47,18 @@ namespace Atma
 		public static uint64 FixedUpdateCount;
 
 		public static int FPS;
+		private Window.WindowArgs _windowArgs ~ delete _windowArgs.Title;
+
+		public this(StringView title, int width, int height, Window.WindowFlags windowFlags = .Hidden)
+		{
+			Contract.IsTrue(_instance == null);
+			_instance = this;
+
+			_windowArgs.Title = new String(title);
+			_windowArgs.Width = width;
+			_windowArgs.Height = height;
+			_windowArgs.Flags = windowFlags;
+		}
 
 		protected static void Integrate(int64 time)
 		{
@@ -53,10 +66,10 @@ namespace Atma
 			Core.Integration.Integrate(t);
 		}
 
-		protected static extern void Update();
-		protected static extern void Render();
-		protected static extern void Initialize();
-		protected static extern void Unload();
+		protected abstract void Update();
+		protected abstract void Render();
+		protected abstract void Initialize();
+		protected abstract void Unload();
 
 		private static void InternalInitialize(Window.WindowArgs windowArgs)
 		{
@@ -84,7 +97,7 @@ namespace Atma
 			Atlas = new .();
 			Draw = new .();
 
-			Initialize();
+			_instance.Initialize();
 
 			Emitter.EmitNow(CoreEvents.Initialize());
 		}
@@ -102,7 +115,7 @@ namespace Atma
 			Emitter.Signal();
 
 			Emitter.EmitNow(CoreEvents.UpdateBegin());
-			Update();
+			_instance.Update();
 			Emitter.EmitNow(CoreEvents.UpdateEnd());
 			Core.TimeRuler.EndMark("Update");
 		}
@@ -120,7 +133,7 @@ namespace Atma
 
 			Emitter.EmitNow(CoreEvents.RenderBegin());
 			Graphics.BeforeFrame();
-			Render();
+			_instance.Render();
 			Emitter.EmitNow(CoreEvents.RenderEnd());
 			Core.TimeRuler.EndMark("Render");
 
@@ -129,9 +142,9 @@ namespace Atma
 			Platform_Present();
 		}
 
-		public static void Run(Window.WindowArgs windowArgs)
+		public int Run()
 		{
-			InternalInitialize(windowArgs);
+			InternalInitialize(_windowArgs);
 			/*Core.TimeRuler.Enabled = true;
 			Core.TimeRuler.ShowLog = true;*/
 
@@ -175,10 +188,12 @@ namespace Atma
 			}
 
 			Emitter.EmitNow(CoreEvents.Shutdown());
-			Unload();
+			_instance.Unload();
 			Window.[Friend]PlatformDestroy();
 			Platform_Destroy();
 			Log.Message("Exited");
+
+			return 0;
 		}
 
 		/// <summary>
