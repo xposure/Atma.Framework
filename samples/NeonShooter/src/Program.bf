@@ -8,7 +8,8 @@ namespace NeonShooter
 	{
 		static public int Main(String[] args)
 		{
-			return Core.RunScene<NeonGame>("NeonShooter", 1280, 760);
+			return Core.RunScene<TurnGame>("TurnGame", 1280, 760);
+			//return Core.RunScene<NeonGame>("NeonShooter", 1280, 760);
 		}
 	}
 }
