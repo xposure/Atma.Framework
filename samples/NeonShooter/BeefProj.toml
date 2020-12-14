@@ -1,5 +1,5 @@
 FileVersion = 1
-Dependencies = {corlib = "*", "Atma.Common" = "*"}
+Dependencies = {corlib = "*", "Atma.Common" = "*", "Atma.Entities" = "*"}
 
 [Project]
 Name = "NeonShooter"

@@ -1,5 +1,5 @@
 FileVersion = 1
-Projects = {NeonShooter = {Path = "NeonShooter"}, SDL2 = "*", MiniZ = "*", "Atma.Common" = {Path = "../src/Atma.Common"}, HelloWorld = {Path = "HelloWorld"}}
+Projects = {NeonShooter = {Path = "NeonShooter"}, SDL2 = "*", MiniZ = "*", "Atma.Common" = {Path = "../src/Atma.Common"}, HelloWorld = {Path = "HelloWorld"}, "Atma.Entities" = {Path = "../src/Atma.Entities"}}
 
 [Workspace]
 StartupProject = "NeonShooter"
