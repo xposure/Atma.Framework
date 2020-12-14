@@ -356,9 +356,9 @@ namespace Atma
 
 		public int2 ScreenToWorld(float2 screenPosition)
 		{
-			//let scale = _renderTarget.Size / (float2)Screen.Size;
+			let scale = _finalRenderDestinationRect.Size / (float2)_renderTarget.Size;
 			let pos = ((screenPosition) - _viewport.TopLeft * Screen.Size);
-			return (int2)(InverseViewMatrix * (pos - _finalRenderDestinationRect.TopLeft - WorldPosition));
+			return (int2)(InverseViewMatrix * ((pos - _finalRenderDestinationRect.TopLeft - WorldPosition) / scale));
 		}
 
 		public void Render(Scene scene)
