@@ -25,7 +25,12 @@ namespace HelloWorld
 
 		public static int Main(String[] args)
 		{
-			return Core.Run("Hello World!", 400, 300);
+			let game = scope Program("Hello World", 400, 300);
+			return game.Run();
+		}
+
+		public this(StringView title, int width, int height, Window.WindowFlags windowFlags = .Hidden) : base(title, width, height, windowFlags)
+		{
 		}
 	}
 }

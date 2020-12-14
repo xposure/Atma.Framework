@@ -12,7 +12,7 @@ namespace Atma
 	/// </summary>
 	public abstract class Core
 	{
-		private static Core _instance ~ delete _;
+		private static Core _instance;
 
 		public static bool DebugRenderEnabled = false;
 
@@ -47,6 +47,18 @@ namespace Atma
 		public static uint64 FixedUpdateCount;
 
 		public static int FPS;
+		private Window.WindowArgs _windowArgs ~ delete _windowArgs.Title;
+
+		public this(StringView title, int width, int height, Window.WindowFlags windowFlags = .Hidden)
+		{
+			Contract.IsTrue(_instance == null);
+			_instance = this;
+
+			_windowArgs.Title = new String(title);
+			_windowArgs.Width = width;
+			_windowArgs.Height = height;
+			_windowArgs.Flags = windowFlags;
+		}
 
 		protected static void Integrate(int64 time)
 		{
@@ -130,15 +142,9 @@ namespace Atma
 			Platform_Present();
 		}
 
-		public static int Run(StringView title, int width, int height, Window.WindowFlags windowFlags = .Hidden)
+		public int Run()
 		{
-			Window.WindowArgs windowArgs = ?;
-			windowArgs.Title = scope String(title);
-			windowArgs.Width = width;
-			windowArgs.Height = height;
-			windowArgs.Flags = windowFlags;
-
-			InternalInitialize(windowArgs);
+			InternalInitialize(_windowArgs);
 			/*Core.TimeRuler.Enabled = true;
 			Core.TimeRuler.ShowLog = true;*/
 

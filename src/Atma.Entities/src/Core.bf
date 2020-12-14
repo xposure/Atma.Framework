@@ -9,39 +9,11 @@ namespace Atma
 
 		internal static Func<Scene> _initialScene ~ delete _;
 
-		public static int RunScene<T>(String title, int width, int height, Window.WindowFlags flags = .Hidden)
-			where T : Scene
+		public static int RunInitialScene<InitialScene>(StringView title, int width, int height, Window.WindowFlags flags = .Hidden)
+			where InitialScene : Scene
 		{
-			_initialScene = new () => new T();
-			Core.Run(title, width, height, flags);
-
-			return 0;
-		}
-	}
-
-	public class Game : Core
-	{
-		protected override void Update()
-		{
-			Scene.FixedUpdate();
-		}
-
-		protected override void Render()
-		{
-			Scene.Render();
-		}
-
-		protected override void Initialize()
-		{
-			Scene = _initialScene();
-			Scene.Initialize();
-
-			DeleteAndNullify!(_initialScene);
-		}
-
-		protected override void Unload()
-		{
-			delete Scene;
+			_initialScene = new () => new InitialScene();
+			return scope Game(title, width, height, flags).Run();
 		}
 	}
 }
