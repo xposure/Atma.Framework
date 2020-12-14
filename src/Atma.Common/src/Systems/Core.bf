@@ -10,9 +10,9 @@ namespace Atma
 	/// <summary>
 	/// Core System Module, used for managing Windows and Input
 	/// </summary>
-	public class Core
+	public abstract class Core
 	{
-		private static Core _instance;
+		private static Core _instance ~ delete _;
 
 		public static bool DebugRenderEnabled = false;
 
@@ -29,6 +29,7 @@ namespace Atma
 		public static Batch2D Draw ~ delete _;
 		public static SpriteFont DefaultFont;
 		public static TimeRuler TimeRuler ~ delete _;
+
 
 		public static Random Random = new .() ~ delete _;
 
@@ -53,10 +54,10 @@ namespace Atma
 			Core.Integration.Integrate(t);
 		}
 
-		protected static extern void Update();
-		protected static extern void Render();
-		protected static extern void Initialize();
-		protected static extern void Unload();
+		protected abstract void Update();
+		protected abstract void Render();
+		protected abstract void Initialize();
+		protected abstract void Unload();
 
 		private static void InternalInitialize(Window.WindowArgs windowArgs)
 		{
@@ -84,7 +85,7 @@ namespace Atma
 			Atlas = new .();
 			Draw = new .();
 
-			Initialize();
+			_instance.Initialize();
 
 			Emitter.EmitNow(CoreEvents.Initialize());
 		}
@@ -102,7 +103,7 @@ namespace Atma
 			Emitter.Signal();
 
 			Emitter.EmitNow(CoreEvents.UpdateBegin());
-			Update();
+			_instance.Update();
 			Emitter.EmitNow(CoreEvents.UpdateEnd());
 			Core.TimeRuler.EndMark("Update");
 		}
@@ -120,7 +121,7 @@ namespace Atma
 
 			Emitter.EmitNow(CoreEvents.RenderBegin());
 			Graphics.BeforeFrame();
-			Render();
+			_instance.Render();
 			Emitter.EmitNow(CoreEvents.RenderEnd());
 			Core.TimeRuler.EndMark("Render");
 
@@ -129,8 +130,14 @@ namespace Atma
 			Platform_Present();
 		}
 
-		public static void Run(Window.WindowArgs windowArgs)
+		public static int Run(StringView title, int width, int height, Window.WindowFlags windowFlags = .Hidden)
 		{
+			Window.WindowArgs windowArgs = ?;
+			windowArgs.Title = scope String(title);
+			windowArgs.Width = width;
+			windowArgs.Height = height;
+			windowArgs.Flags = windowFlags;
+
 			InternalInitialize(windowArgs);
 			/*Core.TimeRuler.Enabled = true;
 			Core.TimeRuler.ShowLog = true;*/
@@ -175,10 +182,12 @@ namespace Atma
 			}
 
 			Emitter.EmitNow(CoreEvents.Shutdown());
-			Unload();
+			_instance.Unload();
 			Window.[Friend]PlatformDestroy();
 			Platform_Destroy();
 			Log.Message("Exited");
+
+			return 0;
 		}
 
 		/// <summary>

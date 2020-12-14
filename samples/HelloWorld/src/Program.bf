@@ -3,22 +3,29 @@ using Atma;
 
 namespace HelloWorld
 {
-	class Program : Scene
+	class Program : Core
 	{
-		public override void Initialize()
+		protected override void Initialize()
 		{
-			base.Initialize();
-			this.Camera.Origin = .(0.5f, 0.5f);
-		} protected internal override void Render()
+		}
+
+		protected override void Render()
 		{
 			Core.Draw.Rect(aabb2.FromDimensions(.(0, 0), .(100, 100)), .White);
+			Core.Draw.Render(Core.Window, Screen.Matrix);
+		}
 
-			base.Render();
+		protected override void Update()
+		{
+		}
+
+		protected override void Unload()
+		{
 		}
 
 		public static int Main(String[] args)
 		{
-			return Core.RunScene<Program>("Hello World!", 400, 300);
+			return Core.Run("Hello World!", 400, 300);
 		}
 	}
 }

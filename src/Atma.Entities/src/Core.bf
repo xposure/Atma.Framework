@@ -7,19 +7,31 @@ namespace Atma
 	{
 		public static Scene Scene;
 
-		private static Func<Scene> _initialScene ~ delete _;
+		internal static Func<Scene> _initialScene ~ delete _;
 
-		protected static override void Update()
+		public static int RunScene<T>(String title, int width, int height, Window.WindowFlags flags = .Hidden)
+			where T : Scene
+		{
+			_initialScene = new () => new T();
+			Core.Run(title, width, height, flags);
+
+			return 0;
+		}
+	}
+
+	public class Game : Core
+	{
+		protected override void Update()
 		{
 			Scene.FixedUpdate();
 		}
 
-		protected static override void Render()
+		protected override void Render()
 		{
 			Scene.Render();
 		}
 
-		protected static override void Initialize()
+		protected override void Initialize()
 		{
 			Scene = _initialScene();
 			Scene.Initialize();
@@ -27,23 +39,9 @@ namespace Atma
 			DeleteAndNullify!(_initialScene);
 		}
 
-		protected static override void Unload()
+		protected override void Unload()
 		{
 			delete Scene;
-		}
-
-		public static int RunScene<T>(String title, int width, int height, Window.WindowFlags flags = .Hidden)
-			where T : Scene
-		{
-			Window.WindowArgs windowArgs = ?;
-			windowArgs.Title = title;
-			windowArgs.Width = width;
-			windowArgs.Height = height;
-			windowArgs.Flags = flags;
-			_initialScene = new () => new T();
-			Core.Run(windowArgs);
-
-			return 0;
 		}
 	}
 }
