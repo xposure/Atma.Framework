@@ -11,7 +11,7 @@ namespace HelloWorld
 
 		protected override void Render()
 		{
-			Core.Draw.Rect(aabb2.FromDimensions(.(0, 0), .(100, 100)), .White);
+			Core.Draw.Rect(aabb2.FromDimensions(Screen.Size / 2, Screen.Size / 2), .White);
 			Core.Draw.Render(Core.Window, Screen.Matrix);
 		}
 
