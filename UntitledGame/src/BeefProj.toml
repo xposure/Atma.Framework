@@ -1,0 +1,6 @@
+FileVersion = 1
+Dependencies = {corlib = "*", "Atma.Common" = "*", corlib = "*"}
+
+[Project]
+Name = "Game"
+StartupObject = "Atma.Program"
