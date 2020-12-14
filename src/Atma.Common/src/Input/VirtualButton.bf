@@ -50,16 +50,16 @@ namespace Atma
 
 			//Press
 			if (!last && Check)
-				lastPress = (.)Time.Elapsed;
-			Pressed = Check && lastPress > lastPressClear && (int64)(Time.Elapsed - lastPress) <= pressBuffer;
+				lastPress = Time.RawTime;
+			Pressed = Check && lastPress > lastPressClear && (Time.RawTime - lastPress) <= pressBuffer;
 
 			//Repeat
-			if (Check && repeatStart > 0 && (int64)(Time.Elapsed - lastPress) >= repeatStart)
+			if (Check && repeatStart > 0 && (Time.RawTime - lastPress) >= repeatStart)
 			{
 				Repeating = true;
 
-				let a = ((int64)(Time.PreviousElapsed - lastPress) / repeatInterval);
-				let b = ((int64)(Time.Elapsed - lastPress) / repeatInterval);
+				let a = (Time.RawPrevTime - lastPress) / repeatInterval;
+				let b = (Time.RawTime - lastPress) / repeatInterval;
 				if (a != b)
 					Pressed = true;
 			}
@@ -68,18 +68,23 @@ namespace Atma
 
 			//Release
 			if (last && !Check)
-				lastRelease = (.)Time.Elapsed;
-			Released = !Check && lastRelease > lastReleaseClear && (int64)(Time.Elapsed - lastRelease) <= releaseBuffer;
+				lastRelease = Time.RawTime;
+
+			let check0 = !Check;
+			let check1 = lastRelease > lastReleaseClear;
+			let check2 = (Time.RawTime - lastRelease) <= releaseBuffer;
+
+			Released = check0 && check1 && check2;
 		}
 
 		public void ClearPressBuffer()
 		{
-			lastPressClear = (.)Time.Elapsed;
+			lastPressClear = Time.RawTime;
 		}
 
 		public void ClearReleaseBuffer()
 		{
-			lastReleaseClear = (.)Time.Elapsed;
+			lastReleaseClear = Time.RawTime;
 		}
 
 		// Setup Calls
@@ -93,6 +98,12 @@ namespace Atma
 		public VirtualButton AddButton(int gamepadID, Buttons button)
 		{
 			nodes.Add(new GamepadButton(gamepadID, button));
+			return this;
+		}
+
+		public VirtualButton AddMouseButton(MouseButtons mouseButton)
+		{
+			nodes.Add(new MouseButton(mouseButton));
 			return this;
 		}
 
@@ -122,11 +133,28 @@ namespace Atma
 		}
 
 		// Nodes
-
 		private abstract class Node
 		{
 			public abstract bool Check { get; }
 			public virtual bool IsGamepad => false;
+		}
+
+		private class MouseButton : Node
+		{
+			public MouseButtons MouseButton;
+
+			public this(MouseButtons mouseButton)
+			{
+				MouseButton = mouseButton;
+			}
+
+			override public bool Check
+			{
+				get
+				{
+					return Core.Input.MouseCheck(MouseButton);
+				}
+			}
 		}
 
 		private class KeyboardKey : Node
@@ -142,7 +170,7 @@ namespace Atma
 			{
 				get
 				{
-					 return Core.Input.KeyCheck(Key);
+					return Core.Input.KeyCheck(Key);
 				}
 			}
 		}
@@ -164,7 +192,7 @@ namespace Atma
 			{
 				get
 				{
-					 return Core.Input.GamepadButtonCheck(GamepadID, Button);
+					return Core.Input.GamepadButtonCheck(GamepadID, Button);
 				}
 			}
 		}
@@ -191,7 +219,7 @@ namespace Atma
 				get
 				{
 					if (Condition == .GreaterThan)
-					 	return Core.Input.GamepadAxisCheck(GamepadID, Axis) >= Threshold;
+						return Core.Input.GamepadAxisCheck(GamepadID, Axis) >= Threshold;
 					else
 						return Core.Input.GamepadAxisCheck(GamepadID, Axis) <= Threshold;
 				}

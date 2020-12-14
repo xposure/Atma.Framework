@@ -117,7 +117,7 @@ namespace Atma
 
 		public const double MicroToSeconds = 1000000.0;
 
-		private static int64 _prevTime, _time, _sceneTime;
+		public static int64 RawPrevTime, RawTime, RawSceneTime;
 
 		public static float TargetDelta => TargetMilliseconds / 1000f;
 
@@ -126,13 +126,15 @@ namespace Atma
 		public static int64 FixedTimestep = (.)(1.0 / 50 * MicroToSeconds);
 		public static int64 MaxSteps => 3;
 
+
 		/// <summary>
 		/// total time the game has been running
 		/// </summary>
-		public static double Elapsed => _time / MicroToSeconds;
-		public static float Elapsedf => (float)(_time / MicroToSeconds);
+		public static double Elapsed;
+		public static float Elapsedf;
 
-		public static double PreviousElapsed => _prevTime / MicroToSeconds;
+		public static double PreviousElapsed;
+		public static float PreviousElapsedf;
 
 		/// <summary>
 		/// delta time from the previous frame to the current, scaled by timeScale
@@ -177,19 +179,24 @@ namespace Atma
 
 		internal static void Step()
 		{
-			_prevTime = _time;
-			_time += FixedTimestep;
+			RawPrevTime = RawTime;
+			RawTime += FixedTimestep;
 
-			let dt = (_time - _prevTime) / MicroToSeconds;
+			let dt = (RawTime - RawPrevTime) / MicroToSeconds;
 
 			Delta = (float)(dt * TimeScale);
 			AltDelta = (float)(dt * AltTimeScale);
 			UnscaledDelta = (float)dt;
+
+			Elapsed = RawTime / MicroToSeconds;
+			Elapsedf = (float)(RawTime / MicroToSeconds);
+			PreviousElapsed = RawPrevTime / MicroToSeconds;
+			PreviousElapsedf = (float)(RawPrevTime / MicroToSeconds);
 		}
 
 		internal static void SceneChanged()
 		{
-			_sceneTime = _time;
+			RawSceneTime = RawTime;
 		}
 
 
