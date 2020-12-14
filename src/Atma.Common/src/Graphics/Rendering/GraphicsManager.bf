@@ -23,7 +23,7 @@ namespace Atma
 
 		protected GraphicsContext _context ~ delete _;
 
-		public Color ClearColor = .Red;
+		public Color ClearColor = .CornflowerBlue;
 
 		/// <summary>
 		/// The Application Main Thread ID

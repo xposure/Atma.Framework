@@ -11,7 +11,14 @@ namespace HelloWorld
 
 		protected override void Render()
 		{
-			Core.Draw.Rect(aabb2.FromDimensions(Screen.Size / 2, Screen.Size / 2), .White);
+			//move the rect to the center of the screen
+			var pos = (float2)Screen.Size / 2f;
+
+			//Note: turn is 0-1 instead of 0 to 2pi
+			//lets offset the rect in a circle motion
+			pos += Calc.Turn(Time.Elapsedf / 4f) * 50;
+
+			Core.Draw.Rect(aabb2.FromDimensions(pos, Screen.Size / 2), .White);
 			Core.Draw.Render(Core.Window, Screen.Matrix);
 		}
 
