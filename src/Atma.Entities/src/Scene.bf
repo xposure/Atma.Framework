@@ -156,134 +156,28 @@ namespace Atma
 			Unload();
 		}
 
-		public virtual void FixedUpdate()
+		internal void InternalFixedUpdate()
 		{
 			// update our Entities
 			Entities.FixedUpdate();
 
 			// we update our renderables after entity.update in case any new Renderables were added
 			RenderableComponents.UpdateLists();
-		} protected internal virtual void Render()
+
+			FixedUpdate();
+		}
+
+		public virtual void FixedUpdate()
+		{
+		}
+
+		protected internal virtual void Render()
 		{
 			Core.Graphics.Clear(Core.Window, Core.Graphics.ClearColor);
 
-			//	Core.Graphics.Clear(Core.Window, .CornflowerBlue);
 			for (var it in Entities.Components<Camera>())
 				it.Render(this);
-
-			/*if (_renderers.Count == 0)
-			{
-				Log.Debug("There are no Renderers in the Scene!");
-				return;
-			}*/
-
-			/*// Renderers should always have those that require a RenderTarget first. They clear themselves and set
-			// themselves as the current RenderTarget when they render. If the first Renderer wants the
-			// sceneRenderTarget we set and clear it now.
-			if (_renderers[0].WantsToRenderToSceneRenderTarget)
-			{
-				Core.GraphicsDevice.SetRenderTarget(_sceneRenderTarget);
-				Core.GraphicsDevice.Clear(ClearColor);
-			}*/
-
-
-			/*var lastRendererHadRenderTarget = false;
-			for (var i = 0; i < _renderers.Count; i++)
-			{
-				// MonoGame follows the XNA implementation so it will clear the entire buffer if we change the render
-				// target even if null. Because of that, we track when we are done with our RenderTargets and clear the
-				// scene at that time.
-				if (lastRendererHadRenderTarget && _renderers.Ptr[i].WantsToRenderToSceneRenderTarget)
-				{
-					Core.GraphicsDevice.SetRenderTarget(_sceneRenderTarget);
-					Core.GraphicsDevice.Clear(ClearColor);
-
-					// force a Camera matrix update to account for the new Viewport size
-					if (_renderers.Ptr[i].Camera != null)
-						_renderers.Ptr[i].Camera.ForceMatrixUpdate();
-					Camera.ForceMatrixUpdate();
-				}
-
-				_renderers.Ptr[i].Render(this);
-				lastRendererHadRenderTarget = _renderers.Ptr[i].RenderTexture != null;
-			}*/
 		}
-
-		/*/// <summary>
-		/// any PostProcessors present get to do their processing then we do the final render of the RenderTarget to the
-		// screen. In almost all cases finalRenderTarget will be null. The only time it will have a value is the first
-		// frame of a SceneTransition if the transition is requesting the render. </summary> <returns>The
-		// render.</returns>
-		internal void PostRender(RenderTarget finalRenderTarget = null)
-		{
-			/*var enabledCounter = 0;
-			if (EnablePostProcessing)
-			{
-				for (var i = 0; i < _postProcessors.Count; i++)
-				{
-					if (_postProcessors.Ptr[i].Enabled)
-					{
-						var isEven = Mathf.IsEven(enabledCounter);
-						enabledCounter++;
-
-						var source = isEven ? _sceneRenderTarget : _destinationRenderTarget;
-						var destination = !isEven ? _sceneRenderTarget : _destinationRenderTarget;
-						_postProcessors.Ptr[i].Process(source, destination);
-					}
-				}
-			}
-
-			// deal with our Renderers that want to render after PostProcessors if we have any
-			for (var i = 0; i < _afterPostProcessorRenderers.Length; i++)
-			{
-				if (i == 0)
-				{
-					// we need to set the proper RenderTarget here. We want the last one that was the destination of our
-					// PostProcessors
-					var currentRenderTarget = Mathf.IsEven(enabledCounter) ? _sceneRenderTarget :
-		_destinationRenderTarget; Core.GraphicsDevice.SetRenderTarget(currentRenderTarget);
-				}
-
-				// force a Camera matrix update to account for the new Viewport size
-				if (_afterPostProcessorRenderers.Ptr[i].Camera != null)
-					_afterPostProcessorRenderers.Ptr[i].Camera.ForceMatrixUpdate();
-				_afterPostProcessorRenderers.Ptr[i].Render(this);
-			}
-
-			// if we have a screenshot request deal with it before the final render to the backbuffer
-			if (_screenshotRequestCallback != null)
-			{
-				var tex = new Texture2D(Core.GraphicsDevice, _sceneRenderTarget.Width, _sceneRenderTarget.Height);
-				var data = new int[tex.Bounds.Width * tex.Bounds.Height];
-
-				var currentRenderTarget = Mathf.IsEven(enabledCounter) ? _sceneRenderTarget : _destinationRenderTarget;
-				currentRenderTarget.GetData(data);
-				tex.SetData(data);
-				_screenshotRequestCallback(tex);
-
-				_screenshotRequestCallback = null;
-			}
-
-			// render our final result to the backbuffer or let our delegate do so
-			if (_finalRenderDelegate != null)
-			{
-				var currentRenderTarget = Mathf.IsEven(enabledCounter) ? _sceneRenderTarget : _destinationRenderTarget;
-				_finalRenderDelegate.HandleFinalRender(finalRenderTarget, LetterboxColor, currentRenderTarget,
-		_finalRenderDestinationRect, SamplerState);
-			}
-			else
-			{
-				var currentRenderTarget = Mathf.IsEven(enabledCounter) ? _sceneRenderTarget : _destinationRenderTarget;
-				Core.GraphicsDevice.SetRenderTarget(finalRenderTarget);
-				Core.GraphicsDevice.Clear(LetterboxColor);
-
-				Graphics.Instance.Batcher.Begin(BlendState.Opaque, SamplerState, null, null);
-				Graphics.Instance.Batcher.Draw(currentRenderTarget, _finalRenderDestinationRect, Color.White);
-				Graphics.Instance.Batcher.End();
-			}*/
-		}*/
-
-
 		#endregion
 
 

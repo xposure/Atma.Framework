@@ -38,8 +38,6 @@ namespace NeonShooter
 			for (var i < 4) shots.Add(Core.Assets.LoadSoundEffect(scope $"sounds/shoot-0{i+1}.wav"));
 			for (var i < 8) spawns.Add(Core.Assets.LoadSoundEffect(scope $"sounds/spawn-0{i+1}.wav"));
 
-			ImGuiImpl.Initialize();
-
 			base.Initialize();
 			Time.SetTargetFramerate(60);
 

@@ -97,6 +97,8 @@ namespace Atma
 			Atlas = new .();
 			Draw = new .();
 
+			ImGuiImpl.Initialize();
+
 			_instance.Initialize();
 
 			Emitter.EmitNow(CoreEvents.Initialize());
