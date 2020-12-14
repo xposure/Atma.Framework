@@ -4,3 +4,6 @@ Dependencies = {corlib = "*", "Atma.Common" = "*"}
 [Project]
 Name = "NeonShooter"
 StartupObject = "NeonShooter.Program"
+
+[Configs.Debug.Win64]
+CLibType = "Static"

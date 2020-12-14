@@ -69,6 +69,7 @@ namespace NeonShooter
 			player.Position = Screen.Size / 2;
 
 			Camera.SetDesignResolution(Screen.Width, Screen.Height, .ExactFit, 0, 0);
+			//Camera.SetDesignResolution(400,400, .ShowAllPixelPerfect, 0, 0);
 		}
 
 		public override void FixedUpdate()

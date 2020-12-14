@@ -354,10 +354,11 @@ namespace Atma
 			}
 		}
 
-		public float2 ScreenToWorld(float2 screenPosition)
+		public int2 ScreenToWorld(float2 screenPosition)
 		{
-			let pos = ((screenPosition / (Screen.Size / Size)) - _viewport.TopLeft * Screen.Size);
-			return InverseViewMatrix * pos;// + WorldPosition;
+			//let scale = _renderTarget.Size / (float2)Screen.Size;
+			let pos = ((screenPosition) - _viewport.TopLeft * Screen.Size);
+			return (int2)(InverseViewMatrix * (pos - _finalRenderDestinationRect.TopLeft - WorldPosition));
 		}
 
 		public void Render(Scene scene)
@@ -384,6 +385,7 @@ namespace Atma
 			}
 
 			Core.Draw.Image(src, _finalRenderDestinationRect.ToAABB());
+			Core.Draw.HollowRect(_finalRenderDestinationRect, 1f, .Red);
 			Core.Draw.Render(Core.Window, Screen.Matrix);
 		}
 
@@ -754,7 +756,9 @@ namespace Atma
 		{
 			base.Inspect();
 
-			_renderTarget.Inspect();
+			let wp = this.ScreenToWorld(Core.Input.MousePosition);
+			//_renderTarget.Inspect();
+			ImGui.Text(scope $"MouseToWorld: {wp}");
 
 			for (var it in _postProcessors)
 				it.Inspect();
