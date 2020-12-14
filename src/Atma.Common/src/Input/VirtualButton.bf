@@ -88,7 +88,6 @@ namespace Atma
 		}
 
 		// Setup Calls
-
 		public VirtualButton AddKey(Keys key)
 		{
 			nodes.Add(new KeyboardKey(key));

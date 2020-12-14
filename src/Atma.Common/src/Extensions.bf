@@ -101,6 +101,16 @@ public static
 		}
 	}
 
+	public static bool Any<T, K>(this List<T> self, K dlg) where K : delegate bool(T t)
+	{
+		for (var it in ref self)
+			if (dlg(it))
+				return true;
+
+		return false;
+	}
+
+
 	public static int IndexOf<T, K>(this List<T> self, K dlg) where K : delegate bool(T t)
 	{
 		for (var i < self.Count)
