@@ -110,6 +110,13 @@ namespace Atma
 			Core.Window.Title = scope $"FPS @{FPS}";
 
 			FixedUpdateCount++;
+			int64 frameSum = 0;
+			for (var i < MAXSAMPLES)
+				frameSum += framelist[i];
+
+			FPS = (int)(1.0 / (frameSum / MAXSAMPLES / Time.MicroToSeconds));
+
+
 			Platform_Update();
 			Input.Update();
 			Emitter.Signal();
@@ -124,12 +131,6 @@ namespace Atma
 		{
 			Core.TimeRuler.BeginMark("Render", .Red);
 			FrameCount++;
-
-			int64 frameSum = 0;
-			for (var i < MAXSAMPLES)
-				frameSum += framelist[i];
-
-			FPS = (int)(1.0 / (frameSum / MAXSAMPLES / Time.MicroToSeconds));
 
 			Emitter.EmitNow(CoreEvents.RenderBegin());
 			Graphics.BeforeFrame();
