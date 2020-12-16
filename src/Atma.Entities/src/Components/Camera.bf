@@ -121,7 +121,7 @@ namespace Atma
 
 		#endregion
 
-		public readonly RenderPipeline Pipeline;
+		public readonly RenderPipeline Pipeline ~ delete _;
 
 		private bool _viewMatrixDirty = true;
 
@@ -258,7 +258,7 @@ namespace Atma
 			base.Added(entity);
 			if (Pipeline.RendererCount == 0)
 			{
-				Pipeline.AddRenderer(new SceneRenderer(null));
+				Pipeline.AddRenderer(new SceneRenderer(this.Entity.Scene));
 				Log.Debug("Scene has begun with no renderer. A DefaultRenderer was added automatically so that something is visible.");
 			}
 

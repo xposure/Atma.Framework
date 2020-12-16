@@ -36,7 +36,7 @@ namespace Atma
 			let oldSize = this.Size;
 			let newSize = size;
 
-			if (!base.Resize(newSize))
+			if (!base.InternalResize(newSize))
 				return false;
 
 			for (var it in _renderers)
