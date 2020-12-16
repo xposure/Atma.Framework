@@ -77,7 +77,7 @@ namespace Atma
 		}
 
 		[Inline]
-		public bool ShouldRender(Camera camera)
+		public bool ShouldRender(Camera2D camera)
 		{
 			if (!Visible)
 				return false;

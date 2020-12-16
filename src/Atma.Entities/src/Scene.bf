@@ -13,7 +13,7 @@ namespace Atma
 		/// <summary>
 		/// default scene Camera
 		/// </summary>
-		public Camera Camera;
+		public Camera2DComponent Camera;
 
 		/// <summary>
 		/// SamplerState used for the final draw of the RenderTarget to the framebuffer
@@ -107,7 +107,7 @@ namespace Atma
 			//TODO: Content = new NezContentManager();
 
 			var cameraEntity = CreateEntity("camera");
-			Camera = cameraEntity.Components.Add(new Camera(.ExactFit, .(Screen.Width, Screen.Height), .Zero));
+			Camera = cameraEntity.Components.Add(new Camera2DComponent(.ExactFit, .(Screen.Width, Screen.Height), .Zero));
 
 			/*// setup our resolution policy. we'll commit it in begin
 			_resolutionPolicy = _defaultSceneResolutionPolicy;
@@ -175,8 +175,8 @@ namespace Atma
 		{
 			Core.Graphics.Clear(Core.Window, Core.Graphics.ClearColor);
 
-			for (var it in Entities.Components<Camera>())
-				it.Render(this);
+			for (var it in Entities.Components<Camera2DComponent>())
+				it.Render();
 		}
 		#endregion
 
@@ -297,19 +297,4 @@ namespace Atma
 
 
 	}
-
-	/*public abstract class Scene2
-	{
-		public EntityList Entities = new .(this) ~ delete _;
-
-		public abstract void Init();
-		public abstract void Update();
-		public abstract void Render();
-		public abstract bool HandleInput();
-		public abstract void FinalizeRenderTarget(RenderTarget window);
-		public virtual bool TransitionOut() => true;
-		public virtual bool TransitionIn() => true;
-		public virtual void Resize(int2 size) { }
-		public virtual void Debug() { }
-	}*/
 }

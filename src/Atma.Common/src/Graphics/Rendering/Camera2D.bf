@@ -2,8 +2,9 @@ using System.Collections;
 using System;
 namespace Atma
 {
-	public class Camera : Component
+	public class Camera2D : RenderPipeline
 	{
+		typealias Resolution = (int2 Size, int PixelScale, rect DrawRect);
 		public enum ResolutionPolicy
 		{
 			/// <summary>
@@ -77,11 +78,6 @@ namespace Atma
 		/// </summary>
 		public Color LetterboxColor = Color.Black;
 
-		/// <summary>
-		/// if the ResolutionPolicy is pixel perfect this will be set to the scale calculated for it
-		/// </summary>
-		public int PixelPerfectScale = 1;
-
 		#region SceneResolutionPolicy private fields
 
 		/*/// <summary>
@@ -114,18 +110,13 @@ namespace Atma
 		/// </summary>
 		int2 _designBleedSize;
 
-		/// <summary>
-		/// this gets setup based on the resolution policy and is used for the final blit of the RenderTarget
-		/// </summary>
-		rect _finalRenderDestinationRect;
-
 		#endregion
 
-		public readonly RenderPipeline Pipeline ~ delete _;
+		public int RenderLayer = 0;
 
 		private bool _viewMatrixDirty = true;
 
-		private bool IsViewMatrixDirty => _viewMatrixDirty || Entity.WorldPosition != _cachePosition;
+		private bool IsViewMatrixDirty => _viewMatrixDirty;
 
 		private float4x4 _viewMatrix = float4x4.Identity;
 		private float4x4 _inverseViewMatrix = float4x4.Identity;
@@ -137,32 +128,13 @@ namespace Atma
 		private float4x4 _projViewMatrix = float4x4.Identity;
 		private float4x4 _inverseProjViewMatrix = float4x4.Identity;
 
-		//private float2 _position = float2.Zero;
+		private float2 _position = float2.Zero;
 		private aabb2 _viewport;
 		private float _depth = 20f;
 		private float2 _dpiScale = .Ones;
 		private float _scale = 1;
 		private float2 _origin = float2.Zero;
-
-		private float2 _cachePosition = float2.Zero;
-
-		private int2 _renderSize;
-
-		public int Width => _renderSize.x;
-		public int Height => _renderSize.y;
-
-		public int2 Size
-		{
-			get => _renderSize;
-			/*set
-			{
-				_projMatrixDirty = true;
-				_viewMatrixDirty = true;
-				_designResolutionSize = value;
-				//_viewport = .(_viewport.Left, _viewport.Top, value.x, value.y);
-				UpdateResolutionScaler();
-			}*/
-		}
+		private Resolution _resolution;
 
 		public float Depth
 		{
@@ -175,25 +147,23 @@ namespace Atma
 			}
 		}
 
-		public float WorldDepth => _depth + Entity.Depth;
-
-		public override bool Track => true;
-
-		public this(ResolutionPolicy resolutionPolicy, int2 designSize, int2 bleedSize) : base(false)
+		public this(ResolutionPolicy resolutionPolicy, int2 designSize, int2 bleedSize)
+			: base()
 		{
-			_designResolutionSize = designSize;
-			_designBleedSize = bleedSize;
-			_resolutionPolicy = resolutionPolicy;
-
 			_viewport = .(0, 0, 1, 1);
 			_dpiScale = .Ones;
 
-			UpdateResolutionScaler();
+			_designResolutionSize = designSize;
+			_resolutionPolicy = resolutionPolicy;
+			_designBleedSize = .Zero;
+			if (_resolutionPolicy == ResolutionPolicy.BestFit)
+				_designBleedSize = bleedSize;
 
-			Pipeline = new .(_renderSize, .Color);
+			_resolution = CalculateResolution(resolutionPolicy, designSize, Screen.Size, bleedSize);
+			Initialize(_resolution.Size, .Color);
 		}
 
-		/*public float2 Position
+		public float2 Position
 		{
 			get => _position;
 			set
@@ -201,7 +171,7 @@ namespace Atma
 				_viewMatrixDirty = true;
 				_position = value;
 			}
-		}*/
+		}
 
 		public aabb2 Viewport
 		{
@@ -249,33 +219,7 @@ namespace Atma
 			return mat;
 		}
 
-		public float ScaleY = 1;
 		public aabb2 WorldBounds;
-		public int RenderLayer = 0;
-
-		public override void Added(Entity entity)
-		{
-			base.Added(entity);
-			if (Pipeline.RendererCount == 0)
-			{
-				Pipeline.AddRenderer(new SceneRenderer(this.Entity.Scene));
-				Log.Debug("Scene has begun with no renderer. A DefaultRenderer was added automatically so that something is visible.");
-			}
-
-			UpdateResolutionScaler();
-
-			Core.Emitter.AddObserver<CoreEvents.GraphicsDeviceReset>(new => OnGraphicsDeviceReset);
-			Core.Emitter.AddObserver<CoreEvents.OrientationChanged>(new => OnOrientationChanged);
-			Core.Emitter.AddObserver<CoreEvents.WindowResize>(new => OnWindowResize);
-		}
-
-		public override void Removed(Entity entity)
-		{
-			base.Removed(entity);
-			Core.Emitter.RemoveObserver<CoreEvents.GraphicsDeviceReset>(scope => OnGraphicsDeviceReset);
-			Core.Emitter.RemoveObserver<CoreEvents.OrientationChanged>(scope => OnOrientationChanged);
-			Core.Emitter.AddObserver<CoreEvents.WindowResize>(new => OnWindowResize);
-		}
 
 		void OnGraphicsDeviceReset(CoreEvents.GraphicsDeviceReset ev) => UpdateResolutionScaler();
 		void OnOrientationChanged(CoreEvents.OrientationChanged ev) => UpdateResolutionScaler();
@@ -287,7 +231,7 @@ namespace Atma
 			{
 				if (_projMatrixDirty || force)
 				{
-					_projMatrix = float4x4.Ortho(0, _renderSize.x, 0, _renderSize.y, _depth, 0);
+					_projMatrix = float4x4.Ortho(0, Width, 0, Height, _depth, 0);
 					_inverseProjViewMatrix = _projMatrix.Inverse;
 
 					_projMatrixDirty = false;
@@ -295,14 +239,13 @@ namespace Atma
 
 				if (IsViewMatrixDirty || force)
 				{
-					let p = (WorldPosition * _scale);
+					let p = (_position * _scale);
 					let cameraFront = float3(0, 0, -1);
 					let cameraUp = float3(0, 1, 0);
 					_viewMatrix = float4x4.LookAt(float3(p, _depth), float3(p, 0) + cameraFront, cameraUp);
-					_viewMatrix = _viewMatrix * float4x4.Translate(float3(_renderSize * _origin, 0)) * float4x4.Scale(float3(_dpiScale * _scale, 1));
+					_viewMatrix = _viewMatrix * float4x4.Translate(float3(Size * _origin, 0)) * float4x4.Scale(float3(_dpiScale * _scale, 1));
 
 					_inverseViewMatrix = _viewMatrix.Inverse;
-					_cachePosition = Entity.WorldPosition;
 					_viewMatrixDirty = false;
 				}
 
@@ -318,20 +261,20 @@ namespace Atma
 
 		public int2 ScreenToWorld(float2 screenPosition)
 		{
-			let scale = _finalRenderDestinationRect.Size / (float2)Pipeline.Size;
+			let scale = _resolution.Size / (float2)Size;
 			let pos = ((screenPosition) - _viewport.TopLeft * Screen.Size);
-			return (int2)(InverseViewMatrix * ((pos - _finalRenderDestinationRect.TopLeft - WorldPosition) / scale));
+			return (int2)(InverseViewMatrix * ((pos - _resolution.DrawRect.TopLeft - _position) / scale));
 		}
 
-		public void Render(Scene scene)
+		public void Render()
 		{
 			UpdateMatrix(true);
 
-			let result = Pipeline.Render(ProjectionViewMatrix);
+			let result = this.Execute(ProjectionViewMatrix);
 
 			Core.Graphics.Clear(Core.Window, LetterboxColor);
-			Core.Draw.Image(result, _finalRenderDestinationRect.ToAABB());
-			Core.Draw.HollowRect(_finalRenderDestinationRect, 1f, .Red);
+			Core.Draw.Image(result, _resolution.DrawRect.ToAABB());
+			//Core.Draw.HollowRect(_resolution.DrawRect, 1f, .Red);
 			Core.Draw.Render(Core.Window, Screen.Matrix);
 		}
 
@@ -346,20 +289,35 @@ namespace Atma
 		/// <param name="horizontalBleed">Horizontal bleed size. Used only if resolution policy is set to <see
 		// cref="SceneResolutionPolicy.BestFit"/>.</param> <param name="verticalBleed">Horizontal bleed size. Used only
 		// if resolution policy is set to <see cref="SceneResolutionPolicy.BestFit"/>.</param>
-		public void SetDesignResolution(int width, int height, ResolutionPolicy sceneResolutionPolicy,
-			int horizontalBleed = 0, int verticalBleed = 0)
+		public void SetDesignResolution(int width, int height, ResolutionPolicy sceneResolutionPolicy, int2 bleed = .Zero)
 		{
 			_designResolutionSize = int2(width, height);
 			_resolutionPolicy = sceneResolutionPolicy;
+			_designBleedSize = .Zero;
 			if (_resolutionPolicy == ResolutionPolicy.BestFit)
-				_designBleedSize = int2(horizontalBleed, verticalBleed);
+				_designBleedSize = bleed;
+
 			UpdateResolutionScaler();
 		}
 
-		void UpdateResolutionScaler()
+		private void UpdateResolutionScaler()
 		{
-			var designSize = _designResolutionSize;
-			var screenSize = (int2)(Screen.Size * _viewport.Size);
+			let resolution = CalculateResolution(_resolutionPolicy, _designResolutionSize, Screen.Size, _designBleedSize);
+			if (_resolution.Size != resolution.Size)
+			{
+				_projMatrixDirty = true;
+				_viewMatrixDirty = true;
+				Resize(resolution.Size);
+				Log.Debug(scope $"Resize camera [{_resolution.Size}] -> {resolution.Size}");
+			}
+
+			_resolution = resolution;
+		}
+
+		static Resolution CalculateResolution(ResolutionPolicy _resolutionPolicy, int2 designSize, int2 targetSize, int2 _designBleedSize)
+		{
+			var designSize;// = _designResolutionSize;
+			var screenSize = targetSize;// (int2)(Screen.Size * _viewport.Size);
 			var screenAspectRatio = (float)screenSize.x / screenSize.y;
 
 			var renderTargetWidth = screenSize.x;
@@ -371,24 +329,27 @@ namespace Atma
 			var rectCalculated = false;
 
 			// calculate the scale used by the PixelPerfect variants
-			PixelPerfectScale = 1;
+			var pixelScale = 1;
 			if (_resolutionPolicy != ResolutionPolicy.None)
 			{
 				if ((float)designSize.x / (float)designSize.y > screenAspectRatio)
-					PixelPerfectScale = screenSize.x / designSize.x;
+					pixelScale = screenSize.x / designSize.x;
 				else
-					PixelPerfectScale = screenSize.y / designSize.y;
+					pixelScale = screenSize.y / designSize.y;
 
-				if (PixelPerfectScale == 0)
-					PixelPerfectScale = 1;
+				if (pixelScale == 0)
+					pixelScale = 1;
 			}
+
+			var renderRect = rect();
 
 			switch (_resolutionPolicy)
 			{
 			case ResolutionPolicy.None:
-				_finalRenderDestinationRect.X = _finalRenderDestinationRect.Y = 0;
-				_finalRenderDestinationRect.Width = screenSize.x;
-				_finalRenderDestinationRect.Height = screenSize.y;
+				renderRect = .(0, 0, screenSize.width, screenSize.height);
+				renderRect.X = renderRect.Y = 0;
+				renderRect.Width = screenSize.x;
+				renderRect.Height = screenSize.y;
 				rectCalculated = true;
 				break;
 			case ResolutionPolicy.ExactFit:
@@ -409,25 +370,25 @@ namespace Atma
 				renderTargetHeight = designSize.y;
 
 					// we are going to do some cropping so we need to use floats for the scale then round up
-				PixelPerfectScale = 1;
+				pixelScale = 1;
 				if ((float)designSize.x / (float)designSize.y < screenAspectRatio)
 				{
 					var floatScale = (float)screenSize.x / (float)designSize.x;
-					PixelPerfectScale = (.)Math.Ceiling(floatScale);
+					pixelScale = (.)Math.Ceiling(floatScale);
 				}
 				else
 				{
 					var floatScale = (float)screenSize.y / (float)designSize.y;
-					PixelPerfectScale = (.)Math.Ceiling(floatScale);
+					pixelScale = (.)Math.Ceiling(floatScale);
 				}
 
-				if (PixelPerfectScale == 0)
-					PixelPerfectScale = 1;
+				if (pixelScale == 0)
+					pixelScale = 1;
 
-				_finalRenderDestinationRect.Width = (.)Math.Ceiling(designSize.x * PixelPerfectScale);
-				_finalRenderDestinationRect.Height = (.)Math.Ceiling(designSize.y * PixelPerfectScale);
-				_finalRenderDestinationRect.X = (screenSize.x - _finalRenderDestinationRect.Width) / 2;
-				_finalRenderDestinationRect.Y = (screenSize.y - _finalRenderDestinationRect.Height) / 2;
+				renderRect.Width = (.)Math.Ceiling(designSize.x * pixelScale);
+				renderRect.Height = (.)Math.Ceiling(designSize.y * pixelScale);
+				renderRect.X = (screenSize.x - renderRect.Width) / 2;
+				renderRect.Y = (screenSize.y - renderRect.Height) / 2;
 				rectCalculated = true;
 
 				break;
@@ -442,10 +403,10 @@ namespace Atma
 				renderTargetWidth = designSize.x;
 				renderTargetHeight = designSize.y;
 
-				_finalRenderDestinationRect.Width = (.)Math.Ceiling(designSize.x * PixelPerfectScale);
-				_finalRenderDestinationRect.Height = (.)Math.Ceiling(designSize.y * PixelPerfectScale);
-				_finalRenderDestinationRect.X = (screenSize.x - _finalRenderDestinationRect.Width) / 2;
-				_finalRenderDestinationRect.Y = (screenSize.y - _finalRenderDestinationRect.Height) / 2;
+				renderRect.Width = (.)Math.Ceiling(designSize.x * pixelScale);
+				renderRect.Height = (.)Math.Ceiling(designSize.y * pixelScale);
+				renderRect.X = (screenSize.x - renderRect.Width) / 2;
+				renderRect.Y = (screenSize.y - renderRect.Height) / 2;
 				rectCalculated = true;
 
 				break;
@@ -461,13 +422,13 @@ namespace Atma
 					// start with exact design size render texture height. the width may change
 				renderTargetHeight = designSize.y;
 
-				_finalRenderDestinationRect.Width = (.)Math.Ceiling(designSize.x * resolutionScaleX);
-				_finalRenderDestinationRect.Height = (.)Math.Ceiling(designSize.y * PixelPerfectScale);
-				_finalRenderDestinationRect.X = (screenSize.x - _finalRenderDestinationRect.Width) / 2;
-				_finalRenderDestinationRect.Y = (screenSize.y - _finalRenderDestinationRect.Height) / 2;
+				renderRect.Width = (.)Math.Ceiling(designSize.x * resolutionScaleX);
+				renderRect.Height = (.)Math.Ceiling(designSize.y * pixelScale);
+				renderRect.X = (screenSize.x - renderRect.Width) / 2;
+				renderRect.Y = (screenSize.y - renderRect.Height) / 2;
 				rectCalculated = true;
 
-				renderTargetWidth = (int)(designSize.x * resolutionScaleX / PixelPerfectScale);
+				renderTargetWidth = (int)(designSize.x * resolutionScaleX / pixelScale);
 				break;
 			case ResolutionPolicy.FixedWidth:
 				resolutionScaleY = resolutionScaleX;
@@ -481,13 +442,13 @@ namespace Atma
 					// start with exact design size render texture width. the height may change
 				renderTargetWidth = designSize.x;
 
-				_finalRenderDestinationRect.Width = (.)Math.Ceiling(designSize.x * PixelPerfectScale);
-				_finalRenderDestinationRect.Height = (.)Math.Ceiling(designSize.y * resolutionScaleY);
-				_finalRenderDestinationRect.X = (screenSize.x - _finalRenderDestinationRect.Width) / 2;
-				_finalRenderDestinationRect.Y = (screenSize.y - _finalRenderDestinationRect.Height) / 2;
+				renderRect.Width = (.)Math.Ceiling(designSize.x * pixelScale);
+				renderRect.Height = (.)Math.Ceiling(designSize.y * resolutionScaleY);
+				renderRect.X = (screenSize.x - renderRect.Width) / 2;
+				renderRect.Y = (screenSize.y - renderRect.Height) / 2;
 				rectCalculated = true;
 
-				renderTargetHeight = (int)(designSize.y * resolutionScaleY / PixelPerfectScale);
+				renderTargetHeight = (int)(designSize.y * resolutionScaleY / pixelScale);
 
 				break;
 			case ResolutionPolicy.BestFit:
@@ -513,44 +474,13 @@ namespace Atma
 				var renderWidth = designSize.x * resolutionScaleX;
 				var renderHeight = designSize.y * resolutionScaleY;
 
-				_finalRenderDestinationRect = aabb2.FromRect((screenSize.x - renderWidth) / 2,
+				renderRect = aabb2.FromRect((screenSize.x - renderWidth) / 2,
 					(screenSize.y - renderHeight) / 2, renderWidth, renderHeight).ToRect();
-
-				/*_finalRenderDestinationRect = RectangleExt.FromFloats((screenSize.X - renderWidth) / 2,
-					(screenSize.Y - renderHeight) / 2, renderWidth, renderHeight);*/
 			}
 
-
-			// set some values in the Input class to translate mouse position to our scaled resolution
-			//TODO: var scaleX = renderTargetWidth / (float)_finalRenderDestinationRect.Width;
-			//TODO: var scaleY = renderTargetHeight / (float)_finalRenderDestinationRect.Height;
-
-			//TODO: Input._resolutionScale = float2(scaleX, scaleY);
-			//TODO: Input._resolutionOffset = _finalRenderDestinationRect.Location;
-
-			let newRenderSize = int2(renderTargetWidth, renderTargetHeight);
-			if (_renderSize != newRenderSize)
-			{
-				Pipeline?.Resize(newRenderSize);
-
-				_projMatrixDirty = true;
-				_viewMatrixDirty = true;
-				Log.Debug(scope $"Resize camera [{_renderSize}] -> {newRenderSize}");
-				_renderSize = newRenderSize;
-			}
+			return (int2(renderTargetWidth, renderTargetHeight), pixelScale, renderRect);
 		}
 
 		#endregion
-
-		public override void Inspect()
-		{
-			base.Inspect();
-
-			let wp = this.ScreenToWorld(Core.Input.MousePosition);
-			//_renderTarget.Inspect();
-			ImGui.Text(scope $"MouseToWorld: {wp}");
-
-			Pipeline.Inspect();
-		}
 	}
 }

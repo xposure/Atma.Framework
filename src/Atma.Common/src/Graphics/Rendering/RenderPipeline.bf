@@ -31,6 +31,11 @@ namespace Atma
 		{
 		}
 
+		protected this() : base()
+		{
+			//used to init after ctor
+		}
+
 		protected override bool InternalResize(int2 size)
 		{
 			let oldSize = this.Size;
@@ -70,7 +75,7 @@ namespace Atma
 			return renderer;
 		}
 
-		public RenderTexture Render(float4x4 matrix)
+		public RenderTexture Execute(float4x4 matrix)
 		{
 			Contract.GreaterThan(_renderers.Count, 0);
 

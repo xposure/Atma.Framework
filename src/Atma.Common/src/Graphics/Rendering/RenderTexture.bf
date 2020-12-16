@@ -56,7 +56,12 @@ namespace Atma
 			Initialize(.(width, height), params attachments);
 		}
 
-		internal void Initialize(int2 size, params TextureFormat[] attachments)
+		protected this()
+		{
+			//used to init later
+		}
+
+		protected void Initialize(int2 size, params TextureFormat[] attachments)
 		{
 			this.width = size.width;
 			this.height = size.height;

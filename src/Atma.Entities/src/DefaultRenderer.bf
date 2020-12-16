@@ -45,24 +45,16 @@ namespace Atma
 			}
 		}
 
-		/*/// <summary>
-		/// default debugRender method just loops through all entities and calls entity.debugRender. Note that you are
-		// in the middle of a batch at this point so you may want to call Batcher.End and Batcher.begin to clear out any
-		// Materials and items awaiting rendering. </summary> <param name="scene">Scene.</param>
-		protected override void DebugRender()
-		{
-		}*/
-
 		public override void Render(RenderPipeline pipeline)
 		{
-			for (var cam in scene.Entities.Components<Camera>())
+			for (var cam in scene.Entities.Components<Camera2DComponent>())
 			{
 				Core.Draw.SetBlendMode(BlendMode);
 				for (var i = 0; i < scene.RenderableComponents.Count; i++)
 				{
 					var renderable = scene.RenderableComponents[i];
 
-					if (renderable.ShouldRender(cam))
+					if (renderable.ShouldRender(cam.Camera))
 					{
 						UpdateState(renderable);
 						renderable.Render();

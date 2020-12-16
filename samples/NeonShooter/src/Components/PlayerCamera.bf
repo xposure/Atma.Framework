@@ -15,7 +15,7 @@ namespace NeonShooter.Components
 			//let cameraEntity = camera.Entity;
 
 			//cameraEntity.Position = this.Entity.Position;
-			WorldTarget = camera.ScreenToWorld(Core.Input.MousePosition);
+			WorldTarget = camera.Camera.ScreenToWorld(Core.Input.MousePosition);
 		}
 	}
 }
