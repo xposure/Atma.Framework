@@ -51,16 +51,15 @@ namespace NeonShooter
 			CreateEntity("grid").Components.Add(Grid);
 			CreateEntity("particles").Components.Add(Particles);
 
-			this.Camera.AddRenderer(new DefaultRenderer() { BlendMode = .Add });
+			this.Camera.Pipeline.AddRenderer(new SceneRenderer(this) { BlendMode = .Add });
 			Core.Atlas.AddDirectory("main", "textures");
 			Core.Atlas.Finalize();
 
 			Core.Graphics.ClearColor = .Black;
-			Camera.ClearColor = .(0, 0, 0, 255);
+			Camera.Pipeline.ClearColor = .(0, 0, 0, 255);
 
-			Camera.AddPostProcessor(new Bloom());
-			Camera.AddPostProcessor(new Vignette());
-
+			Camera.Pipeline.AddPostProcessor(new Bloom());
+			Camera.Pipeline.AddPostProcessor(new Vignette());
 
 			player = AddEntity(new Player());
 			player.Components.Add(new PlayerCamera());

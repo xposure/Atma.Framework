@@ -22,9 +22,11 @@ namespace Atma
 
 		public int2 Size => .(Width, Height);
 
-		public void Resize(int2 size) => Resize(size.x, size.y);
+		public bool Resize(int2 size) => InternalResize(size);
 
-		public abstract void Resize(int width, int height);
+		public bool Resize(int width, int height) => InternalResize(.(width, height));
+
+		protected abstract bool InternalResize(int2 size);
 
 		public float4x4 Matrix => .Ortho(0, Width, 0, Height);
 

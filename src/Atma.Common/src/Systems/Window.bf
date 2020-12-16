@@ -159,9 +159,10 @@ namespace Atma
 			}
 		}
 
-		public override void Resize(int width, int height)
+		protected override bool InternalResize(int2 size)
 		{
-			WindowSize = .(width, height);
+			WindowSize = size;
+			return true;
 		}
 
 		/// <summary>

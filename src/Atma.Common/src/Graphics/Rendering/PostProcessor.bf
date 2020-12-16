@@ -1,4 +1,4 @@
-/*using System;
+using System;
 using System.Collections;
 
 namespace Atma
@@ -8,7 +8,7 @@ namespace Atma
 	{
 		protected T _effect = new .() ~ delete _;
 
-		protected override void OnProcess(Texture source, RenderTexture destination, Camera camera)
+		protected override void OnProcess(Texture source, RenderTexture destination)
 		{
 			_effect.Render(source, destination);
 		}
@@ -35,22 +35,17 @@ namespace Atma
 
 		private bool _captureInput = Core.DebugRenderEnabled, _captureOutput = Core.DebugRenderEnabled;
 
-		/// <summary>
+		/*/// <summary>
 		/// called when the PostProcessor is added to the Scene. Subclasses must base!
 		/// </summary>
 		/// <param name="scene">Scene.</param>
 		public virtual void OnAddedToCamera(Camera camera)
 		{
-		}
+		}*/
 
-		/// <summary>
-		/// called when the default scene RenderTarget is resized. If a PostProcessor is added to a scene before it
-		// begins this method will be called before the scene first renders. If the scene already started this will be
-		// called after onAddedToScene making it an ideal place to create any RenderTextures a PostProcessor might
-		// require. </summary> <param name="newWidth">New width.</param> <param name="newHeight">New height.</param>
-		public virtual void OnSceneBackBufferSizeChanged(int newWidth, int newHeight)
-		{
-		}
+		protected internal virtual void PipelineResize(int2 oldSize, int2 newSize) { }
+		protected internal virtual void OnAddedToPipeline(RenderPipeline pipeline) { }
+		protected internal virtual void OnRemovedFromPipeline(RenderPipeline pipeline) { }
 
 		/// <summary>
 		/// this is the meat method here. The source passed in contains the full scene with any previous PostProcessors
@@ -60,9 +55,9 @@ namespace Atma
 		/// Note that destination might have a previous render! If your PostProcessor Effect is discarding you should
 		// clear the destination before writing to it! </summary> <param name="source">Source.</param> <param
 		// name="destination">Destination.</param>
-		public void Process(Texture source, RenderTexture destination, Camera camera)
+		public void Process(Texture source, RenderTexture destination)
 		{
-			OnProcess(source, destination, camera);
+			OnProcess(source, destination);
 
 			if (_captureInput)
 			{
@@ -87,7 +82,7 @@ namespace Atma
 			}
 		}
 
-		protected abstract void OnProcess(Texture source, RenderTexture destination, Camera camera);
+		protected abstract void OnProcess(Texture source, RenderTexture destination);
 		/// <summary>
 		/// called when a scene is ended or this PostProcessor is removed. use this for cleanup.
 		/// </summary>
@@ -129,4 +124,4 @@ namespace Atma
 		//change to public for crash
 		protected virtual void OnInspect() { }
 	}
-}*/
+}

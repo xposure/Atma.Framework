@@ -9,10 +9,10 @@ namespace NeonShooter.PostProcessors
 		{
 		}
 
-		protected override void OnProcess(Texture source, RenderTexture destination, Camera camera)
+		protected override void OnProcess(Texture source, RenderTexture destination)
 		{
-			_effect.Resolution.Value = camera.Size;
-			base.OnProcess(source, destination, camera);
+			_effect.Resolution.Value = destination.Size;
+			base.OnProcess(source, destination);
 		}
 	}
 }

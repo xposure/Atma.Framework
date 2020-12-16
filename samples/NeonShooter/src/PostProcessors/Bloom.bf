@@ -73,7 +73,7 @@ namespace NeonShooter.PostProcessors
 			_combine = new .();
 		}
 
-		protected override void OnProcess(Texture source, RenderTexture destination, Camera camera)
+		protected override void OnProcess(Texture source, RenderTexture destination)
 		{
 			_bloomTexture[0].Resize(destination.Size);
 			_bloomTexture[1].Resize(destination.Size);

@@ -53,8 +53,13 @@ namespace Atma
 
 		public this(int width, int height, params TextureFormat[] attachments)
 		{
-			this.width = width;
-			this.height = height;
+			Initialize(.(width, height), params attachments);
+		}
+
+		internal void Initialize(int2 size, params TextureFormat[] attachments)
+		{
+			this.width = size.width;
+			this.height = size.height;
 
 			Runtime.Assert(width > 0 && height > 0, "FrameBuffer must have a size larger than 0");
 			Renderable = true;
@@ -66,9 +71,9 @@ namespace Atma
 			Platform_Destroy();
 		}
 
-		public override void Resize(int width, int height)
+		protected override bool InternalResize(int2 size)
 		{
-			Runtime.Assert(width > 0 && height > 0, "FrameBuffer must have a size larger than 0");
+			Runtime.Assert(size.width > 0 && size.height > 0, "FrameBuffer must have a size larger than 0");
 
 			if (this.width != width || this.height != height)
 			{
@@ -76,7 +81,10 @@ namespace Atma
 				this.height = height;
 
 				Platform_Resize(width, height);
+				return true;
 			}
+
+			return false;
 		}
 
 		public void Bind(GraphicsContext ctx)
@@ -86,6 +94,12 @@ namespace Atma
 
 		public aabb2 Bounds => aabb2.FromRect(0, 0, width, height);
 
+		public void Inpsect()
+		{
+			OnInspect();
+		}
+
+		protected virtual void OnInspect() { }
 	}
 }
 
