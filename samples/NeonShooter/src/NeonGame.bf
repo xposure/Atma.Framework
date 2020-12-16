@@ -28,8 +28,7 @@ namespace NeonShooter
 		private List<SoundEffect> spawns = new .() ~ delete _;
 		public SoundEffect Spawn { get { return spawns[Core.Random.Next(spawns.Count)]; } }
 
-
-		public override void Initialize()
+		public this() : base(.ExactFit, Screen.Size)
 		{
 			Music = Core.Assets.LoadMusic("music/music.mp3");
 			Music.Play();
@@ -38,7 +37,6 @@ namespace NeonShooter
 			for (var i < 4) shots.Add(Core.Assets.LoadSoundEffect(scope $"sounds/shoot-0{i+1}.wav"));
 			for (var i < 8) spawns.Add(Core.Assets.LoadSoundEffect(scope $"sounds/spawn-0{i+1}.wav"));
 
-			base.Initialize();
 			Time.SetTargetFramerate(60);
 
 			Particles = new .(new => ParticleState.UpdateParticle);
@@ -51,22 +49,19 @@ namespace NeonShooter
 			CreateEntity("grid").Components.Add(Grid);
 			CreateEntity("particles").Components.Add(Particles);
 
-			this.Camera.Camera.AddRenderer(new SceneRenderer(this) { BlendMode = .Add });
+			this.Camera.AddRenderer(new SceneRenderer(this) { BlendMode = .Add });
 			Core.Atlas.AddDirectory("main", "textures");
 			Core.Atlas.Finalize();
 
 			Core.Graphics.ClearColor = .Black;
-			Camera.Camera.ClearColor = .(0, 0, 0, 255);
+			Camera.ClearColor = .(0, 0, 0, 255);
 
-			Camera.Camera.AddPostProcessor(new Bloom());
-			Camera.Camera.AddPostProcessor(new Vignette());
+			Camera.AddPostProcessor(new Bloom());
+			Camera.AddPostProcessor(new Vignette());
 
 			player = AddEntity(new Player());
 			player.Components.Add(new PlayerCamera());
 			player.Position = Screen.Size / 2;
-
-			Camera.Camera.SetDesignResolution(Screen.Width, Screen.Height, .ExactFit);
-			//Camera.SetDesignResolution(400,400, .ShowAllPixelPerfect, 0, 0);
 		}
 
 		public override void FixedUpdate()
@@ -131,7 +126,9 @@ namespace NeonShooter
 		public void Reset()
 		{
 			inverseSpawnChance = 60;
-		} internal protected override void Render()
+		}
+
+		public override void Render()
 		{
 			base.Render();
 

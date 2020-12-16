@@ -5,33 +5,34 @@ namespace Atma
 	public class Camera2DComponent : Component
 	{
 		public override bool Track => true;
+		private Camera2D _camera;
 
-		public readonly Camera2D Camera ~ delete _;
+		public static implicit operator Camera2D(Camera2DComponent it) => it._camera;
 
-		public this(Camera2D.ResolutionPolicy resolutionPolicy, int2 designSize, int2 bleedSize) : base(false)
+		public this(Camera2D camera) : base(false)
 		{
-			Camera = new .(resolutionPolicy, designSize, bleedSize);
+			_camera = camera;
 		}
 
 		public override void Added(Entity entity)
 		{
 			base.Added(entity);
 
-			if (Camera.RendererCount == 0)
+			if (_camera.RendererCount == 0)
 			{
-				Camera.AddRenderer(new SceneRenderer(this.Entity.Scene));
+				_camera.AddRenderer(new SceneRenderer(this.Entity.Scene));
 				Log.Debug("Scene has begun with no renderer. A DefaultRenderer was added automatically so that something is visible. ");
 			}
 		}
 
 		public void Render()
 		{
-			Camera.Render();
+			_camera.Render();
 		}
 
 		public override void Inspect()
 		{
-			let wp = this.Camera.ScreenToWorld(Core.Input.MousePosition);
+			let wp = _camera.ScreenToWorld(Core.Input.MousePosition);
 			ImGui.Text(scope $"MouseToWorld: {wp}");
 
 			base.Inspect();

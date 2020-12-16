@@ -159,7 +159,23 @@ namespace Atma
 
 			_resolution = CalculateResolution(resolutionPolicy, designSize, Screen.Size, bleedSize);
 			Initialize(_resolution.Size, .Color);
+
+			Core.Emitter.AddObserver<CoreEvents.GraphicsDeviceReset>(new => OnGraphicsDeviceReset);
+			Core.Emitter.AddObserver<CoreEvents.OrientationChanged>(new => OnOrientationChanged);
+			Core.Emitter.AddObserver<CoreEvents.WindowResize>(new => OnWindowResize);
 		}
+
+		public ~this()
+		{
+			Core.Emitter.RemoveObserver<CoreEvents.GraphicsDeviceReset>(scope => OnGraphicsDeviceReset);
+			Core.Emitter.RemoveObserver<CoreEvents.OrientationChanged>(scope => OnOrientationChanged);
+			Core.Emitter.RemoveObserver<CoreEvents.WindowResize>(scope => OnWindowResize);
+		}
+
+		void OnGraphicsDeviceReset(CoreEvents.GraphicsDeviceReset ev) => UpdateResolutionScaler();
+		void OnOrientationChanged(CoreEvents.OrientationChanged ev) => UpdateResolutionScaler();
+		void OnWindowResize(CoreEvents.WindowResize ev) => UpdateResolutionScaler();
+
 
 		public float2 Position
 		{
@@ -219,17 +235,13 @@ namespace Atma
 
 		public aabb2 WorldBounds;
 
-		void OnGraphicsDeviceReset(CoreEvents.GraphicsDeviceReset ev) => UpdateResolutionScaler();
-		void OnOrientationChanged(CoreEvents.OrientationChanged ev) => UpdateResolutionScaler();
-		void OnWindowResize(CoreEvents.WindowResize ev) => UpdateResolutionScaler();
-
 		private void UpdateMatrix(bool force = false)
 		{
 			if (_projMatrixDirty || _viewMatrixDirty || force)
 			{
 				if (_projMatrixDirty || force)
 				{
-					_projMatrix = float4x4.Ortho(0, Width, 0, Height, _depth, 0);
+					_projMatrix = float4x4.Ortho(0, _resolution.Size.width, 0, _resolution.Size.height, _depth, 0);
 					_inverseProjViewMatrix = _projMatrix.Inverse;
 
 					_projMatrixDirty = false;
@@ -247,10 +259,11 @@ namespace Atma
 					_viewMatrixDirty = false;
 				}
 
-				let tl = (int2)ScreenToWorld(Screen.Size * Viewport.Min / (Screen.Size / Size));
-				let s = (int2)ScreenToWorld(Screen.Size * Viewport.Max / (Screen.Size / Size));
+				//TODO: Viewport math will be wrong here
+				let tl = (int2)ScreenToWorld(_resolution.DrawRect.TopLeft);
+				let br = (int2)ScreenToWorld(_resolution.DrawRect.BottomRight);
 
-				WorldBounds = .FromRect(tl, s - tl);
+				WorldBounds = .(tl, br);
 
 				_projViewMatrix = _projMatrix * _viewMatrix;
 				_inverseProjViewMatrix = _projViewMatrix.Inverse;

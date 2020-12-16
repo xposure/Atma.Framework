@@ -54,7 +54,7 @@ namespace Atma
 				{
 					var renderable = scene.RenderableComponents[i];
 
-					if (renderable.ShouldRender(cam.Camera))
+					if (renderable.ShouldRender(cam))
 					{
 						UpdateState(renderable);
 						renderable.Render();

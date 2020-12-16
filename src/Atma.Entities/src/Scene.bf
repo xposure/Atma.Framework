@@ -8,23 +8,17 @@ namespace Atma
 	{
 		typealias FastList<T> = System.Collections.List<T>;
 
-		public Assets Assets ~ delete _;
+		public readonly Assets Assets ~ delete _;
 
 		/// <summary>
 		/// default scene Camera
 		/// </summary>
-		public Camera2DComponent Camera;
+		public readonly Camera2D Camera ~ delete _;
 
 		/// <summary>
 		/// SamplerState used for the final draw of the RenderTarget to the framebuffer
 		/// </summary>
 		public TextureFilter SamplerState = Core.DefaultTextureFilter;
-
-		/// <summary>
-		/// Scene-specific ContentManager. Use it to load up any resources that are needed only by this scene. If you
-		// have global/multi-scene resources you can use Core.contentManager to load them since Nez will not ever unload
-		// them. </summary>
-		//public readonly NezContentManager Content;
 
 		/// <summary>
 		/// Manages a list of all the RenderableComponents that are currently on scene Entitys
@@ -36,125 +30,24 @@ namespace Atma
 		/// </summary>
 		public readonly EntityList Entities ~ delete _;
 
-		/*/// <summary>
-		/// the final render to the screen can be deferred to this delegate if set. This is really only useful for cases
-		// where the final render might need a full screen size effect even though a small back buffer is used. 
-		// </summary> <value>The final render delegate.</value>
-		public IFinalRenderDelegate FinalRenderDelegate
-		{
-			set
-			{
-				if (_finalRenderDelegate != null)
-					_finalRenderDelegate.Unload();
 
-				_finalRenderDelegate = value;
-
-				if (_finalRenderDelegate != null)
-					_finalRenderDelegate.OnAddedToScene(this);
-			}
-			get => _finalRenderDelegate;
-		}
-
-		IFinalRenderDelegate _finalRenderDelegate;*/
-
-
-
-		bool _didSceneBegin;
-
-
-		/*/// <summary>
-		/// sets the default design size and resolution policy that new scenes will use. horizontal/verticalBleed are
-		// only relevant for BestFit. </summary> <param name="width">Width.</param> <param name="height">Height.</param>
-		//  <param name="sceneResolutionPolicy">Scene resolution policy.</param> <param
-		// name="horizontalBleed">Horizontal bleed size. Used only if resolution policy is set to <see
-		// cref="SceneResolutionPolicy.BestFit"/>.</param>  <param name="verticalBleed">Vertical bleed size. Used only
-		// if resolution policy is set to <see cref="SceneResolutionPolicy.BestFit"/>.</param>
-		public static void SetDefaultDesignResolution(int width, int height,
-			SceneResolutionPolicy sceneResolutionPolicy,
-			int horizontalBleed = 0, int verticalBleed = 0)
-		{
-			_defaultDesignResolutionSize = int2(width, height);
-			_defaultSceneResolutionPolicy = sceneResolutionPolicy;
-			if (_defaultSceneResolutionPolicy == SceneResolutionPolicy.BestFit)
-				_defaultDesignBleedSize = int2(horizontalBleed, verticalBleed);
-		}*/
-
-
-		/*#region Scene creation helpers
-
-		/// <summary>
-		/// helper that creates a scene with the DefaultRenderer attached and ready for use
-		/// </summary>
-		/// <returns>The with default renderer.</returns>
-		public static Scene CreateWithDefaultRenderer(Color? clearColor = null)
-		{
-			var scene = new Scene();
-
-			if (clearColor.HasValue)
-				scene.ClearColor = clearColor.Value;
-			scene.AddRenderer(new DefaultRenderer());
-			return scene;
-		}
-
-
-		#endregion*/
-
-
-		public this()
+		public this(Camera2D.ResolutionPolicy resolutionPolicy, int2 designSize, int2 bleedSize = .Zero)
 		{
 			Entities = new EntityList(this);
 			Assets = new .(Core.Assets);
 			//TODO: Content = new NezContentManager();
 
-			var cameraEntity = CreateEntity("camera");
-			Camera = cameraEntity.Components.Add(new Camera2DComponent(.ExactFit, .(Screen.Width, Screen.Height), .Zero));
+			Camera = new .(resolutionPolicy, designSize, bleedSize);
 
+			let mainCamera = CreateEntity("mainCamera");
+			mainCamera.Components.Add(new Camera2DComponent(Camera));
 			/*// setup our resolution policy. we'll commit it in begin
 			_resolutionPolicy = _defaultSceneResolutionPolicy;
 			_designResolutionSize = _defaultDesignResolutionSize;
 			_designBleedSize = _defaultDesignBleedSize;*/
 		}
 
-
 		#region Scene lifecycle
-
-		/// <summary>	
-		/// override this in Scene subclasses and do your loading here. This is called from the contructor after the
-		// scene sets itself up but before begin is ever called. </summary>
-		public virtual void Initialize()
-		{
-		}
-
-		/// <summary>
-		/// override this in Scene subclasses. this will be called when Core sets this scene as the active scene.
-		/// </summary>
-		public virtual void OnStart()
-		{
-		}
-
-		/// <summary>
-		/// override this in Scene subclasses and do any unloading necessary here. this is called when Core removes this
-		// scene from the active slot. </summary>
-		public virtual void Unload()
-		{
-		}
-
-		internal void Begin()
-		{
-			//Physics.Reset();
-			_didSceneBegin = true;
-			OnStart();
-		}
-
-		internal void End()
-		{
-			_didSceneBegin = false;
-
-
-			//Physics.Clear();
-
-			Unload();
-		}
 
 		internal void InternalFixedUpdate()
 		{
@@ -171,7 +64,7 @@ namespace Atma
 		{
 		}
 
-		protected internal virtual void Render()
+		public virtual void Render()
 		{
 			Core.Graphics.Clear(Core.Window, Core.Graphics.ClearColor);
 

@@ -39,7 +39,7 @@ namespace NeonShooter.Entities
 
 			Position += Velocity;
 
-			var bounds = this.Scene.Camera.Camera.WorldBounds.Inflate(-sprite.Width, -sprite.Height);
+			var bounds = this.Scene.Camera.WorldBounds.Inflate(-sprite.Width, -sprite.Height);
 			if (!bounds.Contains(WorldPosition))
 				TouchedWall(bounds);
 

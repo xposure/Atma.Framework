@@ -18,8 +18,6 @@ namespace Atma
 		protected override void Initialize()
 		{
 			Scene = _initialScene();
-			Scene.Initialize();
-
 			DeleteAndNullify!(_initialScene);
 		}
 

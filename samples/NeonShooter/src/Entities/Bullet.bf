@@ -19,7 +19,7 @@ namespace NeonShooter.Entities
 		{
 			base.OnFixedUpdate();
 
-			if (!this.Scene.Camera.Camera.WorldBounds.Intersects(WorldPosition))
+			if (!this.Scene.Camera.WorldBounds.Intersects(WorldPosition))
 			{
 				let scene = this.Scene as NeonGame;
 				let particles = scene.Particles;
