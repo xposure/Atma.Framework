@@ -116,8 +116,6 @@ namespace Atma
 
 		private bool _viewMatrixDirty = true;
 
-		private bool IsViewMatrixDirty => _viewMatrixDirty;
-
 		private float4x4 _viewMatrix = float4x4.Identity;
 		private float4x4 _inverseViewMatrix = float4x4.Identity;
 
@@ -147,7 +145,7 @@ namespace Atma
 			}
 		}
 
-		public this(ResolutionPolicy resolutionPolicy, int2 designSize, int2 bleedSize)
+		public this(ResolutionPolicy resolutionPolicy, int2 designSize, int2 bleedSize = .Zero)
 			: base()
 		{
 			_viewport = .(0, 0, 1, 1);
@@ -227,7 +225,7 @@ namespace Atma
 
 		private void UpdateMatrix(bool force = false)
 		{
-			if (_projMatrixDirty || IsViewMatrixDirty || force)
+			if (_projMatrixDirty || _viewMatrixDirty || force)
 			{
 				if (_projMatrixDirty || force)
 				{
@@ -237,7 +235,7 @@ namespace Atma
 					_projMatrixDirty = false;
 				}
 
-				if (IsViewMatrixDirty || force)
+				if (_viewMatrixDirty || force)
 				{
 					let p = (_position * _scale);
 					let cameraFront = float3(0, 0, -1);
@@ -261,14 +259,20 @@ namespace Atma
 
 		public int2 ScreenToWorld(float2 screenPosition)
 		{
-			let scale = _resolution.Size / (float2)Size;
+			let scale = _resolution.Size / (float2)_resolution.DrawRect.Size;
 			let pos = ((screenPosition) - _viewport.TopLeft * Screen.Size);
-			return (int2)(InverseViewMatrix * ((pos - _resolution.DrawRect.TopLeft - _position) / scale));
+			return (int2)(InverseViewMatrix * ((pos - _resolution.DrawRect.TopLeft - _position) * scale));
 		}
 
 		public void Render()
 		{
 			UpdateMatrix(true);
+
+			if (RendererCount == 0)
+			{
+				AddRenderer(new DefaultRenderer(this));
+				Log.Warning("Added default renderer");
+			}
 
 			let result = this.Execute(ProjectionViewMatrix);
 

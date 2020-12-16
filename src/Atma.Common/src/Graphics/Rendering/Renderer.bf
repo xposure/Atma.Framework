@@ -36,4 +36,19 @@ namespace Atma
 		protected internal virtual void OnAddedToPipeline(RenderPipeline pipeline) { }
 		protected internal virtual void OnRemovedFromPipeline(RenderPipeline pipeline) { }
 	}
+
+	public class DefaultRenderer : Renderer
+	{
+		private Camera2D _camera;
+		public this(Camera2D camera)
+		{
+			_camera = camera;
+		}
+
+		public override void Render(RenderPipeline pipeline)
+		{
+			Core.Draw.Render(_camera, _camera.ProjectionViewMatrix);
+			//pipeline.Execute(_camera.ProjectionViewMatrix);
+		}
+	}
 }
