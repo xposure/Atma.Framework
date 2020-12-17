@@ -284,8 +284,14 @@ namespace Atma
 
 		public virtual void DebugRender()
 		{
-			for (var it in _components)
-				it.DebugRender();
+			if (!_destroying)
+			{
+				if (DebugIntegrator)
+					this.Integrations.Debug();
+
+				for (var it in _components)
+					it.DebugRender();
+			}
 		}
 
 		public bool Enabled = true;
@@ -379,6 +385,7 @@ namespace Atma
 		}
 
 		private bool _inspectComponents = false;
+		public bool DebugIntegrator = false;
 	}
 }
 

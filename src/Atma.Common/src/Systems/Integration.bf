@@ -38,6 +38,15 @@ namespace Atma
 				_references = null;
 			}
 		}
+
+		public void Debug()
+		{
+			if (_references != null)
+			{
+				for (var it in ref _references)
+					it.Debug();
+			}
+		}
 	}
 
 	public class Integrator
@@ -46,9 +55,9 @@ namespace Atma
 		{
 			public readonly IntegratorType Owner;
 			public readonly int32 Page;
-			public readonly char8 Index;
+			public readonly uint8 Index;
 
-			public this(IntegratorType owner, int32 page, char8 index)
+			public this(IntegratorType owner, int32 page, uint8 index)
 			{
 				Owner = owner;
 				Page = page;
@@ -59,13 +68,20 @@ namespace Atma
 			{
 				Owner.Free(Page, Index);
 			}
+
+			public void Debug()
+			{
+				Owner.Debug(Page, Index);
+			}
 		}
 
 		public abstract class IntegratorType
 		{
 			public abstract void Advance();
 			public abstract void Integrate(float t);
-			public abstract void Free(int32 page, char8 index);
+			public abstract void Free(int32 page, uint8 index);
+
+			public abstract void Debug(int32 page, uint8 index);
 		}
 
 		public struct Data<T>
@@ -74,6 +90,14 @@ namespace Atma
 			public T previous;
 			public T next;
 			public T current;
+
+			public void Debug(uint8 index)
+			{
+				let type = typeof(T);
+				let name = scope String();
+				type.GetName(name);
+				Log.Debug(scope $"{name}[{index}] previous: {previous}, next: {next}, current: {current}");
+			}
 		}
 
 		public class IntegratorType<T> : IntegratorType
@@ -84,11 +108,12 @@ namespace Atma
 				public readonly IntegratorType Owner;
 				public readonly int32 PageIndex;
 
-				private SizedList<char8, const 256> _free;
-				private SizedList<char8, const 256> _new;
+				private SizedList<uint8, const 256> _free;
+				private SizedList<uint8, const 256> _new;
 				public Data<T>[256] Values;
 
 				public int Available => _free.Count;
+
 
 				public this(IntegratorType owner, int32 pageIndex)
 				{
@@ -107,10 +132,15 @@ namespace Atma
 					return .(Owner, PageIndex, index);
 				}
 
-				public void Free(char8 index)
+				public void Free(uint8 index)
 				{
 					Values[index] = default;
 					_free.Add((.)index);
+				}
+
+				public void Debug(uint8 index)
+				{
+					Values[index].Debug(index);
 				}
 
 				public void AdvanceNew()
@@ -169,9 +199,14 @@ namespace Atma
 				return _pages.Back.Take(out t);
 			}
 
-			public override void Free(int32 page, char8 index)
+			public override void Free(int32 page, uint8 index)
 			{
 				_pages[page].Free(index);
+			}
+
+			public override void Debug(int32 page, uint8 index)
+			{
+				_pages[page].Debug(index);
 			}
 		}
 

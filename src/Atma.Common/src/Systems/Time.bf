@@ -175,7 +175,7 @@ namespace Atma
 			FixedTimestep = (.)(1.0 / fps * MicroToSeconds);
 		}
 
-		internal static float Integrate(int64 time) => (time % FixedTimestep) / (float)FixedTimestep;
+		//internal static float Integrate(int64 time) => (time % FixedTimestep) / (float)FixedTimestep;
 
 		internal static void Step()
 		{

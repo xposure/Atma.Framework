@@ -61,11 +61,11 @@ namespace Atma
 			_windowArgs.Flags = windowFlags;
 		}
 
-		protected static void Integrate(int64 time)
+		/*protected static void Integrate(int64 time)
 		{
 			let t = Time.Integrate(time);
 			Core.Integration.Integrate(t);
-		}
+		}*/
 
 		protected abstract void Update();
 		protected abstract void FixedUpdate();
@@ -129,7 +129,7 @@ namespace Atma
 			Emitter.Signal();
 
 			Emitter.EmitNow(CoreEvents.UpdateBegin());
-			_instance.FixedUpdate();
+			_instance.Update();
 			Emitter.EmitNow(CoreEvents.UpdateEnd());
 			Core.TimeRuler.EndMark("Update");
 		}
@@ -175,6 +175,7 @@ namespace Atma
 			/*Core.TimeRuler.Enabled = true;
 			Core.TimeRuler.ShowLog = true;*/
 
+			Core.Window.VSync = true;
 			int64 prevTime = Internal.GetTickCountMicro() - Time.FixedTimestep;
 			while (!IsExiting)
 			{
@@ -205,6 +206,7 @@ namespace Atma
 							// we are tying update to fixed up until we
 							//fix how the time class works
 							InternalUpdate();
+							//Console.WriteLine(scope $"Fixed {time}");
 							InternalFixedUpdate();
 						}
 
@@ -216,7 +218,9 @@ namespace Atma
 					Core.Integration.Advance();
 				}
 
-				Integrate(time);
+				let integration = (time % Time.FixedTimestep) / (float)Time.FixedTimestep;
+				//Console.WriteLine(scope $"{integration}");
+				Core.Integration.Integrate(integration);
 				InternalRender();
 			}
 

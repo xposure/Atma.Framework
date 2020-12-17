@@ -62,7 +62,7 @@ namespace Atma
 				}
 			}
 
-			if (ShouldDebugRender)
+			if (ShouldDebugRender || Core.DebugRenderEnabled)
 			{
 				for (var it in scene.Entities)
 					if (it.Enabled)
