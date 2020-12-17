@@ -70,7 +70,7 @@ namespace Atma
 			_destroyEntities.Add(entity);
 		}
 
-		public void FixedUpdate()
+		private void InternalUpdate()
 		{
 			for (var it in _removeEntities)
 				it.[Friend]RemoveSelfInternal();
@@ -113,8 +113,18 @@ namespace Atma
 
 			for (var i = entityIndex; i < _entities.Count; i++)
 				_entities[i].Ready();
+		}
 
+		public void FixedUpdate()
+		{
+			InternalUpdate();
 			_root.FixedUpdate();
+		}
+
+		public void Update()
+		{
+			InternalUpdate();
+			_root.Update();
 		}
 
 		public Entity Find(StringView name)

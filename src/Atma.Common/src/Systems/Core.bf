@@ -15,6 +15,7 @@ namespace Atma
 		private static Core _instance;
 
 		public static bool DebugRenderEnabled = false;
+		public static bool UpdateInputInFixedStep = true;
 
 		public readonly static Emitter Emitter = new .() ~ delete _;
 		public readonly static Integrator Integration = new .() ~ delete _;
@@ -40,11 +41,11 @@ namespace Atma
 		public static TextureFilter DefaultTextureFilter = .Linear;
 		public static TextureWrap DefaultTextureWrap = TextureWrap.Clamp;
 
-		private const int MAXSAMPLES = 100;
-		private static int64[MAXSAMPLES] framelist;
+		private const int MAXUPDATEFRAMES = 100;
+		private static int64[MAXUPDATEFRAMES] updateFrameList;
 
 		public static uint64 FrameCount;
-		public static uint64 FixedUpdateCount;
+		public static uint64 UpdateCount;
 
 		public static int FPS;
 		private Window.WindowArgs _windowArgs ~ delete _windowArgs.Title;
@@ -67,6 +68,7 @@ namespace Atma
 		}
 
 		protected abstract void Update();
+		protected abstract void FixedUpdate();
 		protected abstract void Render();
 		protected abstract void Initialize();
 		protected abstract void Unload();
@@ -104,29 +106,51 @@ namespace Atma
 			Emitter.EmitNow(CoreEvents.Initialize());
 		}
 
-		private static void InternalFixedUpdate()
+		private static void InternalUpdate()
 		{
 			Core.TimeRuler.BeginMark("Update", .Green);
 			Time.Step();
 
 			Core.Window.Title = scope $"FPS @{FPS}";
 
-			FixedUpdateCount++;
+			UpdateCount++;
 			int64 frameSum = 0;
-			for (var i < MAXSAMPLES)
-				frameSum += framelist[i];
+			for (var i < MAXUPDATEFRAMES)
+				frameSum += updateFrameList[i];
 
-			FPS = (int)(1.0 / (frameSum / MAXSAMPLES / Time.MicroToSeconds));
+			FPS = (int)(1.0 / (frameSum / MAXUPDATEFRAMES / Time.MicroToSeconds));
 
+			if (!Core.UpdateInputInFixedStep)
+			{
+				Platform_Update();
+				Input.Update();
+			}
 
-			Platform_Update();
-			Input.Update();
 			Emitter.Signal();
 
 			Emitter.EmitNow(CoreEvents.UpdateBegin());
-			_instance.Update();
+			_instance.FixedUpdate();
 			Emitter.EmitNow(CoreEvents.UpdateEnd());
 			Core.TimeRuler.EndMark("Update");
+		}
+
+		private static void InternalFixedUpdate()
+		{
+			Core.TimeRuler.BeginMark("FixedUpdate", .Green);
+			Time.Step();
+
+			if (Core.UpdateInputInFixedStep)
+			{
+				Platform_Update();
+				Input.Update();
+			}
+
+			Emitter.Signal();
+
+			Emitter.EmitNow(CoreEvents.FixedUpdateBegin());
+			_instance.FixedUpdate();
+			Emitter.EmitNow(CoreEvents.FixedUpdateEnd());
+			Core.TimeRuler.EndMark("FixedUpdate");
 		}
 
 		protected static void InternalRender()
@@ -161,7 +185,7 @@ namespace Atma
 
 				int64 time = Internal.GetTickCountMicro();
 
-				framelist[FrameCount % MAXSAMPLES] = Math.Max(time - prevTime, 1);
+				updateFrameList[FrameCount % MAXUPDATEFRAMES] = Math.Max(time - prevTime, 1);
 
 				var msCounter = (time - prevTime);
 				if (msCounter >= Time.FixedTimestep)
@@ -176,7 +200,13 @@ namespace Atma
 						//this needs to be handled better and probably should leverage
 						//the integration code to catch up at say 1.5x?
 						if (steps-- > 0)
+						{
+
+							// we are tying update to fixed up until we
+							//fix how the time class works
+							InternalUpdate();
 							InternalFixedUpdate();
+						}
 
 						msCounter -= Time.FixedTimestep;
 						prevTime += Time.FixedTimestep;

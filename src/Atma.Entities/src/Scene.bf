@@ -49,14 +49,21 @@ namespace Atma
 
 		#region Scene lifecycle
 
+		internal void InternalUpdate()
+		{
+			// update our Entities
+			Entities.Update();
+			Update();
+		}
+
+		public virtual void Update()
+		{
+		}
+
 		internal void InternalFixedUpdate()
 		{
 			// update our Entities
 			Entities.FixedUpdate();
-
-			// we update our renderables after entity.update in case any new Renderables were added
-			RenderableComponents.UpdateLists();
-
 			FixedUpdate();
 		}
 
@@ -66,6 +73,9 @@ namespace Atma
 
 		public virtual void Render()
 		{
+			// we update our renderables after entity.update in case any new Renderables were added
+			RenderableComponents.UpdateLists();
+
 			Core.Graphics.Clear(Core.Window, Core.Graphics.ClearColor);
 
 			for (var it in Entities.Components<Camera2DComponent>())

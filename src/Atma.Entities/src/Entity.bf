@@ -66,13 +66,13 @@ namespace Atma
 		public ref float Rotation
 		{
 			get => ref *_localRotation;
-			set
+			/*set
 			{
 				/*if (Math.Abs(Rotation - value) > 0.5f)
 					_localRotation = 1f - value;
 				else*/
 				*_localRotation = value;
-			}
+			}*/
 		}
 
 		public float WorldRotation => (Rotation + _worldRotation);
@@ -121,6 +121,25 @@ namespace Atma
 				_worldRotation = _parent.WorldRotation;
 			}
 		}
+
+		public void Update()
+		{
+			if (!Enabled)
+				return;
+
+			UpdateFromParent();
+
+			_components.Update();
+
+			OnUpdate();
+
+			_positionLock = .Locked;
+			for (var it in _entities)
+				it.Update();
+			_positionLock = .Unlocked;
+		}
+
+		protected virtual void OnUpdate() { }
 
 		public void FixedUpdate()
 		{

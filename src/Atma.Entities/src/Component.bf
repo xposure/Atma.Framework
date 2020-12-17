@@ -49,6 +49,11 @@ namespace Atma
 			_entity = null;
 		}
 
+
+		public virtual void Update()
+		{
+		}
+
 		public virtual void FixedUpdate()
 		{
 		}

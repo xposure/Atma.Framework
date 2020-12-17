@@ -119,7 +119,7 @@ namespace Atma
 			//io.AddInputCharactersUTF8((.)&event.text.text[0]);
 		}
 
-		private static void UpdateBegin(CoreEvents.UpdateBegin ev)
+		private static void UpdateBegin(CoreEvents.FixedUpdateBegin ev)
 		{
 			//We need to make a choice if ImGui should create its draw commands during update or during render.
 			//Since this is for debugging, I feel that most of the time you would want to
@@ -134,7 +134,7 @@ namespace Atma
 			Update();
 		}
 
-		private static void UpdateEnd(CoreEvents.UpdateEnd ev)
+		private static void UpdateEnd(CoreEvents.FixedUpdateEnd ev)
 		{
 			ImGui.Render();
 		}
@@ -160,8 +160,8 @@ namespace Atma
 
 		public static bool Initialize()
 		{
-			Core.Emitter.AddObserver<CoreEvents.UpdateBegin>(new => UpdateBegin);
-			Core.Emitter.AddObserver<CoreEvents.UpdateEnd>(new => UpdateEnd);
+			Core.Emitter.AddObserver<CoreEvents.FixedUpdateBegin>(new => UpdateBegin);
+			Core.Emitter.AddObserver<CoreEvents.FixedUpdateEnd>(new => UpdateEnd);
 			Core.Emitter.AddObserver<CoreEvents.Present>(new => Present);
 			Core.Emitter.AddObserver<CoreEvents.Shutdown>(new => Shutdown);
 

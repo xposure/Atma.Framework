@@ -151,6 +151,29 @@ namespace Atma
 			}
 		}
 
+		internal void Update() mut
+		{
+			SetLockMode(.Locked);
+			for (var it in ref _components)
+			{
+				let component = it.Component;
+				switch (it.Mode)
+				{
+				case .Adding:
+					InternalAdd(ref it);
+					fallthrough;//Allow a component added to run the same frame, bad?
+				case .Added:
+					if (component.Active)
+						component.Update();
+				case .Removing:
+					InternalRemove(ref it);
+				case .Removed:
+					@it.Remove();
+				}
+			}
+			SetLockMode(.Open);
+		}
+
 		internal void FixedUpdate() mut
 		{
 			SetLockMode(.Locked);

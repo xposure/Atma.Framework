@@ -194,9 +194,7 @@ namespace Atma
 			}
 		}
 
-
 		private Dictionary<int32, IntegratorType> _integrators = new .() ~ DeleteDictionaryAndItems!(_);
-
 
 		internal T GetIntegrator<T>()
 			where T : IntegratorType

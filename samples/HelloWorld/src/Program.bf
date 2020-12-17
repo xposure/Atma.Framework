@@ -26,6 +26,10 @@ namespace HelloWorld
 		{
 		}
 
+		protected override void FixedUpdate()
+		{
+		}
+
 		protected override void Unload()
 		{
 		}

@@ -7,6 +7,11 @@ namespace Atma
 	{
 		protected override void Update()
 		{
+			Scene.InternalUpdate();
+		}
+
+		protected override void FixedUpdate()
+		{
 			Scene.InternalFixedUpdate();
 		}
 

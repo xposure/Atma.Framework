@@ -43,6 +43,26 @@ namespace Atma
 
 		public static FrameEnd FrameEnd() => .();
 
+		public struct FixedUpdateBegin
+		{
+			public override void ToString(String strBuffer)
+			{
+				strBuffer.Append(scope $"FixedUpdateBegin");
+			}
+		}
+
+		public static FixedUpdateBegin FixedUpdateBegin() => .();
+
+		public struct FixedUpdateEnd
+		{
+			public override void ToString(String strBuffer)
+			{
+				strBuffer.Append(scope $"FixedUpdateEnd");
+			}
+		}
+
+		public static FixedUpdateEnd FixedUpdateEnd() => .();
+
 		public struct UpdateBegin
 		{
 			public override void ToString(String strBuffer)
