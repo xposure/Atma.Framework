@@ -61,12 +61,6 @@ namespace Atma
 			_windowArgs.Flags = windowFlags;
 		}
 
-		/*protected static void Integrate(int64 time)
-		{
-			let t = Time.Integrate(time);
-			Core.Integration.Integrate(t);
-		}*/
-
 		protected abstract void Update();
 		protected abstract void FixedUpdate();
 		protected abstract void Render();

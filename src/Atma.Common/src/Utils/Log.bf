@@ -102,7 +102,7 @@ namespace Atma
 			Debug(msg);
 		}
 
-		public static void Todo(StringView todo)
+		public static void Break(StringView todo)
 		{
 			System.Diagnostics.Debug.WriteLine(todo);
 			Line("DEBG", ConsoleColor.Cyan, todo);
@@ -110,12 +110,12 @@ namespace Atma
 			System.Diagnostics.Debug.SafeBreak();
 		}
 
-		public static void Todo(StringView todo, params Object[] args)
+		public static void Break(StringView todo, params Object[] args)
 		{
 			let msg = scope String();
 			msg.AppendF(todo, params args);
 
-			Todo(msg);
+			Break(msg);
 		}
 
 
