@@ -14,7 +14,7 @@ namespace Atma
 	{
 		private static Core _instance;
 
-		public static bool DebugRenderEnabled = false;
+		public static bool DebugRenderEnabled = true;
 		public static bool UpdateInputInFixedStep = true;
 
 		public readonly static Emitter Emitter = new .() ~ delete _;
