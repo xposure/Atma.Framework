@@ -121,6 +121,11 @@ namespace Atma
 			return .(min, min + size);
 		}
 
+		public static aabb2 FromRect(int2 min, int2 size)
+		{
+			return .(min, min + size);
+		}
+
 		public aabb2 Inflate(float x, float y) => Inflate(.(x, y));
 
 		public aabb2 Inflate(float2 size)
@@ -381,6 +386,7 @@ namespace Atma
 		public bool Intersects(Line2f line) => line.Intersects(this);
 
 
+		//
 		//
 		//
 		//

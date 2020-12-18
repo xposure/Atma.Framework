@@ -82,7 +82,7 @@ namespace Atma
 			if (!Visible)
 				return false;
 
-			if (camera.RenderLayer != _renderLayer)
+			if (!camera.RendersLayer(RenderLayer))
 				return false;
 
 			if (!camera.WorldBounds.Intersects(Bounds))

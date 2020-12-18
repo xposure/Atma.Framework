@@ -23,7 +23,7 @@ namespace Atma
 			Integrations.AddTurn(out _spriteRotation);
 		}
 
-		public float2 Center => Origin * Scale;
+		public float2 Center => Origin * Scale - Offset;
 
 		public float2 Size => .(Width, Height);
 
@@ -90,13 +90,13 @@ namespace Atma
 
 			if (TotalRotation == 0)
 			{
-				Core.Draw.HollowRect(bounds, 1f, Tint);
+				Core.Draw.HollowRect(bounds, 1f, .Green);
 			}
 			else
 			{
 				bounds.Rotate(WorldPosition, TotalRotation, let points);
 				for (var i < points.Count)
-					Core.Draw.Line(points[i], points[(i + 1) % 4], 1, Tint);
+					Core.Draw.Line(points[i], points[(i + 1) % 4], 1, .Green);
 			}
 
 			Core.Draw.Rect(aabb2.FromRect(WorldPosition, int2.Ones), Color.Red);

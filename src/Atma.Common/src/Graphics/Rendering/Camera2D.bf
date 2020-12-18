@@ -112,7 +112,7 @@ namespace Atma
 
 		#endregion
 
-		public int RenderLayer = 0;
+		public bool RendersLayer(int renderLayer) => true;
 
 		private bool _viewMatrixDirty = true;
 

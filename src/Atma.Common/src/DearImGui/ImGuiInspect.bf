@@ -53,6 +53,8 @@ namespace Atma
 			for (var it in _attachments)
 				it.Inspect();
 
+			OnInspect();
+
 			ImGui.PopID();
 		}
 	}

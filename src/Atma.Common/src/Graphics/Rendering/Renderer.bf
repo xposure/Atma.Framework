@@ -26,6 +26,7 @@ namespace Atma
 		public void Inspect()
 		{
 			//TODO: Add IMGUI
+			OnInspect();
 		}
 
 		protected virtual void OnInspect()

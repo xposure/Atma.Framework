@@ -181,7 +181,7 @@ namespace Atma
 
 		protected override void OnInspect()
 		{
-			base.Inspect();
+			base.OnInspect();
 
 			for (var it in _renderers)
 				it.Inspect();

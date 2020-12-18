@@ -3,6 +3,45 @@ using System.Collections;
 using System;
 using Atma;
 
+public static class Types
+{
+	public struct TypeMeta : IDisposable
+	{
+		public readonly Type Type;
+		public readonly String Name = new .();
+		public readonly int Size;
+
+		public this(Type type)
+		{
+			Type = type;
+			Type.GetName(Name);
+			Size = type.Size;
+		}
+
+		public void Dispose()
+		{
+			delete Name;
+		}
+	}
+
+	private static Dictionary<int32, TypeMeta> _types = new .() ~ Release(_);
+
+	public static TypeMeta this[Type type]
+	{
+		get
+		{
+			if (_types.TryAdd((.)type.TypeId, ?, var ptr))
+				*ptr = .(type);
+			return *ptr;
+		}
+	}
+}
+
+public static class Types<T>
+{
+	public static Types.TypeMeta Meta = Types[typeof(T)];
+}
+
 //namespace Atma
 //{
 public static

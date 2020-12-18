@@ -10,6 +10,8 @@ namespace Atma
 		protected Material _currentMaterial;
 		private Material CustomMaterial;
 
+		private bool _inspecting = false;
+
 		/// <summary>
 		/// renders all renderLayers
 		/// </summary>
@@ -62,11 +64,38 @@ namespace Atma
 				}
 			}
 
-			if (ShouldDebugRender || Core.DebugRenderEnabled)
+			if (_inspecting || ShouldDebugRender || Core.DebugRenderEnabled)
 			{
 				for (var it in scene.Entities)
 					if (it.Enabled)
 						it.DebugRender();
+			}
+		}
+
+		protected override void OnInspect()
+		{
+			base.OnInspect();
+
+			if (ImGui.Button("Open Render List"))
+				_inspecting = true;
+
+			if (ImGui.Begin("Render List", &_inspecting))
+			{
+				for (var cam in scene.Entities.Components<Camera2DComponent>())
+				{
+					for (var i = 0; i < scene.RenderableComponents.Count; i++)
+					{
+						var renderable = scene.RenderableComponents[i];
+						if (renderable.ShouldRender(cam))
+						{
+							let meta = Types[renderable.GetType()];
+							if (ImGui.CollapsingHeader(scope $"{meta.Name} [{renderable.RenderLayer}] "))
+								renderable.Inspect();
+						}
+					}
+				}
+
+				ImGui.End();
 			}
 		}
 	}
