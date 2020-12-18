@@ -76,10 +76,10 @@ namespace Atma
 		{
 			base.OnInspect();
 
-			if (ImGui.Button("Open Render List"))
-				_inspecting = true;
+			/*if (ImGui.Button("Open Render List"))
+				_inspecting = true;*/
 
-			if (ImGui.Begin("Render List", &_inspecting))
+			/*if (ImGui.Begin("Render List", _inspecting))
 			{
 				for (var cam in scene.Entities.Components<Camera2DComponent>())
 				{
@@ -96,7 +96,7 @@ namespace Atma
 				}
 
 				ImGui.End();
-			}
+			}*/
 		}
 	}
 }
