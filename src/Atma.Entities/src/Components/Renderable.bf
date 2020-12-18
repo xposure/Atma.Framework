@@ -29,7 +29,7 @@ namespace Atma
 			return res;
 		}
 
-		private RenderableComponentList _renderList;
+		internal RenderableComponentList _renderList;
 		private int _renderLayer = 0;
 		public int RenderLayer => _renderLayer;
 
@@ -59,15 +59,16 @@ namespace Atma
 		// stencil buffer. </summary>
 		public void SetRenderLayer(int layer)
 		{
-			_renderList?.UpdateRenderableRenderLayer(this, _renderLayer, layer);
+			_renderList?.Add(this);
 			_renderLayer = layer;
 		}
 
 		public override void Added(Entity entity)
 		{
 			base.Added(entity);
-			_renderList = Entity.Scene.RenderableComponents;
-			_renderList.Add(this);
+
+			if (_renderList == null)
+				Entity.Scene.RenderableComponents.Add(this);
 		}
 
 		public override void Removed(Entity entity)

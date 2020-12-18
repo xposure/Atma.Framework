@@ -14,6 +14,8 @@ namespace Atma
 			_camera = camera;
 		}
 
+		public bool RendersLayer(int renderLayer) => _camera.RendersLayer(renderLayer);
+
 		public override void Added(Entity entity)
 		{
 			base.Added(entity);

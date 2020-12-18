@@ -52,14 +52,18 @@ namespace Atma
 			for (var cam in scene.Entities.Components<Camera2DComponent>())
 			{
 				Core.Draw.SetBlendMode(BlendMode);
-				for (var i = 0; i < scene.RenderableComponents.Count; i++)
+				for (var layer in scene.RenderableComponents)
 				{
-					var renderable = scene.RenderableComponents[i];
+					if (!cam.RendersLayer(layer.RenderLayer))
+						continue;
 
-					if (renderable.ShouldRender(cam))
+					for (var renderable in layer.Renderables)
 					{
-						UpdateState(renderable);
-						renderable.Render();
+						if (renderable.ShouldRender(cam))
+						{
+							UpdateState(renderable);
+							renderable.Render();
+						}
 					}
 				}
 			}
@@ -76,27 +80,33 @@ namespace Atma
 		{
 			base.OnInspect();
 
-			/*if (ImGui.Button("Open Render List"))
-				_inspecting = true;*/
+			if (ImGui.Button("Open Render List"))
+				_inspecting = true;
 
-			/*if (ImGui.Begin("Render List", _inspecting))
+			if (ImGui.Begin("Render List",
+				&_inspecting))
 			{
 				for (var cam in scene.Entities.Components<Camera2DComponent>())
 				{
-					for (var i = 0; i < scene.RenderableComponents.Count; i++)
+					for (var layer in scene.RenderableComponents)
 					{
-						var renderable = scene.RenderableComponents[i];
-						if (renderable.ShouldRender(cam))
+						if (!cam.RendersLayer(layer.RenderLayer))
+							continue;
+
+						for (var renderable in layer.Renderables)
 						{
-							let meta = Types[renderable.GetType()];
-							if (ImGui.CollapsingHeader(scope $"{meta.Name} [{renderable.RenderLayer}] "))
-								renderable.Inspect();
+							if (renderable.ShouldRender(cam))
+							{
+								let meta = Types[renderable.GetType()];
+								if (ImGui.CollapsingHeader(scope $"{meta.Name} [{renderable.RenderLayer}] "))
+									renderable.Inspect();
+							}
 						}
 					}
 				}
 
 				ImGui.End();
-			}*/
+			}
 		}
 	}
 }

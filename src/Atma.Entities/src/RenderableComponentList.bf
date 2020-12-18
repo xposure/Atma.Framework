@@ -1,86 +1,78 @@
 using System.Collections;
 using System;
+using internal Atma;
+
 namespace Atma
 {
-
 	public class RenderableComponentList
 	{
 		typealias FastList<T> = System.Collections.List<T>;
+		typealias RenderList = (int RenderLayer, List<Renderable> Renderables, Comparison<Renderable> Sorter);
 
-		// global updateOrder sort for the IRenderable lists	
+		// global updateOrder sort for the IRenderable lists
 		public static Comparison<Renderable> DefaultRenderableSort = (new => Renderable.Compare) ~ delete _;
 
-		/// <summary>
-		/// list of components added to the entity
-		/// </summary>
-		FastList<Renderable> _components = new FastList<Renderable>() ~ delete _;
-
-		/// <summary>
-		/// tracks components by renderLayer for easy retrieval
-		/// </summary>
-		Dictionary<int, FastList<Renderable>> _componentsByRenderLayer = new .() ~ DeleteDictionaryAndItems!(_);
-
-		private Dictionary<int, Comparison<Renderable>> _sortLayer = new .() ~ DeleteDictionaryAndItems!(_);
+		private List<RenderList> _renderList = new .();
 
 		#region array access
 
-		public int Count => _components.Count;
+		private int _count = 0;
+		public int Count => _count;// _components.Count;
 
-		public Renderable this[int index] => _components.Ptr[index];
+		//public Renderable this[int index] => _components.Ptr[index];
+		public List<RenderList>.Enumerator GetEnumerator() => _renderList.GetEnumerator();
 
 		#endregion
+
+		public ~this()
+		{
+			for (var it in _renderList)
+			{
+				delete it.Renderables;
+				delete it.Sorter;
+			}
+
+			delete _renderList;
+		}
 
 
 		public void Add(Renderable component)
 		{
-			_components.Add(component);
-			AddToRenderLayerList(component, component.RenderLayer);
+			_count++;
+
+			if (component._renderList != null)
+				Remove(component);
+
+			component._renderList = this;
+			let layer = GetLayer(component.RenderLayer);
+			layer.Renderables.Add(component);
 		}
 
 		public void Remove(Renderable component)
 		{
-			_components.Remove(component);
-			_componentsByRenderLayer[component.RenderLayer].Remove(component);
+			_count--;
+			let layer = GetLayer(component.RenderLayer);
+			layer.Renderables.RemoveFast(component);
 		}
 
-		public void UpdateRenderableRenderLayer(Renderable component, int oldRenderLayer, int newRenderLayer)
+		private RenderList GetLayer(int renderLayer)
 		{
-			// a bit of care needs to be taken in case a renderLayer is changed before the component is "live". this can happen when a component
-			// changes its renderLayer immediately after being created
-			if (_componentsByRenderLayer.ContainsKey(oldRenderLayer) && _componentsByRenderLayer[oldRenderLayer].Contains(component))
-			{
-				_componentsByRenderLayer[oldRenderLayer].Remove(component);
-				AddToRenderLayerList(component, newRenderLayer);
-			}
-		}
+			for (var it in _renderList)
+				if (it.RenderLayer == renderLayer)
+					return it;
 
-		void AddToRenderLayerList(Renderable component, int renderLayer)
-		{
-			var list = ComponentsWithRenderLayer(renderLayer);
-			Assert.IsFalse(list.Contains(component), "Component renderLayer list already contains this component");
-
-			list.Add(component);
-		}
-
-		/// <summary>
-		/// fetches all the Components with the given renderLayer. The component list is pre-sorted.
-		/// </summary>
-		public FastList<Renderable> ComponentsWithRenderLayer(int renderLayer)
-		{
-			if (_componentsByRenderLayer.TryAdd(renderLayer, ?, var ptr))
-				*ptr = new .();
-
-			return *ptr;
+			RenderList layer = (renderLayer, new .(), null);
+			_renderList.Add(layer);
+			_renderList.Sort(scope (lhs, rhs) => lhs.RenderLayer <=> rhs.RenderLayer);
+			return layer;
 		}
 
 		public void UpdateLists()
 		{
-			for(var it in _componentsByRenderLayer)
+			for (var it in _renderList)
 			{
-				if(_sortLayer.TryGetValue(it.key, let comparer))
-					it.value.Sort(comparer);
-				else
-					it.value.Sort(DefaultRenderableSort);
+				let sorter = it.Sorter ?? DefaultRenderableSort;
+				it.Renderables.Sort(sorter);
 			}
 		}
 	}
