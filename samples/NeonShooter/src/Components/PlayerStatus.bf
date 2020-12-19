@@ -16,14 +16,13 @@ namespace NeonShooter.Components
 		private float multiplierTimeLeft;// time until the current multiplier expires
 		public int scoreForExtraLife;// score required to gain an extra life
 
-		public override bool Track => true;
 
 		public bool IsGameOver => Lives <= 0;
 
 		public int HighScore = 0;
 
 		// Static constructor
-		public this() : base(true)
+		public this() : base(true, true)
 		{
 			Reset();
 		}

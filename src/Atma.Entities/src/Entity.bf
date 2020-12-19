@@ -95,9 +95,9 @@ namespace Atma
 					if (_registeredInterfaces == null)
 						_registeredInterfaces = new .();
 					_registeredInterfaces.Add(it);
-					let interfaceName = scope String();
-					it.GetName(interfaceName);
-					Log.Debug("Registering type [{0}]", interfaceName);
+					//let interfaceName = scope String();
+					//it.GetName(interfaceName);
+					//Log.Debug("Registering type [{0}]", interfaceName);
 				}
 			}
 
@@ -154,7 +154,7 @@ namespace Atma
 
 		internal void Render(List<IRenderable> renderList, Camera2D camera)
 		{
-			if (Visible)
+			if (Visible && !_destroying)
 			{
 				if (_components._renderBounds.HasValue && camera.WorldBounds.Intersects(_components._renderBounds.Value))
 					_components.Render(renderList);
