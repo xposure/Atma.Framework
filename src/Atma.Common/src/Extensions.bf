@@ -208,7 +208,13 @@ static
 			for (int y < height)
 				dlg(x, y);
 	}*/
-
+	public static void ForXY<T>(int2 size, T dlg)
+		where T : delegate void(int2 p)
+	{
+		for (var y < size.y)
+			for (var x < size.x)
+				dlg(.(x, y));
+	}
 
 	public static bool ReferenceEquals<T>(T left, T right)
 		where T : class

@@ -4,7 +4,7 @@ using internal Atma;
 
 namespace Atma
 {
-	public class Entity
+	public class Entity : IRenderable
 	{
 		private static uint64 _nextid = 0;
 		public readonly uint64 ID = ++_nextid;
@@ -20,8 +20,6 @@ namespace Atma
 			case Unlocked;
 			case Locked;
 		}
-
-		public float Depth;
 
 		private List<Entity> _entities = new .() ~ DeleteContainerAndItems!(_);
 		private List<Type> _registeredInterfaces ~ delete _;
@@ -52,8 +50,6 @@ namespace Atma
 		private bool _registered = false;
 		public WorldSpace WorldSpace = .Local;
 
-		public bool Visible = true;
-
 		public float2 Forward => Calc.Turn(WorldRotation);
 		public float2 Right => -Forward.Perpendicular;
 		public float2 Left => Forward.Perpendicular;
@@ -66,13 +62,6 @@ namespace Atma
 		public ref float Rotation
 		{
 			get => ref *_localRotation;
-			/*set
-			{
-				/*if (Math.Abs(Rotation - value) > 0.5f)
-					_localRotation = 1f - value;
-				else*/
-				*_localRotation = value;
-			}*/
 		}
 
 		public float WorldRotation => (Rotation + _worldRotation);
@@ -85,6 +74,9 @@ namespace Atma
 		public this() : this(scope $"Entity {ID}") { }
 		public this(StringView name)
 		{
+			Visible = true;
+			Enabled = true;
+
 			_name.Set(name);
 			_components = .(this);
 
@@ -159,6 +151,17 @@ namespace Atma
 		}
 
 		protected virtual void OnFixedUpdate() { }
+
+		internal void Render(List<IRenderable> renderList, Camera2D camera)
+		{
+			if (Visible)
+			{
+				if (_components._renderBounds.HasValue && camera.WorldBounds.Intersects(_components._renderBounds.Value))
+					_components.Render(renderList);
+
+				renderList.Add(this);
+			}
+		}
 
 		public T AddRoot<T>(T entity)
 			where T : Entity
@@ -291,6 +294,9 @@ namespace Atma
 
 				for (var it in _components)
 					it.DebugRender();
+
+				if (_components._renderBounds.HasValue)
+					Core.Draw.HollowRect(_components._renderBounds.Value, 1f, .Green);
 			}
 		}
 
@@ -386,6 +392,12 @@ namespace Atma
 
 		private bool _inspectComponents = false;
 		public bool DebugIntegrator = false;
+
+		public int RenderLayer { get; set; }
+		public float Depth { get; set; }
+		public virtual void Render() { }
+		public Material Material { get; set; }
+		public bool Visible { get; set; }
 	}
 }
 

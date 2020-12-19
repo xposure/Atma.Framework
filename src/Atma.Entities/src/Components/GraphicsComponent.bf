@@ -27,7 +27,7 @@ namespace Atma
 
 		public float2 Size => .(Width, Height);
 
-		public override aabb2 Bounds => aabb2.FromRect(WorldPosition - Center, Size * Scale);
+		public override aabb2 LocalBounds => aabb2.FromRect(-Center, Size * Scale);
 
 		protected float TotalRotation => (SpriteRotation + (UseParentRotation ? WorldRotation : 0));
 
@@ -86,7 +86,7 @@ namespace Atma
 		{
 			base.DebugRender();
 
-			let bounds = Bounds;
+			let bounds = WorldBounds;
 
 			if (TotalRotation == 0)
 			{
@@ -98,8 +98,6 @@ namespace Atma
 				for (var i < points.Count)
 					Core.Draw.Line(points[i], points[(i + 1) % 4], 1, .Green);
 			}
-
-			Core.Draw.Rect(aabb2.FromRect(WorldPosition, int2.Ones), Color.Red);
 		}
 
 		public override void Inspect()

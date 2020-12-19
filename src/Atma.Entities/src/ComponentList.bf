@@ -6,7 +6,7 @@ namespace Atma
 {
 	public struct ComponentList//: IDisposable
 	{
-		typealias ComponentState = (ComponentMode Mode, Component Component);
+		typealias ComponentState = (ComponentMode Mode, Component Component, IRenderableComponent Renderable);
 
 		public enum ComponentMode
 		{
@@ -29,6 +29,7 @@ namespace Atma
 		private LockMode _lockMode;
 
 		protected EntityList EntityManager => _entity._entityList;
+		internal aabb2? _renderBounds = null;
 
 		public this(Entity entity)
 		{
@@ -77,7 +78,7 @@ namespace Atma
 			where T : Component
 		{
 			Assert.IsFalse(component._inComponentList);
-			_components.Add((.Adding, component));
+			_components.Add((.Adding, component, component as IRenderableComponent));
 
 			/*if (_lockMode == .Open)
 				InternalAdd(ref _components.Back);*/
@@ -153,6 +154,9 @@ namespace Atma
 
 		internal void Update() mut
 		{
+			_renderBounds = null;
+			var bounds = default(aabb2);
+
 			SetLockMode(.Locked);
 			for (var it in ref _components)
 			{
@@ -164,14 +168,45 @@ namespace Atma
 					fallthrough;//Allow a component added to run the same frame, bad?
 				case .Added:
 					if (component.Active)
+					{
 						component.Update();
+					}
+
+					if (it.Renderable?.Visible == true)
+					{
+						let other = it.Renderable.LocalBounds;
+						if (bounds.Volume == 0)
+							bounds = other;
+						else
+							bounds.Merge(other);
+					}
 				case .Removing:
 					InternalRemove(ref it);
 				case .Removed:
 					@it.Remove();
 				}
 			}
+
+			if (bounds.Volume != 0)
+				_renderBounds = bounds;
+
 			SetLockMode(.Open);
+		}
+
+		internal void Render(List<IRenderable> renderList)
+		{
+			for (var it in ref _components)
+			{
+				switch (it.Mode)
+				{
+				case .Adding:
+				case .Removing:
+				case .Removed:
+				case .Added:
+					if (it.Renderable?.Visible == true)
+						renderList.Add(it.Renderable);
+				}
+			}
 		}
 
 		internal void FixedUpdate() mut

@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using internal Atma;
+
 namespace Atma
 {
 	public class SceneRenderer : Renderer
@@ -11,12 +13,14 @@ namespace Atma
 		private Material CustomMaterial;
 
 		private bool _inspecting = false;
+		private List<IRenderable> _renderables = new .() ~ delete _;
 
 		/// <summary>
 		/// renders all renderLayers
 		/// </summary>
 		/// <param name="renderOrder">Render order.</param>
 		/// <param name="camera">Camera.</param>
+
 		public this(Scene scene)
 		{
 			this.scene = scene;
@@ -28,7 +32,7 @@ namespace Atma
 		/// <param name="renderable">Renderable.</param>
 		/// <param name="cam">Cam.</param>
 		[Inline]
-		protected void UpdateState(Renderable renderable)
+		protected void UpdateState(IRenderable renderable)
 		{
 			if (CustomMaterial == null)
 			{
@@ -49,22 +53,19 @@ namespace Atma
 
 		public override void Render(RenderPipeline pipeline)
 		{
-			for (var cam in scene.Entities.Components<Camera2DComponent>())
+			let cam = this.scene.Camera;
 			{
-				Core.Draw.SetBlendMode(BlendMode);
-				for (var layer in scene.RenderableComponents)
-				{
-					if (!cam.RendersLayer(layer.RenderLayer))
-						continue;
+				_renderables.Clear();
+				for (var it in scene.Entities)
+					it.Render(_renderables, cam);
 
-					for (var renderable in layer.Renderables)
-					{
-						if (renderable.ShouldRender(cam))
-						{
-							UpdateState(renderable);
-							renderable.Render();
-						}
-					}
+				_renderables.Sort(scope => Renderable.Compare);
+
+				Core.Draw.SetBlendMode(BlendMode);
+				for (var renderable in _renderables)
+				{
+					UpdateState(renderable);
+					renderable.Render();
 				}
 			}
 
@@ -86,21 +87,24 @@ namespace Atma
 			if (ImGui.Begin("Render List",
 				&_inspecting))
 			{
-				for (var cam in scene.Entities.Components<Camera2DComponent>())
+				let cam = this.scene.Camera;
 				{
-					for (var layer in scene.RenderableComponents)
-					{
-						if (!cam.RendersLayer(layer.RenderLayer))
-							continue;
+					_renderables.Clear();
+					for (var it in scene.Entities)
+						it.Render(_renderables, cam);
 
-						for (var renderable in layer.Renderables)
+					_renderables.Sort(scope => Renderable.Compare);
+
+					Core.Draw.SetBlendMode(BlendMode);
+					for (var renderable in _renderables)
+					{
+						for (var renderable in _renderables)
 						{
-							if (renderable.ShouldRender(cam))
-							{
-								let meta = Types[renderable.GetType()];
-								if (ImGui.CollapsingHeader(scope $"{meta.Name} [{renderable.RenderLayer}] "))
-									renderable.Inspect();
-							}
+							ImGui.PushID(Internal.UnsafeCastToPtr(renderable));
+							let meta = Types[renderable.GetType()];
+							if (ImGui.CollapsingHeader(scope $"{meta.Name} [{renderable.RenderLayer}] "))
+								renderable.Inspect();
+							ImGui.PopID();
 						}
 					}
 				}

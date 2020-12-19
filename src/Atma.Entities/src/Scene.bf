@@ -23,7 +23,7 @@ namespace Atma
 		/// <summary>
 		/// Manages a list of all the RenderableComponents that are currently on scene Entitys
 		/// </summary>
-		public readonly RenderableComponentList RenderableComponents = new .() ~ delete _;
+		//public readonly RenderableComponentList RenderableComponents = new .() ~ delete _;
 
 		/// <summary>
 		/// The list of entities within this Scene
@@ -74,8 +74,6 @@ namespace Atma
 		public virtual void Render()
 		{
 			// we update our renderables after entity.update in case any new Renderables were added
-			RenderableComponents.UpdateLists();
-
 			Core.Graphics.Clear(Core.Window, Core.Graphics.ClearColor);
 
 			for (var it in Entities.Components<Camera2DComponent>())

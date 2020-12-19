@@ -12,8 +12,7 @@ namespace Atma
 
 		internal bool _inComponentList = false;
 
-		private bool? _active = null;
-		private bool? _visible = null;
+		private bool _active;
 
 		public virtual bool Track => false;
 
@@ -82,5 +81,7 @@ namespace Atma
 		public virtual void Ready()
 		{
 		}
+
+
 	}
 }

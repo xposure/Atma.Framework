@@ -424,8 +424,11 @@ namespace Atma
 
 		public rect Offset(int2 offset) => .(offset.x + X, offset.y + Y, Width, Height);
 
-		public static rect FromXY(int x, int y, int size) => .(x * size, y * size, size, size);
-		public static rect FromXY(int2 p, int size) => .(p.x * size, p.y * size, size, size);
+		public static rect FromXY(int x, int y, int size) => FromDimensions(.(x, y) * size, size, size);
+		public static rect FromXY(int x, int y, int2 size) => FromDimensions(.(x, y) * size, size);
+		public static rect FromXY(int2 p, int size) => FromDimensions(p * size, .(size));
+		public static rect FromXY(int2 p, int2 size) => FromDimensions(p * size, size);
+
 		public static rect FromDimensions(int2 p, int2 size) => .(p.x, p.y, size.x, size.y);
 		public static rect FromDimensions(int2 p, int w, int h) => .(p.x, p.y, w, h);
 		public static rect FromCenter(int2 p, int extents) => .(p - extents, p + extents + int2.Ones);

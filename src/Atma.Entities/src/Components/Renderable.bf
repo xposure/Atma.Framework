@@ -1,18 +1,35 @@
 using System;
 namespace Atma
 {
+	public interface IRenderable
+	{
+		public void Render();
+
+		//public int RenderLayer { get; }
+		public int RenderLayer { get; }
+		public float Depth { get; }
+		public Material Material { get; }
+		public void Inspect();
+	}
+
+	public interface IRenderableComponent : IRenderable
+	{
+		public bool Visible { get; }
+		public aabb2 LocalBounds { get; }
+	}
+
 	/// <summary>
 	/// interface that when applied to a Component will register it to be rendered by the Scene Renderers. Implement
 	// this very carefully! Changing things like layerDepth/renderLayer/material need to update the Scene
 	// RenderableComponentList </summary>
-	public abstract class Renderable : Component
+	public abstract class Renderable : Component, IRenderableComponent
 	{
-		public static int Compare(Renderable self, Renderable other)
+		public static int Compare(IRenderable self, IRenderable other)
 		{
-			var res = other.RenderLayer.CompareTo<int>(self.RenderLayer);
+			var res = self.RenderLayer <=> other.RenderLayer;
 			if (res == 0)
 			{
-				res = other.LayerDepth.CompareTo(self.LayerDepth);
+				res = self.Depth <=> other.Depth;
 				if (res == 0)
 				{
 					// both null or equal
@@ -29,83 +46,46 @@ namespace Atma
 			return res;
 		}
 
-		internal RenderableComponentList _renderList;
-		private int _renderLayer = 0;
-		public int RenderLayer => _renderLayer;
-
 		public this(bool active = false) : base(active)
 		{
 		}
 
-		/// <summary>
-		/// the AABB that wraps this object. Used for camera culling.
-		/// </summary>
-		/// <value>The bounds.</value>
-		public abstract aabb2 Bounds { get; }
-
-		/*/// <summary>
-		/// whether this IRenderable should be rendered or not
-		/// </summary>
-		bool Enabled { get; set; }*/
-
-		/// <summary>
-		/// standard Batcher layerdepth. 0 is in front and 1 is in back. Changing this value will trigger a sort of the
-		// renderableComponents list on the scene. </summary>
-		public float LayerDepth;
-
-		/// <summary>
-		/// lower renderLayers are in the front and higher are in the back, just like layerDepth but not clamped to 0-1.
-		// Note that this means higher renderLayers are sent to the Batcher first. An important fact when using the
-		// stencil buffer. </summary>
-		public void SetRenderLayer(int layer)
+		private bool _visible;
+		public bool Visible
 		{
-			_renderList?.Add(this);
-			_renderLayer = layer;
+			get => _visible == true;
+			set => _visible = value;
 		}
 
-		public override void Added(Entity entity)
+		public abstract aabb2 LocalBounds { get; }
+		public aabb2 WorldBounds
 		{
-			base.Added(entity);
-
-			if (_renderList == null)
-				Entity.Scene.RenderableComponents.Add(this);
+			get
+			{
+				var bounds = LocalBounds;
+				bounds.Center = Entity.WorldPosition;
+				return bounds;
+			}
 		}
 
-		public override void Removed(Entity entity)
-		{
-			base.Removed(entity);
-			_renderList?.Remove(this);
-		}
+		private int _renderLayer = 0;
+		public int RenderLayer => _renderLayer + Entity.RenderLayer;
+		public void SetRenderLayer(int layer) => _renderLayer = layer;
 
-		[Inline]
-		public bool ShouldRender(Camera2D camera)
-		{
-			if (!Visible)
-				return false;
 
-			if (!camera.RendersLayer(RenderLayer))
-				return false;
-
-			if (!camera.WorldBounds.Intersects(Bounds))
-				return false;
-
-			return true;
-		}
+		private float _depth = 0;
+		public float Depth => _depth + Entity.Depth;
+		public void SetDepth(float depth) => _depth = depth;
 
 		/// <summary>
 		/// used by Renderers to specify how this sprite should be rendered. If non-null, it is automatically disposed
 		// of when the Component is removed from the Entity. </summary>
-		public Material Material;
+		public Material Material { get; set; }
 
-		/// <summary>
-		/// the visibility of this Renderable. Changes in state end up calling the onBecameVisible/onBecameInvisible
-		// methods. </summary> <value><c>true</c> if is visible; otherwise, <c>false</c>.</value>
-		public bool Visible = true;
 
 		/// <summary>
 		/// called by a Renderer. The Camera can be used for culling and the Batcher instance to draw with.
 		/// </summary>
 		public abstract void Render();
-
 	}
 }

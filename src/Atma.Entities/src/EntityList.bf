@@ -20,7 +20,6 @@ namespace Atma
 		private Entity _root = new .() ~ delete _;
 		private List<Entity> _addedEntities = new .() ~ DeleteContainerAndItems!(_);
 
-
 		public int Count => _entities.Count;
 
 		public Entity Root => _root;
