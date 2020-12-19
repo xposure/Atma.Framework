@@ -4,17 +4,15 @@ namespace Atma
 	public class Component
 	{
 		internal Entity _entity;
+		internal bool _inComponentList = false;
+
 		public Entity Entity => _entity;
+		public Scene Scene => _entity?.Scene;
 
 		protected IntegratorList Integrations = .();
 
-		public Scene Scene => _entity?.Scene;
-
-		internal bool _inComponentList = false;
-
 		private bool _active;
-
-		public virtual bool Track => false;
+		internal bool _track;
 
 		public bool Active
 		{
@@ -31,9 +29,10 @@ namespace Atma
 		protected float2 Direction => float2.FromAngle(_entity.Rotation);
 		protected float2 WorldDirection => float2.FromAngle(_entity.WorldRotation);
 
-		protected this(bool active)
+		protected this(bool active, bool track = false)
 		{
-			Active = active;
+			_active = active;
+			_track = track;
 		}
 
 		public virtual void Added(Entity entity)
@@ -49,37 +48,21 @@ namespace Atma
 		}
 
 
-		public virtual void Update()
-		{
-		}
+		public virtual void Update() { }
 
-		public virtual void FixedUpdate()
-		{
-		}
+		public virtual void FixedUpdate() { }
 
-		public virtual void Inspect()
-		{
-		}
+		public virtual void Inspect() { }
 
-		public virtual void DebugRender()
-		{
-		}
+		public virtual void DebugRender() { }
 
-		/*public virtual void Ready()
-		{
-		}*/
+		public virtual void Destroying() { }
 
-		public virtual void Destroying()
-		{
-		}
+		public virtual void Ready() { }
 
 		public ~this()
 		{
 			Integrations.Dispose();
-		}
-
-		public virtual void Ready()
-		{
 		}
 
 

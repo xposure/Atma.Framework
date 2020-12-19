@@ -4,12 +4,11 @@ namespace Atma
 {
 	public class Camera2DComponent : Component
 	{
-		public override bool Track => true;
 		private Camera2D _camera;
 
 		public static implicit operator Camera2D(Camera2DComponent it) => it._camera;
 
-		public this(Camera2D camera) : base(false)
+		public this(Camera2D camera) : base(false, true)
 		{
 			_camera = camera;
 		}

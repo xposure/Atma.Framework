@@ -57,7 +57,7 @@ namespace Atma
 			component.Added(Entity);
 			component._inComponentList = true;
 
-			if (component.Track)
+			if (component._track)
 				EntityManager?.AddComponentToEntity(component);
 		}
 
@@ -70,7 +70,7 @@ namespace Atma
 			component.Removed(Entity);
 			component._inComponentList = false;
 
-			if (component.Track)
+			if (component._track)
 				EntityManager?.RemoveComponentFromEntity(component);
 		}
 
