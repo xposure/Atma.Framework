@@ -398,6 +398,7 @@ namespace Atma
 		public virtual void Render() { }
 		public Material Material { get; set; }
 		public bool Visible { get; set; }
+
 	}
 }
 

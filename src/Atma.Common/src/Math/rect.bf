@@ -10,7 +10,6 @@ namespace Atma
 		public int Width;
 		public int Height;
 
-
 		public this()
 		{
 			this = default;
@@ -64,6 +63,7 @@ namespace Atma
 		public int2 BottomLeft => .(Left, Bottom);
 		public int2 BottomRight => .(Right, Bottom);
 
+		public int2[4] Corners => int2[4](TopLeft, TopRight, BottomRight, BottomLeft);
 
 		public int Left
 		{
@@ -433,6 +433,22 @@ namespace Atma
 		public static rect FromDimensions(int2 p, int w, int h) => .(p.x, p.y, w, h);
 		public static rect FromCenter(int2 p, int extents) => .(p - extents, p + extents + int2.Ones);
 		public static rect FromCenter(int2 p, int2 extents) => .(p - extents, p + extents + int2.Ones);
+
+
+		public List<rect> ToAlignedGrid(int2 gridSize, List<rect> rects)
+		{
+			let sx = Left / gridSize.width;
+			let ex = Right / gridSize.width + 1;
+			let sy = Top / gridSize.height;
+			let ey = Bottom / gridSize.height + 1;
+
+			for (var y = sy; y <= ey; y++)
+				for (var x = sx; x <= ex; x++)
+					if (Intersection(rect(x * gridSize.width, y * gridSize.height, gridSize), let rect))
+						rects.Add(rect);
+
+			return rects;
+		}
 
 		public aabb2 ToAABB()
 		{
