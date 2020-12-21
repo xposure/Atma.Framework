@@ -1,6 +1,6 @@
 namespace Atma
 {
-	//typealias Action = delegate void();
+	typealias Action = delegate void();
 	typealias Action<T> = delegate void(T t);
 	typealias Action<T0, T1> = delegate void(T0 t0, T1 t1);
 	typealias Action<T0, T1, T2> = delegate void(T0 t0, T1 t1, T2 t2);

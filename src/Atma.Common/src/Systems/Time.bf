@@ -170,6 +170,11 @@ namespace Atma
 		/// total number of frames that have passed
 		/// </summary>
 
+		static this()
+		{
+			SetTargetFramerate(60);
+		}
+
 		public static void SetTargetFramerate(int fps)
 		{
 			FixedTimestep = (.)(1.0 / fps * MicroToSeconds);
