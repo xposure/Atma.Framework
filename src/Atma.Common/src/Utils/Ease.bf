@@ -64,6 +64,12 @@ namespace Atma
 				_goal = value;
 			}
 		}
+
+		public void Reset(T from, T to) mut
+		{
+			_current = from;
+			Goal = to;
+		}
 	}
 
 

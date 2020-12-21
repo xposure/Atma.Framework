@@ -113,6 +113,12 @@ namespace Atma
 			return this;
 		}
 
+		public VirtualButton PressBuffer(float time)
+		{
+			pressBuffer = (.)(time * Time.MicroToSeconds);
+			return this;
+		}
+
 		public VirtualButton PressBuffer(int64 time)
 		{
 			pressBuffer = time;
