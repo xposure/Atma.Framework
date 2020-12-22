@@ -123,7 +123,7 @@ namespace Atma
 
 		public static int64 TargetMilliseconds = 1666;
 
-		public static int64 FixedTimestep = (.)(1.0 / 50 * MicroToSeconds);
+		public static int64 FixedTimestep = (.)(1.0 / 60 * MicroToSeconds);
 		public static int64 MaxSteps => 3;
 
 

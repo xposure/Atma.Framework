@@ -33,6 +33,7 @@ namespace Atma
 
 
 		public static Random Random = new .() ~ delete _;
+		public static FastNoise Noise = new .() ~ delete _;
 
 		public static bool ForceFixedTimestep { get; set; }
 
@@ -215,7 +216,10 @@ namespace Atma
 				let integration = (time % Time.FixedTimestep) / (float)Time.FixedTimestep;
 				//Console.WriteLine(scope $"{integration}");
 				Core.Integration.Integrate(integration);
+
+				Time.Delta = msCounter / (float)Time.MicroToSeconds;
 				InternalRender();
+				Time.Delta = (.)(Time.FixedTimestep / Time.MicroToSeconds);
 			}
 
 			Emitter.EmitNow(CoreEvents.Shutdown());

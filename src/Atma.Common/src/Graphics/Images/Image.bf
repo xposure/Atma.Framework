@@ -32,6 +32,7 @@ namespace Atma
 			for (var it in ref _pixels)
 				it = color;
 		}
+
 		public this(int width, int height)
 		{
 			_width = width;

@@ -134,6 +134,9 @@ namespace Atma
 		private float2 _origin = float2.Zero;
 		private Resolution _resolution;
 
+		private float cameraTrauma = 0f;
+		private float cameraShake = 20;
+
 		public float Depth
 		{
 			get => _depth;
@@ -160,22 +163,29 @@ namespace Atma
 			_resolution = CalculateResolution(resolutionPolicy, designSize, Screen.Size, bleedSize);
 			Initialize(_resolution.Size, .Color);
 
-			Core.Emitter.AddObserver<CoreEvents.GraphicsDeviceReset>(new => OnGraphicsDeviceReset);
-			Core.Emitter.AddObserver<CoreEvents.OrientationChanged>(new => OnOrientationChanged);
-			Core.Emitter.AddObserver<CoreEvents.WindowResize>(new => OnWindowResize);
+			Core.Emitter.AddObserver<CoreEvents.UpdateEnd>(new => UpdateEnd);
+			Core.Emitter.AddObserver<CoreEvents.GraphicsDeviceReset>(new => GraphicsDeviceReset);
+			Core.Emitter.AddObserver<CoreEvents.OrientationChanged>(new => OrientationChanged);
+			Core.Emitter.AddObserver<CoreEvents.WindowResize>(new => WindowResize);
 		}
 
 		public ~this()
 		{
-			Core.Emitter.RemoveObserver<CoreEvents.GraphicsDeviceReset>(scope => OnGraphicsDeviceReset);
-			Core.Emitter.RemoveObserver<CoreEvents.OrientationChanged>(scope => OnOrientationChanged);
-			Core.Emitter.RemoveObserver<CoreEvents.WindowResize>(scope => OnWindowResize);
+			Core.Emitter.RemoveObserver<CoreEvents.UpdateEnd>(scope => UpdateEnd);
+			Core.Emitter.RemoveObserver<CoreEvents.GraphicsDeviceReset>(scope => GraphicsDeviceReset);
+			Core.Emitter.RemoveObserver<CoreEvents.OrientationChanged>(scope => OrientationChanged);
+			Core.Emitter.RemoveObserver<CoreEvents.WindowResize>(scope => WindowResize);
 		}
 
-		void OnGraphicsDeviceReset(CoreEvents.GraphicsDeviceReset ev) => UpdateResolutionScaler();
-		void OnOrientationChanged(CoreEvents.OrientationChanged ev) => UpdateResolutionScaler();
-		void OnWindowResize(CoreEvents.WindowResize ev) => UpdateResolutionScaler();
+		void UpdateEnd(CoreEvents.UpdateEnd ev) => cameraTrauma = Math.Max(cameraTrauma -= Time.Delta, 0);
+		void GraphicsDeviceReset(CoreEvents.GraphicsDeviceReset ev) => UpdateResolutionScaler();
+		void OrientationChanged(CoreEvents.OrientationChanged ev) => UpdateResolutionScaler();
+		void WindowResize(CoreEvents.WindowResize ev) => UpdateResolutionScaler();
 
+		public void AddTrauma(float trauma)
+		{
+			cameraTrauma = Math.Min(cameraTrauma + trauma, 1f);
+		}
 
 		public float2 Position
 		{
@@ -279,6 +289,15 @@ namespace Atma
 
 		public void Render()
 		{
+			var position = Position;
+
+
+			let noiseScale = 1500f;
+			let cameraShakeAmount = Math.Min(cameraTrauma, 1f);
+			let cameraShakeDistance = float2(Core.Noise.GetSimplex((float)Time.RawTime / noiseScale, 0, 0), Core.Noise.GetSimplex((float)Time.RawTime / noiseScale, 0, 5000))
+				* cameraShakeAmount * cameraShakeAmount * cameraShake;
+			Position = (int2)(Position + cameraShakeDistance);
+
 			UpdateMatrix(true);
 
 			if (RendererCount == 0)
@@ -288,6 +307,8 @@ namespace Atma
 			}
 
 			let result = this.Execute(ProjectionViewMatrix);
+
+			Position = position;
 
 			Core.Graphics.Clear(Core.Window, LetterboxColor);
 			Core.Draw.Image(result, _resolution.DrawRect.ToAABB());

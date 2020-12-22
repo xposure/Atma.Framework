@@ -25,7 +25,8 @@ namespace Atma
 
 		public float t => CurrentDuration / Duration;
 		public float Duration => Animation.Duration;
-		public Subtexture Subtexture => Animation.GetTexture(_currentDuration);
+		public Subtexture Subtexture => Animation.GetTexture(FrameIndex);
+		public int FrameIndex => Animation.GetFrameIndex(_currentDuration);
 
 		public this(Animation animation, bool loop = false, bool reverse = false)
 		{
@@ -40,8 +41,37 @@ namespace Atma
 			if (IsStopped)
 				return;
 
-			_currentDuration += dt * 1000;
-			if (t >= 1f)
+			if (_state == .Forward)
+			{
+				_currentDuration += dt * 1000;
+				if (_currentDuration >= Animation.Duration)
+				{
+					if (Loop)
+					{
+						_currentDuration -= Animation.Duration;
+					} else
+					{
+						_state = .Stop;
+						_currentDuration = Animation.Duration;
+					}
+				}
+			}
+			else if (_state == .Backward)
+			{
+				_currentDuration -= dt * 1000;
+				if (_currentDuration <= 0)
+				{
+					if (Loop)
+					{
+						_currentDuration += Animation.Duration;
+					} else
+					{
+						_state = .Stop;
+						_currentDuration = 0;
+					}
+				}
+			}
+			/*if (t >= 1f)
 			{
 				if (Reverse)
 				{
@@ -62,7 +92,9 @@ namespace Atma
 				{
 					_currentDuration = 1f - _currentDuration;
 				}
-			}
+				else
+					_state = .Stop;
+			}*/
 		}
 
 		public void Reset() mut
@@ -71,10 +103,17 @@ namespace Atma
 			_currentDuration = 0;
 		}
 
-		public void Restart() mut
+		public void Restart(AnimationState state = .Forward) mut
 		{
-			_state = .Forward;
-			_currentDuration = 0;
+			if (state == .Backward)
+			{
+				_state = .Backward;
+				_currentDuration = Animation.Duration;
+			} else
+			{
+				_state = .Forward;
+				_currentDuration = 0;
+			}
 		}
 
 		public void Stop() mut
@@ -113,23 +152,25 @@ namespace Atma
 			Duration += duration;
 		}
 
-		public Subtexture GetTexture(float duration)
+		public int GetFrameIndex(float duration)
 		{
 			//small optimization?
-			if (duration >= Duration)
-				return _frames.Back.Texture;
-
 			var duration;
 			for (var i < _frames.Count)
 			{
 				let frameDuration = _frames[i].Duration;
 				if (duration <= frameDuration)
-					return _frames[i].Texture;
+					return i;
 
 				duration -= frameDuration;
 			}
 
-			return _frames.Back.Texture;
+			return _frames.Count - 1;
+		}
+
+		public Subtexture GetTexture(int frameIndex)
+		{
+			return _frames[frameIndex].Texture;
 		}
 	}
 }

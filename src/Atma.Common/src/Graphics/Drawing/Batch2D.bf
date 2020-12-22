@@ -1164,6 +1164,7 @@ namespace Atma
 		#endregion
 
 		#region GMX?
+
 		public void Image(DrawArgs args, float2 offset = .Zero)
 		{
 			SetTexture(args.texture.Texture);

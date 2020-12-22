@@ -102,6 +102,15 @@ namespace Atma
 			Platform_Init();
 		}
 
+		public this(int width, int height, Color color) : this(width, height, .Color)
+		{
+			let pixels = new:ScopedAlloc! Color[width * height];
+			for (var i < pixels.Count)
+				pixels[i] = color;
+
+			SetData(pixels);
+		}
+
 		public this(Image image) : this(image.Width, image.Height, .Color)
 		{
 			SetData(image.Pixels);
@@ -293,7 +302,7 @@ namespace Atma
 			Runtime.Assert(false, "Not implemented");
 		}
 
-
+		public static implicit operator Subtexture(Texture texture) => .(texture);
 	}
 }
 
