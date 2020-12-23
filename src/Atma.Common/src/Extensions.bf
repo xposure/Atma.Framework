@@ -3,6 +3,7 @@ using System.Collections;
 using System;
 using Atma;
 
+[StaticInitPriority(2000)]
 public static class Types
 {
 	public struct TypeMeta : IDisposable
@@ -24,7 +25,12 @@ public static class Types
 		}
 	}
 
-	private static Dictionary<int32, TypeMeta> _types = new .() ~ Release(_);
+	private static Dictionary<int32, TypeMeta> _types ~ Release(_);
+
+	static this()
+	{
+		_types = new .();
+	}
 
 	public static TypeMeta this[Type type]
 	{
@@ -37,6 +43,7 @@ public static class Types
 	}
 }
 
+[StaticInitPriority(1000)]
 public static class Types<T>
 {
 	public static Types.TypeMeta Meta = Types[typeof(T)];
