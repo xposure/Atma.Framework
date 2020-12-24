@@ -213,7 +213,7 @@ namespace Atma
 					Core.Integration.Advance();
 				}
 
-				let integration = (time % Time.FixedTimestep) / (float)Time.FixedTimestep;
+				let integration = msCounter / (float)Time.FixedTimestep;
 				//Console.WriteLine(scope $"{integration}");
 				Core.Integration.Integrate(integration);
 
