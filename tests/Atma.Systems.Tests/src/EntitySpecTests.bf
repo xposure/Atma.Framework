@@ -18,7 +18,48 @@ namespace Atma
 			public float2 x;
 		}
 
+
+		public class Foo
+		{
+			typealias GroupType = IHashable;
+			typealias GroupData = (Type Type, GroupType Data);
+
+			public int ID;
+
+			public Span<GroupData> Data;
+			public Span<ComponentType> Data2;
+
+
+				[AllowAppend]
+			public this(Span<ComponentType> componentTypes)
+			{
+				let ptr = append GroupData[1]*;
+				let ptr2 = append ComponentType[componentTypes.Length]*;
+				Data = .(ptr, 1);
+				Data2 = .(ptr2, componentTypes.Length);
+
+				componentTypes.CopyTo(Data2);
+
+				ID = ComponentType.CalculateId(componentTypes);
+			}
+
+			[AllowAppend]
+			public this(params ComponentType[] componentTypes) : this(.(componentTypes))
+			{
+			}
+		}
+
 		[Test]
+		public static void Test()
+		{
+			let bar2 = scope EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type);
+			let bar = scope Foo(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type);
+
+			Assert.EqualTo(bar.Data.Length, 1);
+			Assert.EqualTo(bar.Data2.Length, 3);
+		}
+
+		/*[Test]
 		public static void ShouldGenerateSameHashcode()
 		{
 			var specs = scope EntitySpec[]
@@ -40,7 +81,7 @@ namespace Atma
 			}
 
 			//Contract.IsTrue(false);
-		}
+		}*/
 
 		//this is no longer a requirement ComponentType stack methods do the sort using ints and insertion sort
 		// [Test]
