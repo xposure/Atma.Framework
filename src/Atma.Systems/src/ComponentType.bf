@@ -6,7 +6,7 @@ namespace Atma
 	[StaticInitPriority(1)]
 	public struct ComponentType : IHashable// IEquatable<ComponentType>
 	{
-		internal static LookupList<Type> _typeLookup = new .() ~ Release(_);
+		/*internal static LookupList<Type> _typeLookup = new .() ~ Release(_);
 
 		internal static Type LookUp(ComponentType type) => LookUp(type.ID);
 		internal static Type LookUp(int id)
@@ -15,7 +15,7 @@ namespace Atma
 				Runtime.FatalError(scope $"{id}");
 
 			return type;
-		}
+		}*/
 
 		public readonly int ID;
 		public readonly int Size;
@@ -45,10 +45,10 @@ namespace Atma
 
 		public static bool operator!=(ComponentType a, ComponentType b) => (a.ID != b.ID);
 
-		public override void ToString(String strBuffer)
+		/*public override void ToString(String strBuffer)
 		{
 			strBuffer.Append(scope $"Name: {LookUp(ID)}, ID: {ID}, Size: {Size}");
-		}
+		}*/
 
 		public static int FindMatches(Span<ComponentType> a, Span<ComponentType> b, Span<ComponentType> results)
 		{
@@ -215,18 +215,18 @@ namespace Atma
 		}
 	}
 
-	/*public delegate void CopyAndMoveNext(ref void* src, ref void* dst);
-	public delegate void Copy(void* src, void* dst);
-	public delegate void Reset(void* dst);
-
-	public class ComponentTypeHelper
+	public struct ComponentTypeHelper
 	{
-		private static LookupList<ComponentTypeHelper> _helpers = new LookupList<ComponentTypeHelper>();
+		public function void CopyAndMoveNext(ref void* src, ref void* dst);
+		public function void Copy(void* src, void* dst);
+		public function void Reset(void* dst);
+
+		private static LookupList<ComponentTypeHelper> _helpers = new LookupList<ComponentTypeHelper>() ~ delete _;
 
 		public static ComponentTypeHelper Get(ComponentType componentType)
 		{
 			if (!_helpers.TryGetValue(componentType.ID, var componentHelper))
-				return null;
+				Runtime.FatalError("Could not find component type helper");
 
 			return componentHelper;
 		}
@@ -235,6 +235,7 @@ namespace Atma
 		public readonly Copy Copy;
 		public readonly CopyAndMoveNext CopyAndMoveNext;
 		public readonly Reset Reset;
+
 		internal this(ComponentType componentType, Copy copy, CopyAndMoveNext copyAndMoveNext, Reset reset)
 		{
 			ComponentType = componentType;
@@ -243,34 +244,40 @@ namespace Atma
 			Reset = reset;
 			_helpers.Add(componentType.ID, this);
 		}
-	}*/
+	}
 
-	public static class ComponentType<T>
+
+	public class ComponentType<T>
 		where T : struct
 	{
 		public readonly static ComponentType Type;
-		//public readonly static ComponentTypeHelper Helper;
+		public readonly static ComponentTypeHelper Helper;
 
 		static this()
 		{
 			let type = typeof(T);
 			Type = ComponentType((.)type.TypeId, type.Size, type.Stride);
-			/*var unmanagedType = UnmanagedType<T>.Type;
-			Type = new ComponentType(unmanagedType.ID, unmanagedType.Size);
 
-			CopyAndMoveNext copyAndMoveNext = (ref void* src, ref void* dst) =>
-			{
-				T* srcT = (T*)src;
-				T* dstT = (T*)dst;
-				*dstT++ = *srcT++;
-				src = srcT;
-				dst = dstT;
-			};
-			Copy copy = (void *src, void* dst) => *(T*)dst = *(T*)src;
-			Reset reset = (void* dst) => *(T*)dst = default;
-			Helper = new ComponentTypeHelper(Type, copy, copyAndMoveNext, reset);
+			Helper = ComponentTypeHelper(Type, => Copy, => CopyAndMoveNext, => Reset);
 
-			ComponentType._typeLookup.Add(Type.ID, typeof(T));*/
+			//ComponentType._typeLookup.Add(Type.ID, typeof(T));
 		}
+
+		[Inline]
+		private static void CopyAndMoveNext(ref void* src, ref void* dst)
+		{
+			T* srcT = (T*)src;
+			T* dstT = (T*)dst;
+			*dstT++ = *srcT++;
+			src = srcT;
+			dst = dstT;
+		}
+
+		[Inline]
+		private static void Copy(void* src, void* dst) => *(T*)dst = *(T*)src;
+
+		[Inline]
+		private static void Reset(void* dst) => *(T*)dst = default;
+
 	}
 }

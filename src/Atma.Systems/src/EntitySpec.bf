@@ -25,6 +25,24 @@ namespace Atma
 		}
 
 		[AllowAppend]
+		public this(EntitySpec spec)
+		{
+			var componentPtr = append ComponentType[spec.ComponentTypes.Length]*;
+			var groupPtr = append GroupData[spec.GroupData.Length]*;
+
+			GroupData = .(groupPtr, spec.GroupData.Length);
+			for (var i < spec.GroupData.Length)
+				GroupData[i] = spec.GroupData[i];
+
+			ComponentTypes = .(componentPtr, spec.ComponentTypes.Length);
+			spec.ComponentTypes.CopyTo(ComponentTypes);
+
+			ID = spec.ID;
+			EntitySize = spec.EntitySize;
+			EntityStride = spec.EntityStride;
+		}
+
+		[AllowAppend]
 		public this(int id, Span<ComponentType> componentTypes, Span<GroupType> groups)
 		{
 			var componentPtr = append ComponentType[componentTypes.Length]*;
@@ -56,21 +74,8 @@ namespace Atma
 		}
 
 		[AllowAppend]
-		public this(params ComponentType[] componentTypes)//: this(0, .(componentTypes), .(null, 0))
+		public this(params ComponentType[] componentTypes) : this(0, .(componentTypes), .(null, 0))
 		{
-			var componentPtr = append ComponentType[componentTypes.Count]*;
-			var groupPtr = append GroupData[0]*;
-
-			GroupData = .(groupPtr, 0);
-
-			ComponentTypes = .(componentPtr, componentTypes.Count);
-			componentTypes.CopyTo(ComponentTypes);
-
-			ID = ComponentType.CalculateId(componentTypes);
-
-			let meta = ComponentTypes.EntitySize();
-			EntitySize = meta.Size;
-			EntityStride = meta.Stride;
 		}
 
 		[AllowAppend]

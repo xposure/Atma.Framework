@@ -2,6 +2,7 @@ using System.IO;
 using System.Collections;
 using System;
 using Atma;
+using System.Diagnostics;
 
 [StaticInitPriority(2000)]
 public static class Types
@@ -49,7 +50,19 @@ public static class Types<T>
 	public static Types.TypeMeta Meta = Types[typeof(T)];
 }
 
-public extension List<T>
+namespace System
+{
+	public extension Span<T> : IEnumerable<T> { }
+}
+
+namespace System.Collections
+{
+	public extension List<T>
+	{
+		public this(Span<T> it) : this(it.GetEnumerator()) { }
+		public Span<T> Slice() => .(this.Ptr, this.Count);
+	}
+}
 
 //namespace Atma
 //{
@@ -148,6 +161,9 @@ public static
 			list[i] = temp;
 		}
 	}
+
+
+
 
 	public static bool Any<T, K>(this List<T> self, K dlg) where K : delegate bool(T t)
 	{
@@ -333,6 +349,26 @@ namespace System.Collections
 				dlg(it);
 		}
 
+		/// <summary>
+		/// removes the item at the given index from the list but does NOT maintain list order
+		/// </summary>
+		/// <param name="index"></param>
+		/// <returns>True if a swap actually happened, false if it was the last element</returns>
+		public bool RemoveAtWithSwap(int index, bool clear = false)
+		{
+			Debug.Assert((uint32)index < (uint32)mSize);
+			mSize--;
+			if (mSize > 0)
+			{
+				if (mSize != index)
+				{
+					mItems[index] = mItems[mSize];
+					return true;
+				}
+			}
+
+			return false;
+		}
 		/*public static implicit operator ReadOnlyList<T>(List<T> it) => .(it);
 		public static implicit operator ReadOnlySpan<T>(List<T> it) => .(it.Ptr, it.Count);*/
 	}
@@ -368,6 +404,7 @@ namespace System.Collections
 		{
 		}
 
+		public static implicit operator ReadOnlySpan<T>(Span<T> it) => .(it.Ptr, it.Length);
 	}
 
 	public struct ReadOnlyList<T> : IEnumerable<T>
