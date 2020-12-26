@@ -6,8 +6,8 @@ namespace Atma
 	public class LookupList<Key, Value>
 		where bool : operator Key == Key
 	{
-		private List<Key> _indexLookup;
-		private List<Value> _data;
+		private List<Key> _indexLookup ~ Release(_);
+		private List<Value> _data ~ Release(_);
 
 		public int Count => _indexLookup.Count;
 
@@ -17,8 +17,8 @@ namespace Atma
 			_data = new List<Value>(initialSize);
 		}
 
-		public IEnumerable<Key> AllKeys => _indexLookup;
-		public IEnumerable<Value> AllObjects => _data;
+		public List<Key>.Enumerator AllKeys => _indexLookup.GetEnumerator();
+		public List<Value>.Enumerator AllObjects => _data.GetEnumerator();
 
 		public Value this[Key id]
 		{
