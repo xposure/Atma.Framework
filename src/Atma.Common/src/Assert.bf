@@ -44,11 +44,11 @@ namespace Atma
 		}
 
 		[Inline]
-		public static void EqualTo<T, K>(T actual, K expected)
+		public static void EqualTo<T, K>(T actual, K expected, int line = Compiler.CallerLineNum, String file = Compiler.CallerFilePath, String expr = Compiler.CallerExpression[0])
 			where bool : operator T == K
 		{
 			if (!(actual == expected))
-				Runtime.FatalError(scope $"EqualTo -> Expected: {expected}, Actual: {actual}");
+				Internal.FatalError(scope $"ERROR: <{expr}> expected to be <{expected}> but was <{actual}> at line {line}:1 in {file}");
 		}
 
 		[Inline]

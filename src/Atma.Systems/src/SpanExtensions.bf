@@ -4,6 +4,19 @@ namespace Atma
 {
 	public static
 	{
+		public static (int Size, int Stride) EntitySize(this Span<ComponentType> components)
+		{
+			var size = 0;
+			var stride = 0;
+			for (var it in ref components)
+			{
+				size += it.Size;
+				stride += it.Stride;
+			}
+
+			return (size, stride);
+		}
+
 		public static void InsertionSort(this Span<int> span)
 		{
 			for (var i = 0; i < span.Length - 1; i++)

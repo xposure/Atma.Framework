@@ -1,30 +1,45 @@
-namespace Atma.Entities
+namespace Atma
 {
 	using System;
 	using System.Collections;
 
 	public class EntitySpecTests
 	{
-		[Test]
-		public void ShouldGenerateSameHashcode()
+		public struct Valid
 		{
-			var specs = new []
-				{
-					new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type),
-					new EntitySpec(ComponentType<Valid2>.Type, ComponentType<Valid>.Type, ComponentType<Valid3>.Type),
-					new EntitySpec(ComponentType<Valid3>.Type, ComponentType<Valid>.Type, ComponentType<Valid2>.Type)
-				};
+			public float2 x;
+		}
+		public struct Valid2
+		{
+			public float2 x;
+		}
+		public struct Valid3
+		{
+			public float2 x;
+		}
 
-			for (var x = 0; x < specs.Length - 1; x++)
+		[Test]
+		public static void ShouldGenerateSameHashcode()
+		{
+			/*var specs = scope EntitySpec[]
+				(
+				scope EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type),
+				scope EntitySpec(ComponentType<Valid2>.Type, ComponentType<Valid>.Type, ComponentType<Valid3>.Type),
+				scope EntitySpec(ComponentType<Valid3>.Type, ComponentType<Valid>.Type, ComponentType<Valid2>.Type)
+				);
+
+			for (var x = 0; x < specs.Count - 1; x++)
 			{
 				var a1 = specs[x];
-				for (var y = x + 1; y < specs.Length; y++)
+				for (var y = x + 1; y < specs.Count; y++)
 				{
 					var a2 = specs[y];
-					a1.EntitySize.ShouldBe(a2.EntitySize);
-					a1.ID.ShouldBe(a2.ID);
+					Contract.EqualTo(a1.EntitySize, a2.EntitySize);
+					Contract.EqualTo(a1.ID, a2.ID);
 				}
-			}
+			}*/
+
+			Contract.IsFalse(true);
 		}
 
 		//this is no longer a requirement ComponentType stack methods do the sort using ints and insertion sort
@@ -51,10 +66,11 @@ namespace Atma.Entities
 		//     }
 		// }
 
-		[Test]
+		/*[Test]
 		public void ShouldHaveAll()
 		{
-			var spec = new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid4>.Type);
+			var spec = new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type,
+	ComponentType<Valid4>.Type);
 
 			var valid = new []
 				{
@@ -62,7 +78,8 @@ namespace Atma.Entities
 					new EntitySpec(ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid4>.Type),
 					new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid4>.Type),
 					new EntitySpec(ComponentType<Valid>.Type),
-					new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid4>.Type)
+					new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type,
+	ComponentType<Valid4>.Type)
 				};
 
 			for (var i = 0; i < valid.Length; i++)
@@ -70,11 +87,12 @@ namespace Atma.Entities
 
 			var invalid = new []
 				{
-					new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid6>.Type),
-					new EntitySpec(ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid6>.Type, ComponentType<Valid4>.Type),
-					new EntitySpec(ComponentType<Valid5>.Type, ComponentType<Valid>.Type, ComponentType<Valid4>.Type, ComponentType<Valid6>.Type),
-					new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid5>.Type, ComponentType<Valid4>.Type),
-					new EntitySpec(ComponentType<Valid6>.Type)
+					new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type,
+	ComponentType<Valid6>.Type), new EntitySpec(ComponentType<Valid2>.Type, ComponentType<Valid3>.Type,
+	ComponentType<Valid6>.Type, ComponentType<Valid4>.Type), new EntitySpec(ComponentType<Valid5>.Type,
+	ComponentType<Valid>.Type, ComponentType<Valid4>.Type, ComponentType<Valid6>.Type), new
+	EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type,
+	ComponentType<Valid5>.Type, ComponentType<Valid4>.Type), new EntitySpec(ComponentType<Valid6>.Type)
 				};
 
 			for (var i = 0; i < invalid.Length; i++)
@@ -88,7 +106,8 @@ namespace Atma.Entities
 		[Test]
 		public void ShouldHaveAny()
 		{
-			var spec = new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid4>.Type
+			var spec = new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type,
+	ComponentType<Valid4>.Type
 				);
 
 			var valid = new []
@@ -97,7 +116,8 @@ namespace Atma.Entities
 					new EntitySpec(ComponentType<Valid2>.Type, ComponentType<Valid6>.Type, ComponentType<Valid4>.Type),
 					new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid4>.Type),
 					new EntitySpec(ComponentType<Valid>.Type),
-					new EntitySpec(ComponentType<Valid5>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid4>.Type)
+					new EntitySpec(ComponentType<Valid5>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type,
+	ComponentType<Valid4>.Type)
 				};
 
 			for (var i = 0; i < valid.Length; i++)
@@ -120,9 +140,10 @@ namespace Atma.Entities
 		{
 			var specs = new []
 				{
-					new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid6>.Type, ComponentType<Valid5>.Type),
-					new EntitySpec(ComponentType<Valid4>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid5>.Type),
-					new EntitySpec(ComponentType<Valid6>.Type, ComponentType<Valid3>.Type, ComponentType<Valid>.Type, ComponentType<Valid4>.Type)
+					new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid6>.Type,
+	ComponentType<Valid5>.Type), new EntitySpec(ComponentType<Valid4>.Type, ComponentType<Valid2>.Type,
+	ComponentType<Valid3>.Type, ComponentType<Valid5>.Type), new EntitySpec(ComponentType<Valid6>.Type,
+	ComponentType<Valid3>.Type, ComponentType<Valid>.Type, ComponentType<Valid4>.Type)
 				};
 
 			Span<ComponentType> componentTypes0 = stackalloc ComponentType[8];
@@ -155,8 +176,9 @@ namespace Atma.Entities
 		[Test]
 		public void EntitySpecGroupShouldMatch()
 		{
-			var a = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }), ComponentType<Valid>.Type, ComponentType<Valid2>.Type);
-			var b = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }), ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
+			var a = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }), ComponentType<Valid>.Type,
+	ComponentType<Valid2>.Type); var b = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }),
+	ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
 
 			a.ID.ShouldBe(b.ID);
 			a.GetGroupData<GroupA>().HashCode.ShouldBe(1);
@@ -166,8 +188,9 @@ namespace Atma.Entities
 		[Test]
 		public void EntitySpecGroupShouldMatchAll()
 		{
-			var a = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }, new GroupB() { HashCode = 2 }), ComponentType<Valid>.Type, ComponentType<Valid2>.Type);
-			var b = new EntitySpec(new IEntitySpecGroup[](new GroupB() { HashCode = 2 }, new GroupA() { HashCode = 1 }), ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
+			var a = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }, new GroupB() { HashCode = 2 }),
+	ComponentType<Valid>.Type, ComponentType<Valid2>.Type); var b = new EntitySpec(new IEntitySpecGroup[](new GroupB() {
+	HashCode = 2 }, new GroupA() { HashCode = 1 }), ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
 
 			a.ID.ShouldBe(b.ID);
 			a.GetGroupData<GroupA>().HashCode.ShouldBe(1);
@@ -179,8 +202,9 @@ namespace Atma.Entities
 		[Test]
 		public void EntitySpecGroupShouldNotMatchHash()
 		{
-			var a = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }), ComponentType<Valid>.Type, ComponentType<Valid2>.Type);
-			var b = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 2 }), ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
+			var a = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }), ComponentType<Valid>.Type,
+	ComponentType<Valid2>.Type); var b = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 2 }),
+	ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
 
 			a.ID.ShouldNotBe(b.ID);
 			a.GetGroupData<GroupA>().HashCode.ShouldBe(1);
@@ -190,12 +214,13 @@ namespace Atma.Entities
 		[Test]
 		public void EntitySpecGroupShouldNotMatchDifferentGroup()
 		{
-			var a = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }), ComponentType<Valid>.Type, ComponentType<Valid2>.Type);
-			var b = new EntitySpec(new IEntitySpecGroup[](new GroupB() { HashCode = 1 }), ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
+			var a = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }), ComponentType<Valid>.Type,
+	ComponentType<Valid2>.Type); var b = new EntitySpec(new IEntitySpecGroup[](new GroupB() { HashCode = 1 }),
+	ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
 
 			a.ID.ShouldNotBe(b.ID);
 			a.GetGroupData<GroupA>().HashCode.ShouldBe(1);
 			b.GetGroupData<GroupB>().HashCode.ShouldBe(1);
-		}
+		}*/
 	}
 }

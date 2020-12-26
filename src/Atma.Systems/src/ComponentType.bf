@@ -1,4 +1,4 @@
-/*namespace Atma
+namespace Atma
 {
 	using System;
 	using internal Atma;
@@ -12,7 +12,7 @@
 		internal static Type LookUp(int id)
 		{
 			if (!_typeLookup.TryGetValue(id, let type))
-				return UnmanagedHelper.LookUp(id);
+				Runtime.FatalError(scope $"{id}");
 
 			return type;
 		}
@@ -185,12 +185,12 @@
 		/// </summary>
 		/// <param name="types"></param>
 		/// <returns></returns>
-		public static int CalculateId(Span<ComponentType> types, IEntitySpecGroup[] groups = null)
+		public static int CalculateId(Span<ComponentType> types, IHashable[] groups = null)
 		{
 			Assert.GreaterThan(types.Length, 0);
 
 			var count = types.Length;
-			if (groups != null) count += groups.Length * 2;
+			if (groups != null) count += groups.Count * 2;
 
 			Span<int> hashIds = scope int[count];
 			for (var i = 0; i < types.Length; i++)
@@ -198,10 +198,10 @@
 
 			if (groups != null)
 			{
-				for (var i = 0; i < groups.Length; i++)
+				for (var i = 0; i < groups.Count; i++)
 				{
 					hashIds[types.Length + i * 2] = groups[i].GetHashCode();
-					hashIds[types.Length + i * 2 + 1] = groups[i].GetType().GetHashCode();
+					hashIds[types.Length + i * 2 + 1] = (.)groups[i].GetType().TypeId;
 				}
 			}
 
@@ -273,4 +273,4 @@
 			ComponentType._typeLookup.Add(Type.ID, typeof(T));*/
 		}
 	}
-}*/
+}
