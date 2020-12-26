@@ -27,7 +27,6 @@ namespace Atma
 				Console.WriteLine(scope $"ERROR: <{expr}> expected to be <True> but was <{actual}> at line {line}:1 in {file}");
 				System.Diagnostics.Debug.SafeBreak();
 
-				Console.Read();
 				Internal.FatalError(scope $"ERROR: <{expr}> expected to be <True> but was <{actual}> at line {line}:1 in {file}");
 			}
 		}

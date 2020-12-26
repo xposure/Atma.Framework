@@ -21,7 +21,7 @@ namespace Atma
 		[Test]
 		public static void ShouldGenerateSameHashcode()
 		{
-			/*var specs = scope EntitySpec[]
+			var specs = scope EntitySpec[]
 				(
 				scope EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type),
 				scope EntitySpec(ComponentType<Valid2>.Type, ComponentType<Valid>.Type, ComponentType<Valid3>.Type),
@@ -37,9 +37,9 @@ namespace Atma
 					Contract.EqualTo(a1.EntitySize, a2.EntitySize);
 					Contract.EqualTo(a1.ID, a2.ID);
 				}
-			}*/
+			}
 
-			Contract.IsTrue(false);
+			//Contract.IsTrue(false);
 		}
 
 		//this is no longer a requirement ComponentType stack methods do the sort using ints and insertion sort

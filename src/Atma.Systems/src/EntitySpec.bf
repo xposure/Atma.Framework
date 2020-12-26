@@ -27,7 +27,7 @@ namespace Atma
 		[AllowAppend]
 		internal this(int id, Span<ComponentType> componentTypes, Span<GroupType> groups)
 		{
-			var componentPtr = append ComponentType[componentTypes.Length]*;
+			/*var componentPtr = append ComponentType[componentTypes.Length]*;
 			var groupPtr = append GroupData[groups.Length]*;
 
 			GroupData = .(groupPtr, groups.Length);
@@ -41,7 +41,7 @@ namespace Atma
 
 			let meta = ComponentTypes.EntitySize();
 			EntitySize = meta.Size;
-			EntityStride = meta.Stride;
+			EntityStride = meta.Stride;*/
 		}
 
 		[AllowAppend]
