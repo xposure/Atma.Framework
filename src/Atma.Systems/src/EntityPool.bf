@@ -1,4 +1,4 @@
-namespace Atma.Entities
+namespace Atma
 {
 	using System;
 	using System.Collections;
@@ -48,6 +48,8 @@ namespace Atma.Entities
 
 		internal Entity* GetPointer(uint entity)
 		{
+			//TODO should we be checking versions?
+#unwarn
 			var version = entity >> 24;
 			var id = (int)(entity & 0xffffff);
 

@@ -159,6 +159,65 @@ namespace Atma
 
 		public static implicit operator Span<ComponentType>(EntitySpec it) => it.ComponentTypes;
 
-
+		public static mixin Scope<T0>(params GroupType[] groups)
+			where T0 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type)); }
+		public static mixin Scope<T0, T1>(params IHashable[] groups)
+			where T0 : struct where T1 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type)); }
+		public static mixin Scope<T0, T1, T2>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6, T7>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct where T7 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type, ComponentType<T7>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6, T7, T8>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct where T7 : struct where T8 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type, ComponentType<T7>.Type, ComponentType<T8>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct where T7 : struct where T8 : struct where T9 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type, ComponentType<T7>.Type, ComponentType<T8>.Type, ComponentType<T9>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct where T7 : struct where T8 : struct where T9 : struct where T10 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type, ComponentType<T7>.Type, ComponentType<T8>.Type, ComponentType<T9>.Type, ComponentType<T10>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct where T7 : struct where T8 : struct where T9 : struct where T10 : struct where T11 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type, ComponentType<T7>.Type, ComponentType<T8>.Type, ComponentType<T9>.Type, ComponentType<T10>.Type, ComponentType<T11>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct where T7 : struct where T8 : struct where T9 : struct where T10 : struct where T11 : struct where T12 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type, ComponentType<T7>.Type, ComponentType<T8>.Type, ComponentType<T9>.Type, ComponentType<T10>.Type, ComponentType<T11>.Type, ComponentType<T12>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct where T7 : struct where T8 : struct where T9 : struct where T10 : struct where T11 : struct where T12 : struct where T13 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type, ComponentType<T7>.Type, ComponentType<T8>.Type, ComponentType<T9>.Type, ComponentType<T10>.Type, ComponentType<T11>.Type, ComponentType<T12>.Type, ComponentType<T13>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct where T7 : struct where T8 : struct where T9 : struct where T10 : struct where T11 : struct where T12 : struct where T13 : struct where T14 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type, ComponentType<T7>.Type, ComponentType<T8>.Type, ComponentType<T9>.Type, ComponentType<T10>.Type, ComponentType<T11>.Type, ComponentType<T12>.Type, ComponentType<T13>.Type, ComponentType<T14>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct where T7 : struct where T8 : struct where T9 : struct where T10 : struct where T11 : struct where T12 : struct where T13 : struct where T14 : struct where T15 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type, ComponentType<T7>.Type, ComponentType<T8>.Type, ComponentType<T9>.Type, ComponentType<T10>.Type, ComponentType<T11>.Type, ComponentType<T12>.Type, ComponentType<T13>.Type, ComponentType<T14>.Type, ComponentType<T15>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct where T7 : struct where T8 : struct where T9 : struct where T10 : struct where T11 : struct where T12 : struct where T13 : struct where T14 : struct where T15 : struct where T16 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type, ComponentType<T7>.Type, ComponentType<T8>.Type, ComponentType<T9>.Type, ComponentType<T10>.Type, ComponentType<T11>.Type, ComponentType<T12>.Type, ComponentType<T13>.Type, ComponentType<T14>.Type, ComponentType<T15>.Type, ComponentType<T16>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct where T7 : struct where T8 : struct where T9 : struct where T10 : struct where T11 : struct where T12 : struct where T13 : struct where T14 : struct where T15 : struct where T16 : struct where T17 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type, ComponentType<T7>.Type, ComponentType<T8>.Type, ComponentType<T9>.Type, ComponentType<T10>.Type, ComponentType<T11>.Type, ComponentType<T12>.Type, ComponentType<T13>.Type, ComponentType<T14>.Type, ComponentType<T15>.Type, ComponentType<T16>.Type, ComponentType<T17>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct where T7 : struct where T8 : struct where T9 : struct where T10 : struct where T11 : struct where T12 : struct where T13 : struct where T14 : struct where T15 : struct where T16 : struct where T17 : struct where T18 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type, ComponentType<T7>.Type, ComponentType<T8>.Type, ComponentType<T9>.Type, ComponentType<T10>.Type, ComponentType<T11>.Type, ComponentType<T12>.Type, ComponentType<T13>.Type, ComponentType<T14>.Type, ComponentType<T15>.Type, ComponentType<T16>.Type, ComponentType<T17>.Type, ComponentType<T18>.Type)); }
+		public static mixin Scope<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>(params IHashable[] groups)
+			where T0 : struct where T1 : struct where T2 : struct where T3 : struct where T4 : struct where T5 : struct where T6 : struct where T7 : struct where T8 : struct where T9 : struct where T10 : struct where T11 : struct where T12 : struct where T13 : struct where T14 : struct where T15 : struct where T16 : struct where T17 : struct where T18 : struct where T19 : struct
+			{ scope EntitySpec(groups, scope ComponentType[](ComponentType<T0>.Type, ComponentType<T1>.Type, ComponentType<T2>.Type, ComponentType<T3>.Type, ComponentType<T4>.Type, ComponentType<T5>.Type, ComponentType<T6>.Type, ComponentType<T7>.Type, ComponentType<T8>.Type, ComponentType<T9>.Type, ComponentType<T10>.Type, ComponentType<T11>.Type, ComponentType<T12>.Type, ComponentType<T13>.Type, ComponentType<T14>.Type, ComponentType<T15>.Type, ComponentType<T16>.Type, ComponentType<T17>.Type, ComponentType<T18>.Type, ComponentType<T19>.Type)); }
 	}
 }

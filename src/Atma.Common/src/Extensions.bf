@@ -52,7 +52,10 @@ public static class Types<T>
 
 namespace System
 {
-	public extension Span<T> : IEnumerable<T> { }
+	public extension Span<T> : IEnumerable<T>
+	{
+		public readonly static Span<T> Empty = .(null, 0);
+	}
 }
 
 namespace System.Collections

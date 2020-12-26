@@ -31,8 +31,7 @@ namespace Atma
 
 		internal void Create(EntityRef entity)
 		{
-			Span<EntityRef> entities = scope EntityRef[](entity);
-			Create(entities);
+			Create(scope EntityRef[](entity));
 		}
 
 		internal int Create(Span<EntityRef> entities)
@@ -51,8 +50,7 @@ namespace Atma
 
 		internal void Delete(EntityRef entity)
 		{
-			Span<EntityRef> slice = scope EntityRef[](entity);
-			Delete(slice);
+			Delete(scope EntityRef[](entity));
 		}
 
 		internal void Delete(Span<EntityRef> entities)
