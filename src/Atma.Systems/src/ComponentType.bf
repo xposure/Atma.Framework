@@ -3,16 +3,10 @@ namespace Atma
 	using System;
 	using internal Atma;
 
-	[StaticInitPriority(2000)]
+	[StaticInitPriority(1)]
 	public struct ComponentType : IHashable// IEquatable<ComponentType>
 	{
-		internal static LookupList<Type> _typeLookup ~ Release(_);
-
-		static this
-		{
-			if (_typeLookup == null)//had to provide this check to stop memory leaks
-				_typeLookup = new .();
-		}
+		internal static LookupList<Type> _typeLookup = new .() ~ Release(_);
 
 		internal static Type LookUp(ComponentType type) => LookUp(type.ID);
 		internal static Type LookUp(int id)

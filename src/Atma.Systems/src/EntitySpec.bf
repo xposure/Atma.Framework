@@ -25,7 +25,7 @@ namespace Atma
 		}
 
 		[AllowAppend]
-		internal this(int id, Span<ComponentType> componentTypes, Span<GroupType> groups)
+		public this(int id, Span<ComponentType> componentTypes, Span<GroupType> groups)
 		{
 			var componentPtr = append ComponentType[componentTypes.Length]*;
 			var groupPtr = append GroupData[groups.Length]*;
@@ -50,14 +50,15 @@ namespace Atma
 		}
 
 		[AllowAppend]
-		internal this(GroupType[] groups, Span<ComponentType> componentTypes) : this(ComponentType.CalculateId(componentTypes, groups), componentTypes, .(groups))
+		internal this(GroupType[] groups, Span<ComponentType> componentTypes) :
+			this(ComponentType.CalculateId(componentTypes, groups), componentTypes, .(groups))
 		{
 		}
 
 		[AllowAppend]
-		public this(params ComponentType[] componentTypes) : this(0, .(componentTypes), .(null, 0))
+		public this(params ComponentType[] componentTypes)//: this(0, .(componentTypes), .(null, 0))
 		{
-			/*var componentPtr = append ComponentType[componentTypes.Count]*;
+			var componentPtr = append ComponentType[componentTypes.Count]*;
 			var groupPtr = append GroupData[0]*;
 
 			GroupData = .(groupPtr, 0);
@@ -69,7 +70,7 @@ namespace Atma
 
 			let meta = ComponentTypes.EntitySize();
 			EntitySize = meta.Size;
-			EntityStride = meta.Stride;*/
+			EntityStride = meta.Stride;
 		}
 
 		[AllowAppend]
