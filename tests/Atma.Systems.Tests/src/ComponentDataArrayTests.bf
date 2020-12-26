@@ -45,54 +45,7 @@ namespace Atma.Entities
 			Assert.EqualTo(p.Y, 0);
 		}
 
-		// private ref struct SpanHack
-		// {
-		//     public Span<Position> positions;
-		//     public Span<Velocity> velocities;
-		//     public static void Execute(int length)
-		//     {
-		//         positions.Length.ShouldBe(2);
-		//         velocities.Length.ShouldBe(2);
-		//         positions[0].X.ShouldBe(10);
-		//         positions[0].Y.ShouldBe(10);
-		//         positions[1].X.ShouldBe(20);
-		//         positions[1].Y.ShouldBe(20);
-		//         positions[1].X.ShouldBe(10);
-		//         positions[1].Y.ShouldBe(10);
-		//         positions[0].X.ShouldBe(20);
-		//         positions[0].Y.ShouldBe(20);
-		//     }
-		// }
 
-		// [Test]
-		// public static void SpanHackTest()
-		// {
-		//     using IAllocator allocator = new DynamicAllocator(_logFactory);
-		//     var data0 = stackalloc[] { new Position(10, 10), new Position(20, 20) };
-		//     var data1 = stackalloc[] { new Velocity(20, 20), new Velocity(10, 10) };
-		//     var size = Marshal.SizeOf(typeof(SpanHack));
-		//     using var memory = allocator.TakeScoped(size);
-
-		//     var hack = (byte*)memory.Address;
-		//     var offset0 = Marshal.OffsetOf(typeof(SpanHack), "positions");
-		//     var offset1 = Marshal.OffsetOf(typeof(SpanHack), "velocities");
-
-		//     var ptr = (IntPtr*)(hack + offset0.ToInt32());
-		//     *ptr = new IntPtr(data0);
-		//     ptr++;
-
-		//     var length = (int*)ptr;
-		//     *length = 2;
-
-		//     ptr = (IntPtr*)(hack + offset1.ToInt32());
-		//     *ptr = new IntPtr(data1);
-		//     ptr++;
-
-		//     length = (int*)ptr;
-		//     *length = 2;
-
-		//     var x = stackalloc[] { Span<int>.Empty };
-		// }
 
 		[Test]
 		public static void ShouldSetIndex()
@@ -213,8 +166,8 @@ namespace Atma.Entities
 			var data = scope ComponentDataArray(componentType, 32);
 
 			var span = data.AsSpan<Position>();
-			var ptr = scope Position[4]* (Position(100, 100), Position(200, 200), Position(400, 100), Position(100, 400));
-			var src = (void*)ptr;
+			var ptr = scope Position[4]* (Position(100, 100), Position(200, 200), Position(400, 100), Position(100,
+				400)); var src = (void*)ptr;
 
 			//act
 			data.Copy(ref src, 0, 4, true);
@@ -261,5 +214,54 @@ namespace Atma.Entities
 			Assert.EqualTo(span[3].X, 100);
 			Assert.EqualTo(span[3].Y, 100);
 		}
+
+		// private ref struct SpanHack
+		// {
+		//     public Span<Position> positions;
+		//     public Span<Velocity> velocities;
+		//     public static void Execute(int length)
+		//     {
+		//         positions.Length.ShouldBe(2);
+		//         velocities.Length.ShouldBe(2);
+		//         positions[0].X.ShouldBe(10);
+		//         positions[0].Y.ShouldBe(10);
+		//         positions[1].X.ShouldBe(20);
+		//         positions[1].Y.ShouldBe(20);
+		//         positions[1].X.ShouldBe(10);
+		//         positions[1].Y.ShouldBe(10);
+		//         positions[0].X.ShouldBe(20);
+		//         positions[0].Y.ShouldBe(20);
+		//     }
+		// }
+
+		// [Test]
+		// public static void SpanHackTest()
+		// {
+		//     using IAllocator allocator = new DynamicAllocator(_logFactory);
+		//     var data0 = stackalloc[] { new Position(10, 10), new Position(20, 20) };
+		//     var data1 = stackalloc[] { new Velocity(20, 20), new Velocity(10, 10) };
+		//     var size = Marshal.SizeOf(typeof(SpanHack));
+		//     using var memory = allocator.TakeScoped(size);
+
+		//     var hack = (byte*)memory.Address;
+		//     var offset0 = Marshal.OffsetOf(typeof(SpanHack), "positions");
+		//     var offset1 = Marshal.OffsetOf(typeof(SpanHack), "velocities");
+
+		//     var ptr = (IntPtr*)(hack + offset0.ToInt32());
+		//     *ptr = new IntPtr(data0);
+		//     ptr++;
+
+		//     var length = (int*)ptr;
+		//     *length = 2;
+
+		//     ptr = (IntPtr*)(hack + offset1.ToInt32());
+		//     *ptr = new IntPtr(data1);
+		//     ptr++;
+
+		//     length = (int*)ptr;
+		//     *length = 2;
+
+		//     var x = stackalloc[] { Span<int>.Empty };
+		// }
 	}
 }

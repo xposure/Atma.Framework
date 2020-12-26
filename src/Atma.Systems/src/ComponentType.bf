@@ -263,7 +263,6 @@ namespace Atma
 			//ComponentType._typeLookup.Add(Type.ID, typeof(T));
 		}
 
-		[Inline]
 		private static void CopyAndMoveNext(ref void* src, ref void* dst)
 		{
 			T* srcT = (T*)src;
@@ -273,10 +272,8 @@ namespace Atma
 			dst = dstT;
 		}
 
-		[Inline]
 		private static void Copy(void* src, void* dst) => *(T*)dst = *(T*)src;
 
-		[Inline]
 		private static void Reset(void* dst) => *(T*)dst = default;
 
 	}

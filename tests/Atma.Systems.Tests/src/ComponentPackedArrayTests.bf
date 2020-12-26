@@ -111,7 +111,7 @@ namespace Atma
 			//act
 
 			//assert
-#unwarn
+	#unwarn
 			var velocities = packedArray.GetComponentData<Velocity>();
 		}
 
@@ -186,8 +186,8 @@ namespace Atma
 			var componentIndex = packedArray.GetComponentIndex<Position>();
 			var span = packedArray.GetComponentData<Position>();
 
-			var ptr = scope Position[]* (Position(100, 100), Position(200, 200), Position(400, 100), Position(100, 400));
-			var src = (void*)ptr;
+			var ptr = scope Position[]* (Position(100, 100), Position(200, 200), Position(400, 100), Position(100,
+				400)); var src = (void*)ptr;
 
 			//act
 			packedArray.Copy(componentIndex, ref src, 0, 4, true);
