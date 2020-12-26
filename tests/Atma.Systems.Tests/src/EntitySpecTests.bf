@@ -39,7 +39,7 @@ namespace Atma
 				}
 			}*/
 
-			Contract.IsFalse(true);
+			Contract.IsTrue(false);
 		}
 
 		//this is no longer a requirement ComponentType stack methods do the sort using ints and insertion sort
