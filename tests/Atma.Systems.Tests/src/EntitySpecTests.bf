@@ -101,7 +101,7 @@ namespace Atma
 				scope EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type),
 				scope EntitySpec(ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid4>.Type),
 				scope EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid4>.Type),
-				scope EntitySpec(ComponentType<float2>.Type),
+				scope EntitySpec(ComponentType<Valid>.Type),
 				scope EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid4>.Type)
 				);
 
@@ -125,125 +125,121 @@ namespace Atma
 			Assert.IsFalse(spec0.HasAll(spec1));
 		}
 
-				/*[Test]
-				public void ShouldHaveAny()
+		[Test]
+		public void ShouldHaveAny()
+		{
+			var spec = scope EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid4>.Type
+				);
+
+			var valid = scope EntitySpec[]
+				(
+				scope EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type),
+				scope EntitySpec(ComponentType<Valid2>.Type, ComponentType<Valid6>.Type, ComponentType<Valid4>.Type),
+				scope EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid4>.Type),
+				scope EntitySpec(ComponentType<Valid>.Type),
+				scope EntitySpec(ComponentType<Valid5>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid4>.Type)
+				);
+
+			for (var i = 0; i < valid.Count; i++)
+				Assert.IsTrue(spec.HasAll(valid[i]));
+
+			var invalid = scope EntitySpec[]
+				(
+				scope EntitySpec(ComponentType<Valid6>.Type),
+				scope EntitySpec(ComponentType<Valid5>.Type),
+				scope EntitySpec(ComponentType<Valid6>.Type, ComponentType<Valid5>.Type)
+				);
+
+			for (var i = 0; i < invalid.Count; i++)
+				Assert.IsFalse(spec.HasAll(invalid[i]));
+		}
+
+
+		[Test]
+		public void SpecShouldFindMatches()
+		{
+			var specs = scope EntitySpec[]
+				(
+				scope EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type, ComponentType<Valid6>.Type, ComponentType<Valid5>.Type),
+				scope EntitySpec(ComponentType<Valid4>.Type, ComponentType<Valid2>.Type, ComponentType<Valid3>.Type, ComponentType<Valid5>.Type),
+				scope EntitySpec(ComponentType<Valid6>.Type, ComponentType<Valid3>.Type, ComponentType<Valid>.Type, ComponentType<Valid4>.Type)
+				);
+
+			Span<ComponentType> componentTypes0 = scope ComponentType[8];
+			var c0 = specs[0].FindMatches(specs[1], componentTypes0);
+			var m0 = scope List<ComponentType>(componentTypes0.Slice(0, c0));
+			var c1 = specs[1].FindMatches(specs[2], componentTypes0);
+			var m1 = scope List<ComponentType>(componentTypes0.Slice(0, c1));
+			var c2 = specs[2].FindMatches(specs[0], componentTypes0);
+			var m2 = scope List<ComponentType>(componentTypes0.Slice(0, c2));
+
+
+			m0.Any(x => x.ID == ComponentType<Valid2>.Type.ID) .ShouldBe(true);
+			m0.Any(x => x.ID == ComponentType<Valid5>.Type.ID) .ShouldBe(true);
+			m0.Any(x => x.ID == ComponentType<Valid>.Type.ID) .ShouldBe(false);
+			m0.Any(x => x.ID == ComponentType<Valid3>.Type.ID) .ShouldBe(false);
+			m0.Any(x => x.ID == ComponentType<Valid6>.Type.ID) .ShouldBe(false);
+
+			m1.Any(x => x.ID == ComponentType<Valid4>.Type.ID) .ShouldBe(true);
+			m1.Any(x => x.ID == ComponentType<Valid3>.Type.ID) .ShouldBe(true);
+			m1.Any(x => x.ID == ComponentType<Valid>.Type.ID) .ShouldBe(false);
+			m1.Any(x => x.ID == ComponentType<Valid6>.Type.ID) .ShouldBe(false);
+			m1.Any(x => x.ID == ComponentType<Valid2>.Type.ID) .ShouldBe(false);
+
+			m2.Any(x => x.ID == ComponentType<Valid6>.Type.ID) .ShouldBe(true);
+			m2.Any(x => x.ID == ComponentType<Valid>.Type.ID) .ShouldBe(true);
+			m2.Any(x => x.ID == ComponentType<Valid3>.Type.ID) .ShouldBe(false);
+			m2.Any(x => x.ID == ComponentType<Valid4>.Type.ID) .ShouldBe(false);
+			m2.Any(x => x.ID == ComponentType<Valid2>.Type.ID) .ShouldBe(false);
+		}
+
+		[Test]
+		public void EntitySpecGroupShouldMatch()
+		{
+			var a = scope EntitySpec(scope IEntitySpecGroup[](scope GroupA() { HashCode = 1 }), ComponentType<Valid>.Type, ComponentType<Valid2>.Type); var b = scope EntitySpec(scope IEntitySpecGroup[](scope
+				GroupA() { HashCode = 1 }), ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
+
+			a.ID.ShouldBe(b.ID);
+			a.GetGroupData<GroupA>().HashCode.ShouldBe(1);
+			b.GetGroupData<GroupA>().HashCode.ShouldBe(1);
+		}
+
+		[Test]
+		public void EntitySpecGroupShouldMatchAll()
+		{
+			var a = scope EntitySpec(scope IEntitySpecGroup[](scope GroupA() { HashCode = 1 }, scope GroupB()
 				{
-					var spec = new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type,
-	ComponentType<Valid3>.Type, 	ComponentType<Valid4>.Type
-						);
+					HashCode = 2
+				}), ComponentType<Valid>.Type, ComponentType<Valid2>.Type); var b = scope EntitySpec(scope
+				IEntitySpecGroup[](scope GroupB() { HashCode = 2 }, scope GroupA() { HashCode = 1 }), ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
 
-					var valid = new []
-						{
-							new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type,
-	ComponentType<Valid3>.Type), 	new EntitySpec(ComponentType<Valid2>.Type, ComponentType<Valid6>.Type,
-	ComponentType<Valid4>.Type), 	new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid4>.Type), 	new
-	EntitySpec(ComponentType<Valid>.Type), 	new EntitySpec(ComponentType<Valid5>.Type, ComponentType<Valid2>.Type,
-	ComponentType<Valid3>.Type, 	ComponentType<Valid4>.Type)
-						};
+			a.ID.ShouldBe(b.ID);
+			a.GetGroupData<GroupA>().HashCode.ShouldBe(1);
+			b.GetGroupData<GroupA>().HashCode.ShouldBe(1);
+			a.GetGroupData<GroupB>().HashCode.ShouldBe(2);
+			b.GetGroupData<GroupB>().HashCode.ShouldBe(2);
+		}
 
-					for (var i = 0; i < valid.Length; i++)
-						spec.HasAny(valid[i]).ShouldBe(true);
+		[Test]
+		public void EntitySpecGroupShouldNotMatchHash()
+		{
+			var a = scope EntitySpec(scope IEntitySpecGroup[](scope GroupA() { HashCode = 1 }), ComponentType<Valid>.Type, ComponentType<Valid2>.Type); var b = scope EntitySpec(scope IEntitySpecGroup[](scope
+				GroupA() { HashCode = 2 }), ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
 
-					var invalid = new []
-						{
-							new EntitySpec(ComponentType<Valid6>.Type),
-							new EntitySpec(ComponentType<Valid5>.Type),
-							new EntitySpec(ComponentType<Valid6>.Type, ComponentType<Valid5>.Type)
-						};
+			a.ID.ShouldNotBe(b.ID);
+			a.GetGroupData<GroupA>().HashCode.ShouldBe(1);
+			b.GetGroupData<GroupA>().HashCode.ShouldBe(2);
+		}
 
-					for (var i = 0; i < invalid.Length; i++)
-						spec.HasAny(invalid[i]).ShouldBe(false);
-				}
+		[Test]
+		public void EntitySpecGroupShouldNotMatchDifferentGroup()
+		{
+			var a = scope EntitySpec(scope IEntitySpecGroup[](scope GroupA() { HashCode = 1 }), ComponentType<Valid>.Type, ComponentType<Valid2>.Type); var b = scope EntitySpec(scope IEntitySpecGroup[](scope
+				GroupB() { HashCode = 1 }), ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
 
-
-				[Test]
-				public void SpecShouldFindMatches()
-				{
-					var specs = new []
-						{
-							new EntitySpec(ComponentType<Valid>.Type, ComponentType<Valid2>.Type,
-	ComponentType<Valid6>.Type, 	ComponentType<Valid5>.Type), new EntitySpec(ComponentType<Valid4>.Type,
-	ComponentType<Valid2>.Type, 	ComponentType<Valid3>.Type, ComponentType<Valid5>.Type), new
-	EntitySpec(ComponentType<Valid6>.Type, 	ComponentType<Valid3>.Type, ComponentType<Valid>.Type,
-	ComponentType<Valid4>.Type)
-						};
-
-					Span<ComponentType> componentTypes0 = stackalloc ComponentType[8];
-					var c0 = specs[0].FindMatches(specs[1], componentTypes0);
-					var m0 = new List<ComponentType>(componentTypes0.Slice(0, c0).ToArray());
-					var c1 = specs[1].FindMatches(specs[2], componentTypes0);
-					var m1 = new List<ComponentType>(componentTypes0.Slice(0, c1).ToArray());
-					var c2 = specs[2].FindMatches(specs[0], componentTypes0);
-					var m2 = new List<ComponentType>(componentTypes0.Slice(0, c2).ToArray());
-
-					m0.Any(x => x.ID == ComponentType<Valid2>.Type.ID) .ShouldBe(true);
-					m0.Any(x => x.ID == ComponentType<Valid5>.Type.ID) .ShouldBe(true);
-					m0.Any(x => x.ID == ComponentType<Valid>.Type.ID) .ShouldBe(false);
-					m0.Any(x => x.ID == ComponentType<Valid3>.Type.ID) .ShouldBe(false);
-					m0.Any(x => x.ID == ComponentType<Valid6>.Type.ID) .ShouldBe(false);
-
-					m1.Any(x => x.ID == ComponentType<Valid4>.Type.ID) .ShouldBe(true);
-					m1.Any(x => x.ID == ComponentType<Valid3>.Type.ID) .ShouldBe(true);
-					m1.Any(x => x.ID == ComponentType<Valid>.Type.ID) .ShouldBe(false);
-					m1.Any(x => x.ID == ComponentType<Valid6>.Type.ID) .ShouldBe(false);
-					m1.Any(x => x.ID == ComponentType<Valid2>.Type.ID) .ShouldBe(false);
-
-					m2.Any(x => x.ID == ComponentType<Valid6>.Type.ID) .ShouldBe(true);
-					m2.Any(x => x.ID == ComponentType<Valid>.Type.ID) .ShouldBe(true);
-					m2.Any(x => x.ID == ComponentType<Valid3>.Type.ID) .ShouldBe(false);
-					m2.Any(x => x.ID == ComponentType<Valid4>.Type.ID) .ShouldBe(false);
-					m2.Any(x => x.ID == ComponentType<Valid2>.Type.ID) .ShouldBe(false);
-				}
-
-				[Test]
-				public void EntitySpecGroupShouldMatch()
-				{
-					var a = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }),
-	ComponentType<Valid>.Type, 	ComponentType<Valid2>.Type); var b = new EntitySpec(new IEntitySpecGroup[](new
-	GroupA() { HashCode = 1 }), 	ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
-
-					a.ID.ShouldBe(b.ID);
-					a.GetGroupData<GroupA>().HashCode.ShouldBe(1);
-					b.GetGroupData<GroupA>().HashCode.ShouldBe(1);
-				}
-
-				[Test]
-				public void EntitySpecGroupShouldMatchAll()
-				{
-					var a = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }, new GroupB() { HashCode
-	= 2 	}), 	ComponentType<Valid>.Type, ComponentType<Valid2>.Type); var b = new EntitySpec(new
-	IEntitySpecGroup[](new 	GroupB() { 	HashCode = 2 }, new GroupA() { HashCode = 1 }), ComponentType<Valid2>.Type,
-	ComponentType<Valid>.Type);
-
-					a.ID.ShouldBe(b.ID);
-					a.GetGroupData<GroupA>().HashCode.ShouldBe(1);
-					b.GetGroupData<GroupA>().HashCode.ShouldBe(1);
-					a.GetGroupData<GroupB>().HashCode.ShouldBe(2);
-					b.GetGroupData<GroupB>().HashCode.ShouldBe(2);
-				}
-
-				[Test]
-				public void EntitySpecGroupShouldNotMatchHash()
-				{
-					var a = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }),
-	ComponentType<Valid>.Type, 	ComponentType<Valid2>.Type); var b = new EntitySpec(new IEntitySpecGroup[](new
-	GroupA() { HashCode = 2 }), 	ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
-
-					a.ID.ShouldNotBe(b.ID);
-					a.GetGroupData<GroupA>().HashCode.ShouldBe(1);
-					b.GetGroupData<GroupA>().HashCode.ShouldBe(2);
-				}
-
-				[Test]
-				public void EntitySpecGroupShouldNotMatchDifferentGroup()
-				{
-					var a = new EntitySpec(new IEntitySpecGroup[](new GroupA() { HashCode = 1 }),
-	ComponentType<Valid>.Type, 	ComponentType<Valid2>.Type); var b = new EntitySpec(new IEntitySpecGroup[](new
-	GroupB() { HashCode = 1 }), 	ComponentType<Valid2>.Type, ComponentType<Valid>.Type);
-
-					a.ID.ShouldNotBe(b.ID);
-					a.GetGroupData<GroupA>().HashCode.ShouldBe(1);
-					b.GetGroupData<GroupB>().HashCode.ShouldBe(1);
-				}*/
+			a.ID.ShouldNotBe(b.ID);
+			a.GetGroupData<GroupA>().HashCode.ShouldBe(1);
+			b.GetGroupData<GroupB>().HashCode.ShouldBe(1);
+		}
 	}
 }

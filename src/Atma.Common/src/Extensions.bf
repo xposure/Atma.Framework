@@ -43,11 +43,13 @@ public static class Types
 	}
 }
 
-[StaticInitPriority(1000)]
+[StaticInitPriority(1)]
 public static class Types<T>
 {
 	public static Types.TypeMeta Meta = Types[typeof(T)];
 }
+
+public extension List<T>
 
 //namespace Atma
 //{
