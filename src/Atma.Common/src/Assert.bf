@@ -19,11 +19,11 @@ namespace Atma
 	public static class Contract
 	{
 		[Inline]
-		public static void IsTrue<T>(T actual)
+		public static void IsTrue<T>(T actual, int line = Compiler.CallerLineNum, String file = Compiler.CallerFilePath, String expr = Compiler.CallerExpression[0])
 			where bool : operator T == bool
 		{
 			if (!(actual == true))
-				Runtime.FatalError(scope $"IsTrue -> Was False");
+				Internal.FatalError(scope $"ERROR: <{expr}> expected to be <True> but was <{actual}> at line {line}:1 in {file}");
 		}
 
 		[Inline]

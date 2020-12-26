@@ -53,11 +53,11 @@ public static class Types<T>
 //{
 public static
 {
-	public static int CompareTo<T>(this T self, T other)
+	/*public static int CompareTo<T>(this T self, T other)
 		where int : operator T <=> T
 	{
 		return self <=> other;
-	}
+	}*/
 
 	public static int nextInt(this Random r, int max) => r.Next(max);
 	public static float2 nextFloat2(this Random r, float min, float max) => .(r.nextFloat(min, max), r.nextFloat(min, max));

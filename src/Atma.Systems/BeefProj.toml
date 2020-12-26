@@ -1,0 +1,7 @@
+FileVersion = 1
+Dependencies = {corlib = "*", "Atma.Common" = "*"}
+
+[Project]
+Name = "Atma.Systems"
+TargetType = "BeefLib"
+StartupObject = "Atma.Systems.Program"
