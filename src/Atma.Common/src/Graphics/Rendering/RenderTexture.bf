@@ -80,10 +80,10 @@ namespace Atma
 		{
 			Runtime.Assert(size.width > 0 && size.height > 0, "FrameBuffer must have a size larger than 0");
 
-			if (this.width != width || this.height != height)
+			if (this.width != size.width || this.height != size.height)
 			{
-				this.width = width;
-				this.height = height;
+				this.width = size.width;
+				this.height = size.height;
 
 				Platform_Resize(width, height);
 				return true;
