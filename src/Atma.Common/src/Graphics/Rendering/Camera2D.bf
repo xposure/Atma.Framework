@@ -137,6 +137,18 @@ namespace Atma
 		private float cameraTrauma = 0f;
 		private float cameraShake = 20;
 
+		public bool AutoResize = true;
+		public bool RenderToWindow = true;
+		public int2? TargetSize;
+		public int2 MouseOffset = .Zero;
+
+		public int2 GetTargetSize()
+		{
+			if (TargetSize.HasValue)
+				return TargetSize.Value;
+			return Screen.Size;
+		}
+
 		public float Depth
 		{
 			get => _depth;
@@ -160,7 +172,7 @@ namespace Atma
 			if (_resolutionPolicy == ResolutionPolicy.BestFit)
 				_designBleedSize = bleedSize;
 
-			_resolution = CalculateResolution(resolutionPolicy, designSize, Screen.Size, bleedSize);
+			_resolution = CalculateResolution(resolutionPolicy, designSize, GetTargetSize(), bleedSize);
 			Initialize(_resolution.Size, .Color);
 
 			Core.Emitter.AddObserver<CoreEvents.UpdateEnd>(new => UpdateEnd);
@@ -178,9 +190,9 @@ namespace Atma
 		}
 
 		void UpdateEnd(CoreEvents.UpdateEnd ev) => cameraTrauma = Math.Max(cameraTrauma -= Time.Delta, 0);
-		void GraphicsDeviceReset(CoreEvents.GraphicsDeviceReset ev) => UpdateResolutionScaler();
-		void OrientationChanged(CoreEvents.OrientationChanged ev) => UpdateResolutionScaler();
-		void WindowResize(CoreEvents.WindowResize ev) => UpdateResolutionScaler();
+		void GraphicsDeviceReset(CoreEvents.GraphicsDeviceReset ev) => AutoResize();
+		void OrientationChanged(CoreEvents.OrientationChanged ev) => AutoResize();
+		void WindowResize(CoreEvents.WindowResize ev) => AutoResize();
 
 		public void AddTrauma(float trauma)
 		{
@@ -283,14 +295,14 @@ namespace Atma
 		public int2 ScreenToWorld(float2 screenPosition)
 		{
 			let scale = _resolution.Size / (float2)_resolution.DrawRect.Size;
-			let pos = ((screenPosition) - _viewport.TopLeft * Screen.Size);
+			let pos = ((screenPosition - MouseOffset) - _viewport.TopLeft * GetTargetSize());
 			return (int2)(InverseViewMatrix * ((pos - _resolution.DrawRect.TopLeft - _position) * scale));
 		}
+
 
 		public void Render()
 		{
 			var position = Position;
-
 
 			let noiseScale = 1500f;
 			let cameraShakeAmount = Math.Min(cameraTrauma, 1f);
@@ -306,18 +318,22 @@ namespace Atma
 				Log.Warning("Added default renderer");
 			}
 
-			let result = this.Execute(ProjectionViewMatrix);
+			this.Execute(ProjectionViewMatrix);
 
 			Position = position;
 
-			Core.Graphics.Clear(Core.Window, LetterboxColor);
-			Core.Draw.Image(result, _resolution.DrawRect.ToAABB());
-			//Core.Draw.HollowRect(_resolution.DrawRect, 1f, .Red);
-			Core.Draw.Render(Core.Window, Screen.Matrix);
+			if (RenderToWindow)
+			{
+				Core.Graphics.Clear(Core.Window, LetterboxColor);
+				Core.Draw.Image(this, _resolution.DrawRect.ToAABB());
+				//Core.Draw.HollowRect(_resolution.DrawRect, 1f, .Red);
+				Core.Draw.Render(Core.Window, Screen.Matrix);
+			}
 		}
 
 		#region Resolution Policy
 
+		public void SetDesignResolution(int2 size, ResolutionPolicy sceneResolutionPolicy, int2 bleed = .Zero) => SetDesignResolution(size.width, size.height, sceneResolutionPolicy, bleed);
 		/// <summary>
 		/// sets the design size and resolution policy then updates the render textures
 		/// </summary>
@@ -338,9 +354,15 @@ namespace Atma
 			UpdateResolutionScaler();
 		}
 
+		private void AutoResize()
+		{
+			if (AutoResize)
+				UpdateResolutionScaler();
+		}
+
 		private void UpdateResolutionScaler()
 		{
-			let resolution = CalculateResolution(_resolutionPolicy, _designResolutionSize, Screen.Size, _designBleedSize);
+			let resolution = CalculateResolution(_resolutionPolicy, _designResolutionSize, GetTargetSize(), _designBleedSize);
 			if (_resolution.Size != resolution.Size)
 			{
 				_projMatrixDirty = true;

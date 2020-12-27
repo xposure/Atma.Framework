@@ -21,6 +21,21 @@ namespace Atma
 		/// Depth value to clear to
 		public float ClearDepth = 0f;
 
+		private TextureFilter _textureFilter = Core.DefaultTextureFilter;
+		public TextureFilter Filter
+		{
+			get => _textureFilter;
+			set
+			{
+				//if (_textureFilter != value)
+				{
+					_textureFilter = value;
+					this.ColorAttachment.Filter = value;
+					_postTarget?.ColorAttachment.Filter = value;
+				}
+			}
+		}
+
 		RenderTexture _postTarget ~ delete _;
 
 		internal List<Renderer> _renderers = new .() ~ DeleteContainerAndItems!(_);
@@ -75,7 +90,7 @@ namespace Atma
 			return renderer;
 		}
 
-		public RenderTexture Execute(float4x4 matrix)
+		public void Execute(float4x4 matrix)
 		{
 			Contract.GreaterThan(_renderers.Count, 0);
 
@@ -98,7 +113,12 @@ namespace Atma
 				}
 			}
 
-			return src;
+			//if we ended up an odd render, copy to this
+			if (src != this)
+			{
+				Core.Draw.Image(dst, rect(0, 0, Size), .White);
+				Core.Draw.Render(src);
+			}
 		}
 
 		/// <summary>
@@ -145,12 +165,15 @@ namespace Atma
 			_postProcessors.Add(postProcessor);
 
 			if (_postTarget == null)
+			{
 				_postTarget = new .(this.Size);
+				_postTarget.ColorAttachment.Filter = _textureFilter;
+			}
 
 			return postProcessor;
 		}
 
-		/// <summary>
+			/// <summary>
 		/// gets the first PostProcessor of Type T
 		/// </summary>
 		/// <returns>The post processor.</returns>
@@ -166,9 +189,11 @@ namespace Atma
 			return null;
 		}
 
-		/// <summary>
+			/// <summary>
 		/// removes a PostProcessor. Note that unload is not called when removing so if you no longer need the
-		// PostProcessor be sure to call unload to free resources. </summary> <param name="postProcessor">Step.</param>
+			//
+			// PostProcessor be sure to call unload to free resources. </summary> <param
+		// name="postProcessor">Step.</param>
 		public void RemovePostProcessor(PostProcessor postProcessor)
 		{
 			Assert.IsTrue(_postProcessors.Contains(postProcessor));

@@ -121,6 +121,8 @@ namespace Atma
 
 		private static void UpdateBegin(CoreEvents.FixedUpdateBegin ev)
 		{
+			Update();
+
 			//We need to make a choice if ImGui should create its draw commands during update or during render.
 			//Since this is for debugging, I feel that most of the time you would want to
 			//do draw commands inside update and new during rendering
@@ -130,8 +132,6 @@ namespace Atma
 			ImGuiImplOpenGL3.NewFrame();
 			ImGuiImpl.NewFrame();
 			ImGui.NewFrame();
-
-			Update();
 		}
 
 		private static void UpdateEnd(CoreEvents.FixedUpdateEnd ev)
@@ -166,10 +166,12 @@ namespace Atma
 			Core.Emitter.AddObserver<CoreEvents.Shutdown>(new => Shutdown);
 
 			_imgui = &ImGui.CreateContext();
-			ImGuiImplOpenGL3.Init();
+			var io = ref ImGui.GetIO();
+			io.Fonts.AddFontFromFileTTF(@"C:\windows\fonts\consola.ttf", 14);
+			//io.KeyMods = .Alt | .Ctrl | .Shift;
 
+			ImGuiImplOpenGL3.Init();
 			// Setup back-end capabilities flags
-			ref ImGui.IO io = ref ImGui.GetIO();
 			io.BackendFlags |= ImGui.BackendFlags.HasMouseCursors;// We can honor GetMouseCursor() values (optional)
 			io.BackendFlags |= ImGui.BackendFlags.HasSetMousePos;// We can honor io.WantSetMousePos requests (optional,
 			// rarely used)

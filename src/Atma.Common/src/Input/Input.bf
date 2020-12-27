@@ -11,16 +11,25 @@ namespace Atma
 
 		public List<VirtualInput> VirtualInputs = new .() ~ DeleteContainerAndItems!(_);
 
+		private bool[MouseButtons.Count] previousMouse;
+		private int64[MouseButtons.Count] lastMouseTimes;
 		private bool[Keys.Count] previousKeyboard;
-		private float[Keys.Count] lastKeypressTimes;
+		private int64[Keys.Count] lastKeypressTimes;
 
 		public void Update()
 		{
 			for (let i < previousKeyboard.Count)
 			{
 				if (!previousKeyboard[i] && Platform_PollKeyboard((Keys)i))
-					lastKeypressTimes[i] = (int64)Time.Elapsed;
+					lastKeypressTimes[i] = Time.RawTime;
 				previousKeyboard[i] = Platform_PollKeyboard((Keys)i);
+			}
+
+			for (var i < previousMouse.Count)
+			{
+				if (!previousMouse[i] && Platform_PollMouse((MouseButtons)i))
+					lastMouseTimes[i] = Time.RawTime;
+				previousMouse[i] = Platform_PollMouse((MouseButtons)i);
 			}
 
 			for (var it in VirtualInputs)
@@ -170,6 +179,14 @@ namespace Atma
 		public int2 MouseWheel => _mouseWheel;
 
 		public bool MouseCheck(MouseButtons button) => Platform_PollMouse(button);
+		public bool MousePressed(MouseButtons button)
+		{
+			return Platform_PollMouse(button) && !previousMouse[(int)button];
+		}
+		public bool MouseReleased(MouseButtons button)
+		{
+			return !Platform_PollMouse(button) && previousMouse[(int)button];
+		}
 
 		public bool GamepadButtonCheck(int gamepadID, Buttons button)
 		{

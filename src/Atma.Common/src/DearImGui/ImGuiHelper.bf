@@ -1,8 +1,14 @@
 namespace Atma
 {
+	public extension float2
+	{
+		public static operator ImGui.Vec2(float2 it) => .(it.x, it.y);
+		public static operator float2(ImGui.Vec2 it) => .(it.x, it.y);
+	}
+
 	public extension ImGui
 	{
-		public extension Vec2
+		/*public extension Vec2
 		{
 			public readonly static Vec2 Zero = .(0, 0);
 			public readonly static Vec2 Ones = .(1, 1);
@@ -15,7 +21,9 @@ namespace Atma
 		{
 			public readonly static Vec4 Zero = .(0, 0, 0, 0);
 			public readonly static Vec4 Ones = .(1, 1, 1, 1);
-		}
+		}*/
+
+
 
 		public static void Image(Atma.Subtexture texture, Atma.Color tint = .White)
 		{
