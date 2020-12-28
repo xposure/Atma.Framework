@@ -379,6 +379,7 @@ namespace Atma
 		{
 			UpdateFromParent();
 
+
 			if (!Core.DebugRenderEnabled)
 				DebugRender();
 

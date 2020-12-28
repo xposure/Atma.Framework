@@ -101,8 +101,8 @@ namespace Atma
 	public static class Assert
 	{
 		[Inline]
-#if DEBUG
-		[SkipCall]
+		#if !DEBUG
+			[SkipCall]
 #endif
 		public static void IsTrue<T>(T actual)
 			where bool : operator T == bool
@@ -112,8 +112,8 @@ namespace Atma
 		}
 
 		[Inline]
-#if DEBUG
-		[SkipCall]
+		#if !DEBUG
+			[SkipCall]
 #endif
 		public static void IsFalse<T>(T actual, StringView msg = default)
 			where bool : operator T == bool
@@ -123,8 +123,8 @@ namespace Atma
 		}
 
 		[Inline]
-#if DEBUG
-		[SkipCall]
+		#if !DEBUG
+			[SkipCall]
 #endif
 		public static void Range<T>(T actual, T inclusiveMin, T exclusiveMax)
 			where bool : operator T > T
@@ -135,8 +135,8 @@ namespace Atma
 		}
 
 		[Inline]
-#if DEBUG
-		[SkipCall]
+		#if !DEBUG
+			[SkipCall]
 #endif
 		public static void EqualTo<T, K>(T actual, K expected)
 			where bool : operator T == K
@@ -146,8 +146,8 @@ namespace Atma
 		}
 
 		[Inline]
-#if DEBUG
-		[SkipCall]
+		#if !DEBUG
+			[SkipCall]
 #endif
 		public static void NotEqualTo<T, K>(T actual, K expected)
 			where bool : operator T != K
@@ -157,8 +157,8 @@ namespace Atma
 		}
 
 		[Inline]
-#if DEBUG
-		[SkipCall]
+		#if !DEBUG
+			[SkipCall]
 #endif
 		public static void GreaterThan<T, K>(T actual, K expected)
 			where bool : operator T > K
@@ -168,8 +168,8 @@ namespace Atma
 		}
 
 		[Inline]
-#if DEBUG
-		[SkipCall]
+		#if !DEBUG
+			[SkipCall]
 #endif
 		public static void GreaterThanEqualTo<T, K>(T actual, K expected)
 			where bool : operator T >= K
@@ -179,8 +179,8 @@ namespace Atma
 		}
 
 		[Inline]
-#if DEBUG
-		[SkipCall]
+		#if !DEBUG
+			[SkipCall]
 #endif
 		public static void LessThan<T, K>(T actual, K expected)
 			where bool : operator T < K
@@ -190,8 +190,8 @@ namespace Atma
 		}
 
 		[Inline]
-#if DEBUG
-		[SkipCall]
+		#if !DEBUG
+			[SkipCall]
 #endif
 		public static void LessThanEqualTo<T, K>(T actual, K expected)
 			where bool : operator T <= K

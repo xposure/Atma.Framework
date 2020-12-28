@@ -12,7 +12,7 @@ namespace Atma
 		private Dictionary<Type, List<Component>> _entityByComponents = new .() ~ DeleteDictionaryAndItems!(_);
 		private Dictionary<Type, List<Entity>> _entityByInterfaces = new .() ~ DeleteDictionaryAndItems!(_);
 
-
+		
 		private HashSet<uint64> _activeEntities = new .() ~ delete _;
 		private List<Entity> __entities = new .() ~ delete _;
 		private List<Entity> _removeEntities = new .() ~ delete _;

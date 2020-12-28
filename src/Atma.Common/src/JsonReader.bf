@@ -1,0 +1,6 @@
+/*namespace Atma
+{
+	class JsonReader
+	{
+	}
+}*/
