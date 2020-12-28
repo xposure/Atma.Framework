@@ -14,13 +14,13 @@ namespace Atma
 
 
 		private HashSet<uint64> _activeEntities = new .() ~ delete _;
-		private List<Entity> _entities = new .() ~ delete _;
+		private List<Entity> __entities = new .() ~ delete _;
 		private List<Entity> _removeEntities = new .() ~ delete _;
 		private List<Entity> _destroyEntities = new .() ~ delete _;
-		private Entity _root = new .() ~ delete _;
+		private Entity _root = new .("Root") ~ delete _;
 		private List<Entity> _addedEntities = new .() ~ DeleteContainerAndItems!(_);
 
-		public int Count => _entities.Count;
+		public int Count => __entities.Count;
 
 		public Entity Root => _root;
 
@@ -89,12 +89,12 @@ namespace Atma
 
 				ptr.RemoveFast(it);
 				_activeEntities.Remove(it.ID);
-				_entities.RemoveFast(it);
+				__entities.RemoveFast(it);
 			}
 
 			DeleteAndClearItems!(_destroyEntities);
 
-			let entityIndex = _entities.Count;
+			let entityIndex = __entities.Count;
 			for (var it in _addedEntities)
 			{
 				it.[Friend]AddSelfInternal();
@@ -104,14 +104,14 @@ namespace Atma
 
 				(*ptr).Add(it);
 
-				_entities.Add(it);
+				__entities.Add(it);
 				_activeEntities.Add(it.ID);
 			}
 
 			_addedEntities.Clear();
 
-			for (var i = entityIndex; i < _entities.Count; i++)
-				_entities[i].Ready();
+			for (var i = entityIndex; i < __entities.Count; i++)
+				__entities[i].Ready();
 		}
 
 		public void FixedUpdate()
@@ -128,20 +128,19 @@ namespace Atma
 
 		public Entity Find(StringView name)
 		{
-			for (var it in _entities)
+			for (var it in __entities)
 				if (it.[Friend]_name == name)
 					return it;
 
 			return null;
 		}
 
-		public List<Entity>.Enumerator GetEnumerator() => _entities.GetEnumerator();
-
+		public Entity.EntityChildEnumerator GetEnumerator() => .(Root);
 
 		public T FindFirstByType<T>()
 			where T : Entity
 		{
-			for (var it in EntityEnumerator<T>(_entities))
+			for (var it in Root.FindType<T>())
 				return it;
 
 			return null;
@@ -154,10 +153,10 @@ namespace Atma
 				output.Add(it);
 		}
 
-		public EntityEnumerator<T> FindByType<T>()
+		public Entity.EntityChildTypeEnumerator<T> FindByType<T>()
 			where T : Entity
 		{
-			return EntityEnumerator<T>(_entities);
+			return .(Root);
 		}
 
 		public bool IsDestroyed(uint64 entityId) => !_activeEntities.Contains(entityId);

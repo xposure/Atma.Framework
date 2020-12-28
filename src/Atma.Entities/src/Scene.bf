@@ -136,6 +136,7 @@ namespace Atma
 			return entity;
 		}
 
+
 		/*/// <summary>
 		/// removes all entities from the scene
 		/// </summary>

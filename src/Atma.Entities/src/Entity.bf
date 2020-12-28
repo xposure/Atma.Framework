@@ -21,7 +21,9 @@ namespace Atma
 			case Locked;
 		}
 
-		private List<Entity> _entities = new .() ~ DeleteContainerAndItems!(_);
+		internal List<Entity>.Enumerator _enumerator;
+
+		internal List<Entity> _entities = new .() ~ DeleteContainerAndItems!(_);
 		private List<Type> _registeredInterfaces ~ delete _;
 		protected IntegratorList Integrations = .();
 
@@ -29,6 +31,8 @@ namespace Atma
 		public EntityList EntityList => _entityList;
 
 		private String _name = new .() ~ delete _;
+		public StringView Name => _name;
+
 		private Entity _parent;
 		public Entity Parent => _parent;
 		public bool HasParent => _parent != null;
@@ -154,7 +158,7 @@ namespace Atma
 
 		internal void Render(List<IRenderable> renderList, Camera2D camera)
 		{
-			if (Visible && !_destroying)
+			if (Enabled && Visible && !_destroying)
 			{
 				if (_components._renderBounds.HasValue && camera.WorldBounds.Intersects(_components._renderBounds.Value))
 					_components.Render(renderList);
@@ -300,6 +304,7 @@ namespace Atma
 			}
 		}
 
+
 		public bool Enabled = true;
 		public Scene Scene => _entityList.Scene;
 
@@ -315,7 +320,7 @@ namespace Atma
 		private bool FindInternal<T>(T dlg) where T : delegate bool(Entity e)
 		{
 			for (var it in _entities)
-				if (dlg(it))
+				if (it.Enabled && dlg(it))
 					return true;
 
 			return false;
@@ -399,6 +404,116 @@ namespace Atma
 		public Material Material { get; set; }
 		public bool Visible { get; set; }
 
+		public EntityChildEnumerator AllChildren => .(this);
+		public EntityChildTypeEnumerator<T> FindType<T>()
+			where T : Entity
+		{
+			return .(this);
+		}
+
+		public EntityChildTypeEnumerator<T> FindType<T>(delegate bool(T t) cond)
+			where T : Entity
+		{
+			return .(this, cond);
+		}
+
+		public struct EntityChildTypeEnumerator<T> : IEnumerator<T>
+			where T : Entity
+		{
+			typealias predicate = delegate bool(T t);
+			private T _current;
+			private EntityChildEnumerator _iterator;
+			private predicate _predicate;
+
+			public this(Entity root, predicate predicate = null)
+			{
+				_iterator = .(root);
+				_current = ?;
+				_predicate = predicate;
+				FindNext();
+			}
+
+			private bool FindNext() mut
+			{
+				while (_iterator.GetNext() case .Ok(let val))
+				{
+					if (let it = val as T && _predicate?.Invoke(it) == true)
+					{
+						_current = it;
+						return true;
+					}
+				}
+
+				_current = null;
+				return false;
+			}
+
+			public Result<T> GetNext() mut
+			{
+				if (_current == null)
+					return .Err;
+
+				defer FindNext();
+				return _current;
+			}
+		}
+
+		public struct EntityChildEnumerator : IEnumerator<Entity>
+		{
+			private Entity _current;
+			private Entity _root;
+
+			public this(Entity current)
+			{
+				_root = current;
+				_current = ?;
+				AdvanceNext(current);
+			}
+
+			private void AdvanceNext(Entity current) mut
+			{
+				_current = current;
+				_current._enumerator = current._entities.GetEnumerator();
+				if (_current._enumerator.GetNext() case .Ok(let val))
+				{
+					AdvanceNext(val);
+				}
+			}
+
+			private void AdvanceBack() mut
+			{
+				_current = _current.Parent;
+				if (_current == null)
+					return;
+
+				if (_current._enumerator.GetNext() case .Ok(let val))
+				{
+					AdvanceNext(val);
+				}
+				else
+				{
+					//AdvanceBack();
+				}
+			}
+
+			public Result<Entity> GetNext() mut
+			{
+				if (_current == _root)
+					return .Err;
+
+				let next = _current;
+				if (_current._enumerator.GetNext() case .Ok(let val))
+				{
+					AdvanceNext(val);
+				}
+				else
+				{
+					AdvanceBack();
+				}
+
+				return .Ok(next);
+			}
+		}
 	}
 }
 
