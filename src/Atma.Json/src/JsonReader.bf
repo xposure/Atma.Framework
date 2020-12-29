@@ -134,8 +134,7 @@ namespace Atma
 
 			if (ParseObject(type, &t, throwOnMissing))
 			{
-				// && Expect( () => (LookAhead() case .Ok(let token)) && token.IsEOF)
-				if (_lastError.Length == 0)
+				if (_lastError.Length == 0 && Expect( () => (LookAhead() case .Ok(let token)) && token.IsEOF))
 					return .Ok(t);
 			}
 
