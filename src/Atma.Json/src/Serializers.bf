@@ -1,6 +1,11 @@
 using System;
 namespace Atma
 {
+	[AttributeUsage(.Struct | .Class, .AlwaysIncludeTarget | .ReflectAttribute, ReflectUser = .All, AlwaysIncludeUser = .IncludeAllMethods)]
+	public struct SerializableAttribute : Attribute
+	{
+	}
+
 	public abstract class JsonSerializer
 	{
 		public readonly Type Type;

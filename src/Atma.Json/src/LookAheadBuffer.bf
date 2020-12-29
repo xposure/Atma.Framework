@@ -161,5 +161,11 @@ namespace Atma
 		{
 			return _start + (index < (Capacity - _start) ? index : index - Capacity);
 		}
+
+		public void Clear()
+		{
+			_start = 0;
+			_end = 0;
+		}
 	}
 }

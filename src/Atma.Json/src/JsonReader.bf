@@ -5,57 +5,12 @@ using System.IO;
 using System.Collections;
 using System.Reflection;
 
-//need to add bool
-//need to add object vs valuetype
 namespace Atma
 {
-	[AttributeUsage(.Struct | .Class, .AlwaysIncludeTarget | .ReflectAttribute, ReflectUser = .All | .DynamicBoxing)]
-	public struct SerializableAttribute : Attribute
-	{
-	}
+	using internal Atma;
 
 	public class JsonReader
 	{
-		typealias char = char8;
-
-		private static Dictionary<Type, JsonSerializer> _serializers;
-
-		static ~this()
-		{
-			for (var it in _serializers)
-				delete it.value;
-
-			delete _serializers;
-		}
-
-		static this()
-		{
-			_serializers = new .();
-
-			AddSerializer<int8>();
-			AddSerializer<int16>();
-			AddSerializer<int32>();
-			AddSerializer<int64>();
-			AddSerializer<int>();
-			AddSerializer<uint8>();
-			AddSerializer<uint16>();
-			AddSerializer<uint32>();
-			AddSerializer<uint64>();
-			AddSerializer<uint>();
-			AddSerializer<float>();
-			AddSerializer<double>();
-			AddSerializer<char8>();
-			_serializers.Add(typeof(String), new JsonStringSerializer());
-			_serializers.Add(typeof(bool), new JsonBoolSerializer());
-		}
-
-		public static void AddSerializer<T>()
-			where T : var
-		{
-			_serializers.Add(typeof(T), new JsonNumberSerializer<T>());
-		}
-
-
 		internal struct Token
 		{
 			public uint32 line;
@@ -152,32 +107,40 @@ namespace Atma
 		private uint16 pos = 1;
 		private int _lookAheadPos = 0;
 
-
-		public this(Stream stream)
+		/*public this(Stream stream)
 		{
 			_stream = stream;
+		}*/
+
+		public Result<T, StringView> Parse<T>(StringView json, bool throwOnMissing = true)
+		{
+			//we could probably just push the whole string in to the lookup buffer instead of
+			//copying it to a memory stream and then processing it?
+			return Parse<T>(scope StringStream(json, .Reference), throwOnMissing);
 		}
 
-		public Result<T, StringView> Parse<T>(bool throwOnMissing = true)
+		public Result<T, StringView> Parse<T>(Stream stream, bool throwOnMissing = true)
 		{
+			line = 1;
+			pos = 1;
+			_lastError.Clear();
+			_lookAhead.Clear();
+			_stream = stream;
+
+			defer { _stream = null; }
+
 			let type = typeof(T);
 			T t = default;
-			//var t = scope T[1]*;
 
 			if (ParseObject(type, &t, throwOnMissing))
 			{
-				if (_lastError.Length == 0)
+				if (_lastError.Length == 0)//the line below creates a bunch of linker errors
+				//if (_lastError.Length == 0 && Expect( () => (LookAhead() case .Ok(let token), token.IsEOF)))
 					return .Ok(t);
 			}
 
 			return .Err(_lastError);
 		}
-
-		public struct Test
-		{
-			public Test* test;
-		}
-
 
 		private bool ParseFields(Type type, void* target, bool throwOnMissing = true)
 		{
@@ -246,8 +209,13 @@ namespace Atma
 				return true;
 			}
 
-			if (_serializers.TryGetValue(type, let serializer))
+			if (JsonConfig._serializers.TryGetValue(type, let serializer))
 				return Expect( () => serializer.Deserialize(this, target));
+
+			//We don't have a custom serializer, so we need to have a serializable attribute
+			//so we can get the fields to deserialize and possibly a ctor if its an object
+			if (!Expect( () => type.GetCustomAttribute<SerializableAttribute>() case .Ok))
+				return false;
 
 			if (type.IsObject)
 			{
@@ -273,7 +241,8 @@ namespace Atma
 			}
 			else if (type.IsPointer)
 			{
-				void* ptr = ?;
+				Runtime.FatalError("Not supported");
+				/*void* ptr = ?;
 				if (type.CreateValueDefault() case .Ok(out ptr))
 				{
 					*(int*)target = (int)ptr;
@@ -283,7 +252,7 @@ namespace Atma
 
 				//we failed parse, clean up our memory
 				delete ptr;
-				return false;
+				return false;*/
 			}
 
 			return ParseFields(type, target, throwOnMissing);

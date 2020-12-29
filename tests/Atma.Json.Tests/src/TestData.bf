@@ -7,8 +7,6 @@ namespace Atma
 		public T x, y;
 	}
 
-
-
 	[Serializable]
 	public struct TestStruct
 	{
@@ -28,8 +26,6 @@ namespace Atma
 
 
 	[Serializable]
-		[Reflect(.All)]
-		[AlwaysInclude(AssumeInstantiated = true, IncludeAllMethods = true)]
 	public class TestClass
 	{
 		public int x;
