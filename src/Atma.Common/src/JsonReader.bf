@@ -349,44 +349,7 @@ namespace Atma
 			}
 
 			if (_serializers.TryGetValue(type, let serializer))
-			{
-				if (LookAhead("null"))
-				{
-					//do nothing
-					return true;
-				}
-
 				return Expect( () => serializer.Deserialize(this, target));
-
-				/*if (type.IsObject)
-				{
-					if (LookAhead("null"))
-					{
-						//do nothing
-						return true;
-					}
-
-					//if we have a serializer it is responsible for creating the memory
-					return Expect( () => serializer.Deserialize(this, target));
-				}
-				else if (type.IsPointer)
-				{
-					void* ptr = ?;
-					//check if the object is already pointing to something, else create it
-					if (*(int*)target == 0 && type.CreateValue() case .Ok(out ptr))
-						*(int*)target = (int)ptr;
-
-					if (Expect( () => serializer.Deserialize(this, ptr)))
-						return true;
-
-					//we failed parse, clean up our memory
-					delete ptr;
-				}
-				else
-					return Expect( () => serializer.Deserialize(this, target));
-
-				return false;*/
-			}
 
 			if (type.IsObject)
 			{
