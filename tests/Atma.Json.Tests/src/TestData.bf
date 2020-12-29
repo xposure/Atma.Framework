@@ -2,6 +2,14 @@ using System;
 namespace Atma
 {
 	[Serializable]
+	public struct vec2<T>
+	{
+		public T x, y;
+	}
+
+
+
+	[Serializable]
 	public struct TestStruct
 	{
 		public int x;

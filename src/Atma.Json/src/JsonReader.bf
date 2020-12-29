@@ -14,77 +14,6 @@ namespace Atma
 	{
 	}
 
-	public abstract class JsonSerializer
-	{
-		public readonly Type Type;
-		public abstract bool Deserialize(JsonReader reader, void* target);
-	}
-
-	public abstract class JsonSerializer<T> : JsonSerializer
-		where T : var
-	{
-		public this() { Type = typeof(T); }
-
-		public override bool Deserialize(JsonReader reader, void* target)
-		{
-			return OnDeserialize(reader, (T*)target);
-		}
-
-		protected abstract bool OnDeserialize(JsonReader reader, T* target);
-	}
-
-	public abstract class JsonObjectSerializer<T> : JsonSerializer<T>
-		where T : class, new, delete
-	{
-		public this() { Type = typeof(T); }
-
-		public override bool Deserialize(JsonReader reader, void* target)
-		{
-			bool created = false;
-			var ptr = (T*)target;
-			if (*ptr == null)
-			{
-				*ptr = new T();
-				created = true;
-			}
-
-			if (!OnDeserialize(reader, ptr))
-			{
-				if (created)
-					delete *ptr;
-				return false;
-			}
-
-			return true;
-		}
-
-	}
-
-	public class JsonStructSerializer<T> : JsonSerializer<T>
-		where T : var, struct
-	{
-		protected override bool OnDeserialize(JsonReader reader, T* target)
-		{
-			if (reader.ParseNumber(let number))
-			{
-				*target = (T)number;
-				return true;
-			}
-			return false;
-		}
-	}
-
-	public class JsonStringSerializer : JsonObjectSerializer<String>
-	{
-		protected override bool OnDeserialize(JsonReader reader, String* target)
-		{
-			if (reader.ParseString(*target))
-				return true;
-
-			return false;
-		}
-	}
-
 	public class JsonReader
 	{
 		typealias char = char8;
@@ -117,12 +46,13 @@ namespace Atma
 			AddSerializer<double>();
 			AddSerializer<char8>();
 			_serializers.Add(typeof(String), new JsonStringSerializer());
+			_serializers.Add(typeof(bool), new JsonBoolSerializer());
 		}
 
 		public static void AddSerializer<T>()
 			where T : var
 		{
-			_serializers.Add(typeof(T), new JsonStructSerializer<T>());
+			_serializers.Add(typeof(T), new JsonNumberSerializer<T>());
 		}
 
 
@@ -321,15 +251,15 @@ namespace Atma
 
 			if (type.IsObject)
 			{
-				Object ptr = ?;
+				Object ptr = null;
 
 				//check if the object is already pointing to something, else create it
 				if (*(int*)target == 0)
 				{
 					let result = type.CreateObject();
 
-					if (result case .Ok(let newObj))
-						*(int*)target = (int)Internal.UnsafeCastToPtr(newObj);
+					if (result case .Ok(out ptr))
+						*(int*)target = (int)Internal.UnsafeCastToPtr(ptr);
 					else
 						return false;
 				}
@@ -368,16 +298,20 @@ namespace Atma
 			return false;
 		}
 
-		private bool ParseBool(out bool result)
+		public bool ParseBool(out bool result)
 		{
 			result = false;
 			if (LookAhead("true"))
 			{
+				NextToken();
 				result = true;
 				return true;
 			}
-			else if (LookAhead("false"))
+			else if (LookAhead("false") || LookAhead("null"))
+			{
+				NextToken();
 				return true;
+			}
 
 			return false;
 		}
@@ -491,16 +425,19 @@ namespace Atma
 		{
 			if (LookAhead(false) case .Ok(let next))
 			{
-				if (next.IsString) output.Append('\"');
-				else if (next.IsEscape) output.Append('\\');
-				else if (next.IsCR) output.Append('\r');
-				else if (next.IsLF) output.Append('\n');
-				else if (next.IsTab) output.Append('\t');
-				else if (next.IsBackspace) output.Append('\b');
-				else if (next.IsFormFeed) output.Append('\f');
-				else if (next.IsUnicode) Runtime.FatalError("Unicode escape is not supported.");
-				else if (next.IsForwardSlash) output.Append('/');
-				else return false;
+				let ch = (char8)next.ch;
+				switch (ch) {
+				case '"': output.Append('"');
+				case '\\': output.Append('\\');
+				case 'r': output.Append('\r');
+				case 'n': output.Append('\n');
+				case 't': output.Append('\t');
+				case 'b': output.Append('\b');
+				case 'f': output.Append('\f');
+				case 'u': Runtime.FatalError("Unicode escape is not supported.");
+				case '/': output.Append('/');
+				default: Runtime.FatalError(scope $"Invalid escape character '{ch}'");
+				}
 
 				return true;
 			}
@@ -585,14 +522,18 @@ namespace Atma
 				var cmp = scope char8[2]*;
 				for (var i < match.Length)
 				{
-					cmp[0] = (.)_lookAhead[i].ch;
+					cmp[0] = (.)_lookAhead[_lookAheadPos++].ch;
 					cmp[1] = match[i];
 					if (String.[Friend]CompareOrdinalIgnoreCaseHelper(cmp, 1, cmp + 1, 1) != 0)
+					{
+						_lookAheadPos = 0;
 						return false;
+					}
 				}
 
 				return true;
 			}
+			_lookAheadPos = 0;
 			return false;
 		}
 
