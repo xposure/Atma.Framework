@@ -213,11 +213,11 @@ namespace Atma
 	*/
 
 
-		private const int BUFFER_SIZE = 1024;
+		private const int BUFFER_SIZE = 8;
 
 		private String _lastError = new .() ~ delete _;
 		private Stream _stream;
-		private CircularBuffer<Token> _lookAhead = new .(BUFFER_SIZE) ~ delete _;
+		private LookAheadBuffer<Token> _lookAhead = new .(BUFFER_SIZE) ~ delete _;
 		private uint32 line = 1;
 		private uint16 pos = 1;
 		private int _lookAheadPos = 0;
@@ -509,8 +509,11 @@ namespace Atma
 
 		private void NextToken()
 		{
-			_lookAhead.PopFront(_lookAheadPos);
-			_lookAheadPos = 0;
+			if (_lookAheadPos > 0)
+			{
+				_lookAhead.PopFront(_lookAheadPos);
+				_lookAheadPos = 0;
+			}
 		}
 
 		private Result<int> ReadAhead(int count)

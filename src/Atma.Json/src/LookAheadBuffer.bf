@@ -1,7 +1,7 @@
 using System;
 namespace Atma
 {
-	public class CircularBuffer<T>
+	public class LookAheadBuffer<T>
 	{
 		private T[] _buffer ~ delete _;
 
@@ -104,8 +104,9 @@ namespace Atma
 
 				_start = 0;
 				_capacity = newCapacity;
-				_size = size;
-				_end = _size == Capacity ? 0 : _size;
+				_end = _size;
+				//_size = newCapacity;
+				//_end = _size == Capacity ? 0 : _size;
 
 				delete _buffer;
 				_buffer = newBuffer;
@@ -117,43 +118,11 @@ namespace Atma
 			EnsureCapacity(_size + 1);
 
 			if (IsFull)
-			{
-				_buffer[_end] = item;
-				Increment(ref _end, 1);
-				_start = _end;
-			}
-			else
-			{
-				_buffer[_end] = item;
-				Increment(ref _end, 1);
-				++_size;
-			}
-		}
+				Runtime.FatalError("Internal error, buffer is full.");
 
-		public void PushFront(T item)
-		{
-			EnsureCapacity(_size + 1);
-
-			if (IsFull)
-			{
-				Decrement(ref _start);
-				_end = _start;
-				_buffer[_start] = item;
-			}
-			else
-			{
-				Decrement(ref _start);
-				_buffer[_start] = item;
-				++_size;
-			}
-		}
-
-		public void PopBack()
-		{
-			ThrowIfEmpty("Cannot take elements from an empty buffer.");
-			Decrement(ref _end);
-			//_buffer[_end] = default(T);
-			--_size;
+			_buffer[_end] = item;
+			Increment(ref _end, 1);
+			++_size;
 		}
 
 		public void PopFront(int count = 1)
@@ -174,6 +143,7 @@ namespace Atma
 		private void Increment(ref int index, int count)
 		{
 			//this could be optimized
+			let end = (index + count) % Capacity;
 			for (var i < count)
 			{
 				if (++index == Capacity)
@@ -181,15 +151,9 @@ namespace Atma
 					index = 0;
 				}
 			}
-		}
 
-		private void Decrement(ref int index)
-		{
-			if (index == 0)
-			{
-				index = Capacity;
-			}
-			index--;
+			if (end != index)
+				Runtime.FatalError();
 		}
 
 		[Inline]
