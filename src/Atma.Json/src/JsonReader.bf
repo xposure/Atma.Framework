@@ -134,8 +134,8 @@ namespace Atma
 
 			if (ParseObject(type, &t, throwOnMissing))
 			{
-				if (_lastError.Length == 0)//the line below creates a bunch of linker errors
-				//if (_lastError.Length == 0 && Expect( () => (LookAhead() case .Ok(let token), token.IsEOF)))
+				// && Expect( () => (LookAhead() case .Ok(let token)) && token.IsEOF)
+				if (_lastError.Length == 0)
 					return .Ok(t);
 			}
 
