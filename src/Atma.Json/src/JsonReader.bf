@@ -14,48 +14,6 @@ namespace Atma
 	{
 	}
 
-	[Serializable]
-	public struct TestStruct
-	{
-		public int x;
-		public int y;
-		public double z;
-		public int32 t;
-		public Test2Struct nested;
-	}
-
-	[Serializable]
-	public struct Test2Struct
-	{
-		public int64 c;
-		public String str;
-	}
-
-	//[Serializable]
-	[Reflect(.All)]
-		[AlwaysInclude(AssumeInstantiated = true, IncludeAllMethods = true)]
-	public class TestClass
-	{
-		public int x;
-		public int y;
-
-		public String str = new .() ~ delete _;
-
-		public this()
-		{
-		}
-
-		public this(int x, int y)
-		{
-			this.x = x;
-			this.y = y;
-		}
-
-		public void HelloWorld()
-		{
-		}
-	}
-
 	public abstract class JsonSerializer
 	{
 		public readonly Type Type;
@@ -131,10 +89,20 @@ namespace Atma
 	{
 		typealias char = char8;
 
-		private static Dictionary<Type, JsonSerializer> _serializers = new .() ~ DeleteDictionaryAndItems!(_);
+		private static Dictionary<Type, JsonSerializer> _serializers;
+
+		static ~this()
+		{
+			for (var it in _serializers)
+				delete it.value;
+
+			delete _serializers;
+		}
 
 		static this()
 		{
+			_serializers = new .();
+
 			AddSerializer<int8>();
 			AddSerializer<int16>();
 			AddSerializer<int32>();
@@ -158,7 +126,7 @@ namespace Atma
 		}
 
 
-		private struct Token
+		internal struct Token
 		{
 			public uint32 line;
 			public uint16 pos;
@@ -263,13 +231,13 @@ namespace Atma
 		public Result<T, StringView> Parse<T>(bool throwOnMissing = true)
 		{
 			let type = typeof(T);
-			//T t = default;
-			var t = scope T[1]*;
+			T t = default;
+			//var t = scope T[1]*;
 
-			if (ParseObject(type, &t[0], throwOnMissing))
+			if (ParseObject(type, &t, throwOnMissing))
 			{
 				if (_lastError.Length == 0)
-					return .Ok(t[0]);
+					return .Ok(t);
 			}
 
 			return .Err(_lastError);
@@ -625,7 +593,7 @@ namespace Atma
 			return false;
 		}
 
-		private Result<Token> LookAhead(bool eatWhiteSpace = true)
+		internal Result<Token> LookAhead(bool eatWhiteSpace = true)
 		{
 			if (eatWhiteSpace)
 				EatWhiteSpace();
@@ -636,7 +604,7 @@ namespace Atma
 			return .Ok(_lookAhead[_lookAheadPos++]);
 		}
 
-		private Result<Token> Peek<T>(T dlg)
+		internal Result<Token> Peek<T>(T dlg)
 			where T : delegate bool(Token t)
 		{
 			return Peek<T>(0, dlg);
@@ -692,178 +660,6 @@ namespace Atma
 			return _lastError.Length == 0;
 		}
 
-		[Test]
-		public static void TestParseString()
-		{
-			const String Data = "Hello World";
-			let ms = scope MemoryStream();
-			ms.Write(scope $" \"{Data}\" ");
-			ms.Position = 0;
 
-			let jr = scope JsonReader(ms);
-			let s = scope String();
-			Assert.IsTrue(jr.ParseString(s));
-			Assert.EqualTo(s, Data);
-			Assert.EqualTo(jr.LookAhead() case .Ok(let val), val.IsEOF);
-		}
-
-		[Test]
-		public static void TestParseInteger()
-		{
-			const double result = 0123456789;
-			const String Data = " 0123456789 ";
-
-			let ms = scope MemoryStream();
-			ms.Write(scope $"{Data}");
-			ms.Position = 0;
-
-			let jr = scope JsonReader(ms);
-			Assert.IsTrue(jr.ParseNumber(let r));
-			Assert.EqualTo(r, result);
-			Assert.EqualTo(jr.LookAhead() case .Ok(let val), val.IsEOF);
-		}
-
-		[Test]
-		public static void TestParseNegativeInteger()
-		{
-			const double result = -0123456789;
-			const String Data = " -0123456789 ";
-
-			let ms = scope MemoryStream();
-			ms.Write(scope $"{Data}");
-			ms.Position = 0;
-
-			let jr = scope JsonReader(ms);
-			Assert.IsTrue(jr.ParseNumber(let r));
-			Assert.EqualTo(r, result);
-			Assert.EqualTo(jr.LookAhead() case .Ok(let val), val.IsEOF);
-		}
-
-		[Test]
-		public static void TestParseFraction()
-		{
-			const double result = 0123456789.1234;
-			const String Data = " 0123456789.1234 ";
-
-			let ms = scope MemoryStream();
-			ms.Write(scope $"{Data}");
-			ms.Position = 0;
-
-			let jr = scope JsonReader(ms);
-			Assert.IsTrue(jr.ParseNumber(let r));
-			Assert.EqualTo(r, result);
-			Assert.EqualTo(jr.LookAhead() case .Ok(let val), val.IsEOF);
-		}
-
-		[Test]
-		public static void TestParseNegativeFraction()
-		{
-			const double result = -0123456789.1234;
-			const String Data = " -0123456789.1234 ";
-
-			let ms = scope MemoryStream();
-			ms.Write(scope $"{Data}");
-			ms.Position = 0;
-
-			let jr = scope JsonReader(ms);
-			Assert.IsTrue(jr.ParseNumber(let r));
-			Assert.EqualTo(r, result);
-			Assert.EqualTo(jr.LookAhead() case .Ok(let val), val.IsEOF);
-		}
-
-		[Test]
-		public static void TestParseExponent()
-		{
-			const double result = 0.1234E+2;
-			const String Data = " 0.1234E+2 ";
-
-			let ms = scope MemoryStream();
-			ms.Write(scope $"{Data}");
-			ms.Position = 0;
-
-			let jr = scope JsonReader(ms);
-			Assert.IsTrue(jr.ParseNumber(let r));
-			Assert.EqualTo(r, result);
-			Assert.EqualTo(jr.LookAhead() case .Ok(let val), val.IsEOF);
-		}
-
-		[Test]
-		public static void TestParseNegativeExponent()
-		{
-			const double result = 0.1234E-2;
-			const String Data = " 0.1234E-2 ";
-
-			let ms = scope MemoryStream();
-			ms.Write(scope $"{Data}");
-			ms.Position = 0;
-
-			let jr = scope JsonReader(ms);
-			Assert.IsTrue(jr.ParseNumber(let r));
-			Assert.EqualTo(r, result);
-			Assert.EqualTo(jr.LookAhead() case .Ok(let val), val.IsEOF);
-		}
-
-		[Test]
-		public static void TestParseStringFail()
-		{
-			const String Data = "Hello World";
-			let ms = scope MemoryStream();
-			ms.Write(scope $"{Data}");
-			ms.Position = 0;
-
-			let jr = scope JsonReader(ms);
-			let s = scope String();
-			Assert.IsFalse(jr.ParseString(s));
-		}
-
-
-
-		[Test]
-		public static void TestStructParse()
-		{
-			const String Data = "{     \"x\"     :    1    ,    \"y\"    :    2,    \"z\"   :    10.1   ,   \"t\"   :   987841   ,   \"nested\"  :  {   \"c\"  : 444 }    }";
-			let ms = scope MemoryStream();
-			ms.Write(scope $"{Data}");
-			ms.Position = 0;
-
-			let jr = scope JsonReader(ms);
-			Assert.IsTrue(jr.Parse<TestStruct>(false) case .Ok(let val));
-			Assert.EqualTo(val.x, 1);
-			Assert.EqualTo(val.y, 2);
-			Assert.EqualTo(val.z, 10.1);
-			Assert.EqualTo(val.t, 987841);
-			Assert.EqualTo(val.nested.c, 444);
-		}
-
-		[Test]
-		public static void TestStructWithString()
-		{
-			const String Data = "{  \"c\" : 10, \"str\": \"hello world\"  }";
-			let ms = scope MemoryStream();
-			ms.Write(scope $"{Data}");
-			ms.Position = 0;
-
-			let jr = scope JsonReader(ms);
-			Assert.IsTrue(jr.Parse<Test2Struct>(false) case .Ok(let val));
-			Assert.EqualTo(val.c, 10);
-			Assert.EqualTo(val.str, "hello world");
-			delete val.str;
-		}
-
-		[Test]
-		public static void TestClass()
-		{
-			const String Data = "{  \"x\" : 10, \"y\": 20, \"str\": \"hello world\"  }";
-			let ms = scope MemoryStream();
-			ms.Write(scope $"{Data}");
-			ms.Position = 0;
-
-			let jr = scope JsonReader(ms);
-			Assert.IsTrue(jr.Parse<TestClass>(false) case .Ok(let val));
-			Assert.EqualTo(val.x, 10);
-			Assert.EqualTo(val.y, 20);
-			Assert.EqualTo(val.str, "hello world");
-			delete val;
-		}
 	}
 }

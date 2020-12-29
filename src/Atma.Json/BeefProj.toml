@@ -1,0 +1,6 @@
+FileVersion = 1
+
+[Project]
+Name = "Atma.Json"
+TargetType = "BeefLib"
+StartupObject = "Atma.Json.Program"
