@@ -88,6 +88,12 @@ namespace Atma.Json.Tests
 		}
 
 		[Test]
+		public static void ParseArray()
+		{
+			Parse<int[]>("[1, 2, 3, 4, 5]", scope int[](1, 2, 3, 4, 5));
+		}
+
+		[Test]
 		public static void TestStructParse()
 		{
 			const String Data = "{     \"x\"     :    1    ,    \"y\"    :    2,    \"z\"   :    10.1   ,   \"t\"   :   987841   ,   \"nested\"  :  {   \"c\"  : 444 }    }";

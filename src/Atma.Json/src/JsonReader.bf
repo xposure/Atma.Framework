@@ -198,6 +198,11 @@ namespace Atma
 			return false;
 		}
 
+		private bool ParseArray(Type type, void* target, bool throwOnMissing = true)
+		{
+			//we should support array[], array[10], and if the method has a .Add(T);
+		}
+
 		private bool ParseObject(Type type, void* target, bool throwOnMissing = true)
 		{
 			//for now we will just skip parsing

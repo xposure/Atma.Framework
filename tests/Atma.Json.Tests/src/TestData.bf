@@ -18,6 +18,18 @@ namespace Atma
 	}
 
 	[Serializable]
+	public struct TestArray
+	{
+		public int[] data;
+	}
+
+	[Serializable]
+	public struct TestFixedArray
+	{
+		public int[2] data;
+	}
+
+	[Serializable]
 	public struct Test2Struct
 	{
 		public int64 c;
