@@ -96,7 +96,7 @@ namespace Atma.Json.Tests
 		[Test]
 		public static void TestStructParse()
 		{
-			const String Data = "{     \"x\"     :    1    ,    \"y\"    :    2,    \"z\"   :    10.1   ,   \"t\"   :   987841   ,   \"nested\"  :  {   \"c\"  : 444 }    }";
+			const String Data = "{     \"x\"     :    1    ,    \"y\"    :    2,    \"z\"   :    10.1   ,   \"t\"   :   987841   ,   \"nested\"  :  {   \"c\"  : 444   }    }";
 
 			let jr = scope JsonReader();
 			Assert.IsTrue(jr.Parse<TestStruct>(Data) case .Ok(let val));

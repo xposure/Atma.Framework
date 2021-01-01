@@ -198,9 +198,51 @@ namespace Atma
 			return false;
 		}
 
+		typealias ArrayTypeInfo = (Type Type, int32 Stride);
+		typealias AddToArray = function void*(Type type);
 		private bool ParseArray(Type type, void* target, bool throwOnMissing = true)
 		{
 			//we should support array[], array[10], and if the method has a .Add(T);
+
+			//TODO: support anything with Add(UnderlyingType)
+			//AddToArray addToArray = null;
+			ArrayTypeInfo GetFromArrayType(Type type)
+			{
+				let arrayType = type as ArrayType;
+				return (arrayType.UnderlyingType, arrayType.InstanceStride);
+			}
+
+			if (Expect( (token) => token.IsArrayStart))
+			{
+				NextToken();
+				ArrayTypeInfo info = default;
+				if (type.IsArray) info = GetFromArrayType(type);
+
+				var count = 0;
+				let items = scope List<uint8>();
+				while (Peek( (token) => !token.IsArrayEnd) case .Ok)
+				{
+					count++;
+					let ptr = items.GrowUnitialized(info.Stride);
+					ParseObject(info.Type, ptr, throwOnMissing);
+
+					EatWhiteSpace();
+					if (Peek( (token) => !token.IsComma) case .Ok)
+						break;
+				}
+
+				//look for end array marker
+				if (Expect( (token) => token.IsArrayEnd))
+				{
+					NextToken();
+
+					if (type.IsArray)
+					{
+					}
+					return true;
+				}
+			}
+			return false;
 		}
 
 		private bool ParseObject(Type type, void* target, bool throwOnMissing = true)
@@ -417,7 +459,7 @@ namespace Atma
 			return false;
 		}
 
-		private void NextToken()
+		internal void NextToken()
 		{
 			if (_lookAheadPos > 0)
 			{
@@ -545,7 +587,7 @@ namespace Atma
 			return .Ok(_lookAhead[_lookAheadPos + count]);
 		}
 
-		private bool Expect<T>(T dlg, String expression = Compiler.CallerExpression[0])
+		internal bool Expect<T>(T dlg, String expression = Compiler.CallerExpression[0])
 			where T : delegate bool()
 		{
 			if (Peek(0) case .Ok(let val))
@@ -560,7 +602,7 @@ namespace Atma
 		}
 
 
-		private bool Expect<T>(T dlg, String expression = Compiler.CallerExpression[0])
+		internal bool Expect<T>(T dlg, String expression = Compiler.CallerExpression[0])
 			where T : delegate bool(Token t)
 		{
 			let next = LookAhead();

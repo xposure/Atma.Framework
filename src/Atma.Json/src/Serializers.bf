@@ -1,4 +1,6 @@
 using System;
+using internal Atma;
+
 namespace Atma
 {
 	[AttributeUsage(.Struct | .Class, .AlwaysIncludeTarget | .ReflectAttribute, ReflectUser = .All, AlwaysIncludeUser = .IncludeAllMethods | .AssumeInstantiated)]
@@ -37,20 +39,6 @@ namespace Atma
 		public override void Serialize(JsonWriter writer, void* target) => OnSerialize(writer, (T*)target);
 		public override bool Deserialize(JsonReader reader, void* target) => OnDeserialize(reader, (T*)target);
 	}
-
-	/*public class JsonArraySerializer<T> : JsonSerializer<T>
-	{
-		public override void Serialize(JsonWriter writer, void* target)
-		{
-
-		}
-
-		public override bool Deserialize(JsonReader reader, void* target)
-		{
-
-			return default;
-		}
-	}*/
 
 	public class JsonNumberSerializer<T> : JsonStructSerializer<T>
 		where T : var, struct
