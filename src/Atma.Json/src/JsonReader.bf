@@ -132,7 +132,7 @@ namespace Atma
 			let type = typeof(T);
 			T t = default;
 
-			if (ParseObject(type, &t, throwOnMissing))
+			if (ParseValue(type, &t, throwOnMissing))
 			{
 				if (_lastError.Length == 0 && Expect( () => (LookAhead() case .Ok(let token)) && token.IsEOF))
 					return .Ok(t);
@@ -141,7 +141,7 @@ namespace Atma
 			return .Err(_lastError);
 		}
 
-		private bool ParseFields(Type type, void* target, bool throwOnMissing = true)
+		private bool ParseObject(Type type, void* target, bool throwOnMissing = true)
 		{
 			let fields = scope List<FieldInfo>();
 			for (var it in type.GetFields())
@@ -167,7 +167,7 @@ namespace Atma
 						{
 							//offset ptr to field value
 							let ptr = (uint8*)target + it.MemberOffset;
-							if (!ParseObject(it.FieldType, ptr, throwOnMissing))
+							if (!ParseValue(it.FieldType, ptr, throwOnMissing))
 								return false;
 
 
@@ -209,26 +209,30 @@ namespace Atma
 			ArrayTypeInfo GetFromArrayType(Type type)
 			{
 				let arrayType = type as ArrayType;
-				return (arrayType.UnderlyingType, arrayType.InstanceStride);
+				let genericType=  arrayType.GetGenericArg(0);
+				return (genericType, genericType.InstanceStride);
 			}
 
 			if (Expect( (token) => token.IsArrayStart))
 			{
-				NextToken();
 				ArrayTypeInfo info = default;
 				if (type.IsArray) info = GetFromArrayType(type);
 
-				var count = 0;
+				int32 count = 0;
 				let items = scope List<uint8>();
 				while (Peek( (token) => !token.IsArrayEnd) case .Ok)
 				{
+					NextToken();
+
 					count++;
 					let ptr = items.GrowUnitialized(info.Stride);
-					ParseObject(info.Type, ptr, throwOnMissing);
+					ParseValue(info.Type, ptr, throwOnMissing);
 
 					EatWhiteSpace();
 					if (Peek( (token) => !token.IsComma) case .Ok)
 						break;
+
+					_lookAheadPos++;
 				}
 
 				//look for end array marker
@@ -238,6 +242,16 @@ namespace Atma
 
 					if (type.IsArray)
 					{
+						let arrayType = (type as ArrayType);
+						if (arrayType.CreateObject(count) case .Ok(let val))
+						{
+							let objAddr = Internal.UnsafeCastToPtr(val);
+
+							*(int*)target = (int)objAddr;
+
+							var ptr = (*(int*)target + type.[Friend]mMemberDataOffset);
+							Internal.MemCpy((.)ptr, items.Ptr, info.Stride * count, arrayType.InstanceAlign);
+						}
 					}
 					return true;
 				}
@@ -245,7 +259,7 @@ namespace Atma
 			return false;
 		}
 
-		private bool ParseObject(Type type, void* target, bool throwOnMissing = true)
+		private bool ParseValue(Type type, void* target, bool throwOnMissing = true)
 		{
 			//for now we will just skip parsing
 			//later we need to determine what to do with valuetype vs object
@@ -255,6 +269,13 @@ namespace Atma
 				return true;
 			}
 
+			//check for array type before anything else
+			if (type.IsArray)
+			{
+				return ParseArray(type, target, throwOnMissing);
+			}
+
+
 			if (JsonConfig._serializers.TryGetValue(type, let serializer))
 				return Expect( () => serializer.Deserialize(this, target));
 
@@ -262,6 +283,7 @@ namespace Atma
 			//so we can get the fields to deserialize and possibly a ctor if its an object
 			if (!Expect( () => type.GetCustomAttribute<SerializableAttribute>() case .Ok))
 				return false;
+
 
 			if (type.IsObject)
 			{
@@ -278,7 +300,7 @@ namespace Atma
 						return false;
 				}
 
-				if (ParseFields(type, *(void**)target, throwOnMissing))
+				if (ParseObject(type, *(void**)target, throwOnMissing))
 					return true;
 
 				//we failed parse, clean up our memory
@@ -301,7 +323,7 @@ namespace Atma
 				return false;*/
 			}
 
-			return ParseFields(type, target, throwOnMissing);
+			return ParseObject(type, target, throwOnMissing);
 		}
 
 

@@ -29,6 +29,20 @@ namespace Atma.Json.Tests
 			delete val;
 		}
 
+		public static void Parse<T>(StringView value, T[] expected)
+		{
+			String Data = scope $"{value}";
+
+			let jr = scope JsonReader();
+			Assert.IsTrue(jr.Parse<T[]>(Data) case .Ok(let val));
+			//Assert.EqualTo(jr.LookAhead() case .Ok(let token), token.IsEOF);
+			Assert.EqualTo(val.Count, expected.Count);
+			for(var i < expected.Count)
+				Assert.EqualTo(val[i], expected[i]);
+
+			delete val;
+		}
+
 		public static void ParseNumber<T>(params StringView[] values)
 			where T : var
 		{
@@ -90,7 +104,7 @@ namespace Atma.Json.Tests
 		[Test]
 		public static void ParseArray()
 		{
-			Parse<int[]>("[1, 2, 3, 4, 5]", scope int[](1, 2, 3, 4, 5));
+			Parse<int>("[1, 2, 3, 4, 5]", scope int[](1, 2, 3, 4, 5));
 		}
 
 		[Test]
