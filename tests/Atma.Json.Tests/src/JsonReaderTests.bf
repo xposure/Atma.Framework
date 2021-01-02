@@ -37,7 +37,7 @@ namespace Atma.Json.Tests
 			Assert.IsTrue(jr.Parse<T[]>(Data) case .Ok(let val));
 			//Assert.EqualTo(jr.LookAhead() case .Ok(let token), token.IsEOF);
 			Assert.EqualTo(val.Count, expected.Count);
-			for(var i < expected.Count)
+			for (var i < expected.Count)
 				Assert.EqualTo(val[i], expected[i]);
 
 			delete val;
@@ -105,7 +105,11 @@ namespace Atma.Json.Tests
 		public static void ParseArray()
 		{
 			Parse<int>("[1, 2, 3, 4, 5]", scope int[](1, 2, 3, 4, 5));
+			Parse<ArrayTest>("{ \"data\" : [1, 2, 3, 4, 5] }", scope .(1, 2, 3, 4, 5));
+			Parse<SizedArrayTest>("{ \"data\" : [1, 2, 3, 4, 5] }", scope .(1, 2, 3, 4, 5));
+			//Parse<TargetWithAdd<int>>("{ \"data\" : [1, 2, 3, 4, 5] }", scope .(1, 2, 3, 4, 5));
 		}
+
 
 		[Test]
 		public static void TestStructParse()

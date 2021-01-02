@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 namespace Atma
 {
 	[Serializable]
@@ -57,6 +58,82 @@ namespace Atma
 
 		public void HelloWorld()
 		{
+		}
+	}
+	
+	[Serializable]
+	public class ArrayTest
+	{
+		public int[] data ~ delete _;
+
+		public this(params int[] args)
+		{
+			data = new int[args.Count];
+			for (var i < args.Count)
+				data[i] = args[i];
+		}
+
+		public static bool operator==(ArrayTest l, ArrayTest r)
+		{
+			if (l.data.Count != r.data.Count)
+				return false;
+
+			for (var i < l.data.Count)
+				if (l.data[i] != r.data[i])
+					return false;
+
+			return true;
+		}
+	}
+
+	[Serializable]
+	public class SizedArrayTest
+	{
+		public int[5] data;
+
+		public this(params int[] args)
+		{
+			for (var i < args.Count)
+				data[i] = args[i];
+		}
+
+		public static bool operator==(SizedArrayTest l, SizedArrayTest r)
+		{
+			if (l.data.Count != r.data.Count)
+				return false;
+
+			for (var i < l.data.Count)
+				if (l.data[i] != r.data[i])
+					return false;
+
+			return true;
+		}
+	}
+
+	
+	[Serializable]
+	public class TargetWithAdd<T>
+	{
+		public List<T> data ~ delete _;
+
+		public this(params T[] args)
+		{
+			data = new .();
+
+			for (var i < args.Count)
+				data.Add(args[i]);
+		}
+
+		public static bool operator==(TargetWithAdd<T> l, TargetWithAdd<T> r)
+		{
+			if (l.data.Count != r.data.Count)
+				return false;
+
+			for (var i < l.data.Count)
+				if (l.data[i] != r.data[i])
+					return false;
+
+			return true;
 		}
 	}
 }

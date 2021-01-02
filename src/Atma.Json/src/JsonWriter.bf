@@ -19,17 +19,6 @@ namespace Atma
 		private int _count = 0;
 		private List<int> _elements = new .() ~ delete _;
 
-		public int Write<T>(Stream stream, T t, JsonWriterOptions options = default)
-		{
-			_stream = stream;
-			_depth = 0;
-			_options = options;
-			_elements.Clear();
-#unwarn
-			WriteObject(typeof(T), &t);
-			return _count;
-		}
-
 		public void WriteRaw(char8 msg)
 		{
 			_stream.Write(msg);
@@ -115,7 +104,18 @@ namespace Atma
 			WriteRaw("\"");
 		}
 
-		public void WriteObject(Type type, void* target)
+		public int Write<T>(Stream stream, T t, JsonWriterOptions options = default)
+		{
+			_stream = stream;
+			_depth = 0;
+			_options = options;
+			_elements.Clear();
+#unwarn
+			WriteValue(typeof(T), &t);
+			return _count;
+		}
+
+		public void WriteValue(Type type, void* target)
 		{
 			//if we have a custom serializer, we use it
 			if (JsonConfig._serializers.TryGetValue(type, let serializer))
@@ -124,13 +124,27 @@ namespace Atma
 			}
 			else
 			{
-				if (type.IsObject || type.IsValueType)
+				if (let arrayType = type as ArrayType)
 				{
-					WriteFields(type, target);
+					let array = (Array)Internal.UnsafeCastToObject(*(void**)target);
+					var ptr = (void*)(*(int*)target + type.[Friend]mMemberDataOffset);
+					WriteArray(arrayType.GetGenericArg(0), ptr, array.Count); 
+				}
+				else if(let sizedType = type as SizedArrayType)
+				{
+					WriteArray(sizedType.UnderlyingType, target, sizedType.ElementCount); 
+				}
+				else if (type.IsObject)
+				{
+					WriteObject(type, *(void**)target);
+				}
+				else if(type.IsValueType)
+				{
+					WriteObject(type, target);
 				}
 				else if (type.IsPointer)
 				{
-					WriteFields(type, *(void**)target);
+					WriteObject(type, *(void**)target);
 				}
 				/*else if (type.IsValueType)
 				{
@@ -148,7 +162,20 @@ namespace Atma
 			}
 		}
 
-		private void WriteFields(Type type, void* target)
+		private void WriteArray(Type type, void* target, int count)
+		{
+			WriteArrayStart();
+			var ptr = (uint8*)target;
+			for (var i < count)
+			{
+				WriteComma();
+				WriteValue(type, ptr);
+				ptr += type.InstanceStride;
+			}
+			WriteArrayEnd();
+		}
+
+		private void WriteObject(Type type, void* target)
 		{
 			let fields = scope List<FieldInfo>();
 			for (var it in type.GetFields())
@@ -162,12 +189,7 @@ namespace Atma
 				WriteRaw(':');
 
 				let ptr = (uint8*)target + it.MemberOffset;
-				if (it.FieldType.IsObject || it.FieldType.IsPointer)
-					WriteObject(it.FieldType, *(void**)ptr);
-				else if (it.FieldType.IsValueType)
-					WriteObject(it.FieldType, ptr);
-				else
-					Runtime.FatalError("Not supported");
+				WriteValue(it.FieldType, ptr);
 			}
 			WriteObjectEnd();
 		}

@@ -198,26 +198,20 @@ namespace Atma
 			return false;
 		}
 
-		typealias ArrayTypeInfo = (Type Type, int32 Stride);
-		typealias AddToArray = function void*(Type type);
 		private bool ParseArray(Type type, void* target, bool throwOnMissing = true)
 		{
 			//we should support array[], array[10], and if the method has a .Add(T);
 
 			//TODO: support anything with Add(UnderlyingType)
-			//AddToArray addToArray = null;
-			ArrayTypeInfo GetFromArrayType(Type type)
-			{
-				let arrayType = type as ArrayType;
-				let genericType=  arrayType.GetGenericArg(0);
-				return (genericType, genericType.InstanceStride);
-			}
+
+			Type genericType = ?;
+			if (let arrayType = type as ArrayType)
+				genericType = arrayType.GetGenericArg(0);
+			else if(let sizedType = type as SizedArrayType)
+				genericType = sizedType.UnderlyingType;
 
 			if (Expect( (token) => token.IsArrayStart))
 			{
-				ArrayTypeInfo info = default;
-				if (type.IsArray) info = GetFromArrayType(type);
-
 				int32 count = 0;
 				let items = scope List<uint8>();
 				while (Peek( (token) => !token.IsArrayEnd) case .Ok)
@@ -225,8 +219,8 @@ namespace Atma
 					NextToken();
 
 					count++;
-					let ptr = items.GrowUnitialized(info.Stride);
-					ParseValue(info.Type, ptr, throwOnMissing);
+					let ptr = items.GrowUnitialized(genericType.Stride);
+					ParseValue(genericType, ptr, throwOnMissing);
 
 					EatWhiteSpace();
 					if (Peek( (token) => !token.IsComma) case .Ok)
@@ -240,19 +234,34 @@ namespace Atma
 				{
 					NextToken();
 
+					void* ptr = ?;
 					if (type.IsArray)
 					{
 						let arrayType = (type as ArrayType);
-						if (arrayType.CreateObject(count) case .Ok(let val))
+						let needsCreated = *(int*)target == 0;
+						if (needsCreated && arrayType.CreateObject(count) case .Ok(let val))
 						{
-							let objAddr = Internal.UnsafeCastToPtr(val);
-
-							*(int*)target = (int)objAddr;
-
-							var ptr = (*(int*)target + type.[Friend]mMemberDataOffset);
-							Internal.MemCpy((.)ptr, items.Ptr, info.Stride * count, arrayType.InstanceAlign);
+							*(int*)target = (int)Internal.UnsafeCastToPtr(val);
+							ptr = (.)(*(int*)target + type.[Friend]mMemberDataOffset);
+						}
+						else if (!needsCreated)
+						{
+							//check our length
+							let array = (Array)Internal.UnsafeCastToObject(target);
+							if (!Expect( () => array.Count >= count))
+								return false;
 						}
 					}
+					else if (type.IsSizedArray)
+					{
+						let sizedType  = (type as SizedArrayType);
+						if(!Expect(() => sizedType.ElementCount >= count))
+							return false;
+
+						ptr = target;
+					}
+
+					Internal.MemCpy((.)ptr, items.Ptr, genericType.Stride * count, genericType.InstanceAlign);
 					return true;
 				}
 			}
@@ -270,7 +279,7 @@ namespace Atma
 			}
 
 			//check for array type before anything else
-			if (type.IsArray)
+			if (type.IsArray || type.IsSizedArray)
 			{
 				return ParseArray(type, target, throwOnMissing);
 			}
