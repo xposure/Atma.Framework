@@ -1,4 +1,4 @@
-using System;
+/*using System;
 namespace Atma.Json.Tests
 {
 	using internal Atma;
@@ -171,4 +171,4 @@ namespace Atma.Json.Tests
 			ReadObject("{ hello : true , \"test\" : 123 }", (.ObjectStart, "{"), (.Field, "hello"), (.Bool, "true"), (.Field, "test"), (.Number, "123"), (.ObjectEnd, "}"));
 		}
 	}
-}
+}*/

@@ -34,13 +34,13 @@ namespace Atma
 		protected abstract bool OnDeserialize(JsonReader reader, T* target);
 	}
 
-	public abstract class JsonStructSerializer<T> : JsonSerializer<T>
+	public abstract class JsonStructConverter1<T> : JsonSerializer<T>
 	{
 		public override void Serialize(JsonWriter writer, void* target) => OnSerialize(writer, (T*)target);
 		public override bool Deserialize(JsonReader reader, void* target) => OnDeserialize(reader, (T*)target);
 	}
 
-	public class JsonNumberSerializer<T> : JsonStructSerializer<T>
+	public class JsonNumberSerializer<T> : JsonStructConverter1<T>
 		where T : var, struct
 	{
 		protected override void OnSerialize(JsonWriter writer, T* target)
@@ -61,7 +61,7 @@ namespace Atma
 		}
 	}
 
-	public class JsonBoolSerializer : JsonStructSerializer<bool>
+	public class JsonBoolSerializer : JsonStructConverter1<bool>
 	{
 		protected override void OnSerialize(JsonWriter writer, bool* target)
 		{

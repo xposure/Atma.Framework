@@ -8,43 +8,40 @@ using System.Reflection;
 namespace Atma
 {
 	using internal Atma;
+	public enum TokenType : uint32
+	{
+		case Number;
+		case Field;
+		case String;
+		case ArrayStart;
+		case ArrayEnd;
+		case ObjectStart;
+		case ObjectEnd;
+		case Colon;
 
+		case Bool;
+		case Null;
+	}
+
+	public struct Token
+	{
+		public uint32 line;
+		public uint32 pos;
+		public TokenType type;
+		public uint32 elements;
+		public StringView text;
+	}
 	public class JsonParser
 	{
-		public enum TokenType : uint32
-		{
-			case Number;
-			case Field;
-			case String;
-			case ArrayStart;
-			case ArrayEnd;
-			case ObjectStart;
-			case ObjectEnd;
-			case Colon;
-
-			case Bool;
-			case Null;
-		}
-
-		public struct Token
-		{
-			public uint32 line;
-			public uint32 pos;
-			public TokenType type;
-			public uint32 elements;
-			public StringView text;
-		}
-
 		public uint32 line;
 		public uint16 pos;
-		public char8 ch => _buffer[_bufferPos + _lookAheadPos];
+		public char8 ch => (_bufferPos + _lookAheadPos) >= _buffer.Length ? '\0' : _buffer[_bufferPos + _lookAheadPos];
 
 		public bool IsEOF() => ch == '\0';
 		public bool IsField() => ch >= (.)0x20;
 		public bool IsAlpha => (ch >= (.)0x41 && ch <= (.)0x5a) || (ch >= (.)0x61 && ch <= (.)0x7a);
 		public bool IsUnderscore => ch == (.)0x5f;
 		public bool IsCharacter() => ch >= (.)0x20;
-		// // && ch <= 0x10ffff;
 		public bool IsString() => ch == (.)0x22;
 		public bool IsEscape() => ch == (.)0x5c;
 		public bool IsDigit() => ch >= (.)0x30 && ch <= (.)0x39;
@@ -71,19 +68,27 @@ namespace Atma
 		public bool IsWhiteSpace => IsSpace || IsCR || IsLF || IsTab;
 
 		internal List<Token> _tokens = new .() ~ delete _;
-		private String _buffer = new .() ~ delete _;
+		private StringView _buffer;
 
-		private List<String> _errors = new .() ~ DeleteContainerAndItems!(_);
+		internal List<String> _errors = new .() ~ DeleteContainerAndItems!(_);
 		private int _bufferPos = 0;
 		private int _lookAheadPos = 0;
 
 		private uint32 _line, _pos;
 		private List<int> _tokenDepth = new .() ~ delete _;
 
-		public this(StringView text)
+		public bool Tokenize(StringView text)
 		{
-			_buffer.Set(text);
-			_buffer.Append('\0');
+			_buffer = text;
+			_pos = 1;
+			_line = 1;
+			_bufferPos = 0;
+			_lookAheadPos = 0;
+			_tokenDepth.Clear();
+			_tokens.Clear();
+			ClearAndDeleteItems(_errors);
+
+			return ParseValue();
 		}
 
 		private void AddToken(uint32 line, uint32 pos, TokenType type)
