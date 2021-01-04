@@ -237,7 +237,7 @@ namespace Atma
 		private readonly Dictionary<String, Animation> _animationLookup = new .() ~ delete _;
 		public readonly ReadOnlyDictionary<String, Animation> Animations = .(_animationLookup);
 
-		private Dictionary<String, List<String>> _texturesToload = new .() ~ DeleteDictionaryAndItems!(_);
+		private Dictionary<String, List<String>> _texturesToload = new .() ~ DeleteDictionaryAndValues!(_);
 		private List<TexturePage> _textures = new .() ~ Release(_);
 		private List<AssetMap> _assetMap = new .() ~ DeleteContainerAndItems!(_);
 		private GraphicsManager _graphics;

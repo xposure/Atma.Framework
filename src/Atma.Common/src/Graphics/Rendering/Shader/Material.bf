@@ -338,7 +338,7 @@ namespace Atma
 		{
 			if (shaderVersion != Shader.Version)
 			{
-				DeleteAndClearItems!(_parameters);
+				ClearAndDeleteItems!(_parameters);
 
 				for (var uniform in Shader.Uniforms)
 					_parameters.Add(Parameter.Create(uniform));

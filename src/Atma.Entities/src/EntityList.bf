@@ -8,11 +8,11 @@ namespace Atma
 	{
 		public readonly Scene Scene;
 
-		private Dictionary<Type, List<Entity>> _entityByTypes = new .() ~ DeleteDictionaryAndItems!(_);
-		private Dictionary<Type, List<Component>> _entityByComponents = new .() ~ DeleteDictionaryAndItems!(_);
-		private Dictionary<Type, List<Entity>> _entityByInterfaces = new .() ~ DeleteDictionaryAndItems!(_);
+		private Dictionary<Type, List<Entity>> _entityByTypes = new .() ~ DeleteDictionaryAndValues!(_);
+		private Dictionary<Type, List<Component>> _entityByComponents = new .() ~ DeleteDictionaryAndValues!(_);
+		private Dictionary<Type, List<Entity>> _entityByInterfaces = new .() ~ DeleteDictionaryAndValues!(_);
 
-		
+
 		private HashSet<uint64> _activeEntities = new .() ~ delete _;
 		private List<Entity> __entities = new .() ~ delete _;
 		private List<Entity> _removeEntities = new .() ~ delete _;
@@ -92,7 +92,7 @@ namespace Atma
 				__entities.RemoveFast(it);
 			}
 
-			DeleteAndClearItems!(_destroyEntities);
+			ClearAndDeleteItems!(_destroyEntities);
 
 			let entityIndex = __entities.Count;
 			for (var it in _addedEntities)

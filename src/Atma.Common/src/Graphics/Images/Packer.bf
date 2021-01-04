@@ -122,7 +122,7 @@ namespace Atma
 		}
 
 		private readonly List<Source> sources = new List<Source>() ~ DeleteContainerAndItems!(_);
-		private readonly Dictionary<int, Source> duplicateLookup = new Dictionary<int, Source>() ~ DeleteDictionaryAndItems!(_);
+		private readonly Dictionary<int, Source> duplicateLookup = new Dictionary<int, Source>() ~ DeleteDictionaryAndValues!(_);
 
 		public String Name = new .() ~ delete _;
 		public this(StringView name)

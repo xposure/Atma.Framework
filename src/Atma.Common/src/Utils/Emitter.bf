@@ -31,7 +31,7 @@ namespace Atma
 			}
 		}
 
-		private Dictionary<Type, AbstractObserverList> _observers = new .() ~ DeleteDictionaryAndItems!(_);
+		private Dictionary<Type, AbstractObserverList> _observers = new .() ~ DeleteDictionaryAndValues!(_);
 
 		private List<char8> _data = new .() ~ delete _;
 

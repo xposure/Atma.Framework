@@ -38,9 +38,10 @@ namespace Atma
 			return converter.ReadJson(this, type, target);
 		}
 
-		public void Next()
+		public Token Next()
 		{
 			_tokenIndex++;
+			return _parser._tokens[_tokenIndex - 1];
 		}
 
 		public bool Peek(TokenType type)
@@ -58,7 +59,7 @@ namespace Atma
 				AddError(scope $"Expected token type '{type}' but found '{Current.type}'");
 				return false;
 			}
-			Next();
+			//Next();
 			return true;
 		}
 

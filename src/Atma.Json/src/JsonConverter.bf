@@ -45,7 +45,7 @@ namespace Atma
 		public override bool CanConvert(Type type)
 		{
 			if (type.IsValueType)
-				base.CanConvert(type);
+				return base.CanConvert(type);
 
 			return false;
 		}
@@ -152,7 +152,7 @@ namespace Atma
 
 		}
 
-		private static Dictionary<Type, JsonConverter> _converters = new .() ~ DeleteDictionaryAndItems!(_);
+		private static Dictionary<Type, JsonConverter> _converters = new .() ~ DeleteDictionaryAndValues!(_);
 
 		public override bool CanConvert(Type type)
 		{
@@ -236,10 +236,11 @@ namespace Atma
 
 			protected override bool OnReadJson(JsonReader2 reader, T* target)
 			{
-				if(!reader.Expect(.Number))
+				if (!reader.Expect(.Number))
 					return false;
 
-				if(double.Parse(reader.Current.text) case .Ok(let val))
+				let prev = reader.Next();
+				if (double.Parse(prev.text) case .Ok(let val))
 				{
 					*target = (T)val;
 					return true;
@@ -252,7 +253,6 @@ namespace Atma
 
 		static this()
 		{
-
 			_converters.Add(new JsonNumberConverter<uint8>());
 			_converters.Add(new JsonNumberConverter<uint16>());
 			_converters.Add(new JsonNumberConverter<uint32>());

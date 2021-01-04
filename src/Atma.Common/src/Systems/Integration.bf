@@ -229,7 +229,7 @@ namespace Atma
 			}
 		}
 
-		private Dictionary<int32, IntegratorType> _integrators = new .() ~ DeleteDictionaryAndItems!(_);
+		private Dictionary<int32, IntegratorType> _integrators = new .() ~ DeleteDictionaryAndValues!(_);
 
 		internal T GetIntegrator<T>()
 			where T : IntegratorType

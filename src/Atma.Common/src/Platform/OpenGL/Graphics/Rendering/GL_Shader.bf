@@ -163,7 +163,7 @@ namespace Atma
 		{
 			GL.DeleteProgram(_programHandle);
 			DeleteContainerAndItems!(_strings);
-			DeleteDictionaryAndItems!(vertexArrays);
+			DeleteDictionaryAndValues!(vertexArrays);
 		}
 
 		private static UniformType ToFrameworkType(GLEnum type)
