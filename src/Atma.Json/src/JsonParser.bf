@@ -138,6 +138,8 @@ namespace Atma
 				return ReadObject();
 			else if (IsSign() || IsDigit())
 				return ReadNumber();
+			else if (IsString())
+				return ReadString();
 
 			return ReadBoolOrNull();
 		}
@@ -265,7 +267,7 @@ namespace Atma
 			let tokenLine = _line;
 			let tokenPos = _pos;
 
-			if (_bufferPos + 4 < _buffer.Length)
+			if (_bufferPos + 4 <= _buffer.Length)
 			{
 				let other = StringView(_buffer, _bufferPos, 4);
 				if (StringView.Compare(other, "true", true) == 0)
@@ -282,7 +284,7 @@ namespace Atma
 				}
 			}
 
-			if (_bufferPos + 5 < _buffer.Length)
+			if (_bufferPos + 5 <= _buffer.Length)
 			{
 				let other = StringView(_buffer, _bufferPos, 5);
 				if (StringView.Compare(other, "false", true) == 0)

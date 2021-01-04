@@ -52,14 +52,15 @@ namespace Atma
 			return false;
 		}
 
-		public bool Expect(TokenType type)
+		public bool Expect(TokenType type, out Token token)
 		{
 			if (Current.type != type)
 			{
+				token = default;
 				AddError(scope $"Expected token type '{type}' but found '{Current.type}'");
 				return false;
 			}
-			//Next();
+			token = Next();
 			return true;
 		}
 

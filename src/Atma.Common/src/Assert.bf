@@ -126,6 +126,23 @@ namespace Atma
 		#if !DEBUG
 			[SkipCall]
 #endif
+		public static void IsNull<T>(T actual)
+			where T : class
+		{
+			if (!(actual == null))
+				Runtime.FatalError(scope $"IsNull -> Was False");
+		}
+
+		public static void IsNull<T>(T* actual)
+		{
+			if (!(actual == null))
+				Runtime.FatalError(scope $"IsNull -> Was False");
+		}
+
+		[Inline]
+		#if !DEBUG
+			[SkipCall]
+#endif
 		public static void Range<T>(T actual, T inclusiveMin, T exclusiveMax)
 			where bool : operator T > T
 			where bool : operator T <= T
