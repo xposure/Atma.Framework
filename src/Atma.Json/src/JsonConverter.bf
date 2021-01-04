@@ -1,5 +1,6 @@
-/*using System;
+using System;
 using System.Collections;
+using System.Reflection;
 namespace Atma
 {
 	public abstract class JsonConverter
@@ -10,7 +11,7 @@ namespace Atma
 		public bool CanWrite => true;
 
 		public abstract void WriteJson(JsonWriter writer, Type type, void* target);
-		public abstract bool ReadJson(JsonReader writer, Type type, void* target);
+		public abstract bool ReadJson(JsonReader2 reader, Type type, void* target);
 	}
 
 	public abstract class JsonConverter<T> : JsonConverter
@@ -27,19 +28,19 @@ namespace Atma
 			OnWriteJson(writer, (T*)target);
 		}
 
-		public override bool ReadJson(JsonReader reader, Type type, void* target)
+		public override bool ReadJson(JsonReader2 reader, Type type, void* target)
 		{
 			return OnReadJson(reader, (T*)target);
 		}
 
 		protected abstract void OnWriteJson(JsonWriter writer, T* target);
-		protected abstract bool OnReadJson(JsonReader reader, T* target);
+		protected abstract bool OnReadJson(JsonReader2 reader, T* target);
 	}
 
 	public abstract class JsonStructConverter<T> : JsonConverter<T>
 	{
 		public override void WriteJson(JsonWriter writer, Type type, void* target) => OnWriteJson(writer, (T*)target);
-		public override bool ReadJson(JsonReader reader, Type type, void* target) => OnReadJson(reader, (T*)target);
+		public override bool ReadJson(JsonReader2 reader, Type type, void* target) => OnReadJson(reader, (T*)target);
 
 		public override bool CanConvert(Type type)
 		{
@@ -52,43 +53,98 @@ namespace Atma
 
 	public abstract class JsonObjectFactory : JsonConverter
 	{
-		public abstract class ObjectConverter
+		public class ObjectConverter : JsonConverter
 		{
 			private Type _type;
+			private List<FieldInfo> _fields = new .() ~ delete _;
 			public this(Type type)
 			{
 				_type = type;
+				for (var it in _type.GetFields())
+					_fields.Add(it);
 			}
 
-			public void WriteJson(JsonWriter writer, Type type, void* target)
+			public override bool CanConvert(Type type) => _type == type;
+
+			public override void WriteJson(JsonWriter writer, Type type, void* target)
 			{
 				var ptr = *(int*)target;
 				if (ptr == 0)
 					writer.WriteRaw("null");
 				else
 				{
+					writer.WriteObjectStart();
 
-				}	
+					for (var it in _fields)
+						writer.WriteField(it.FieldType, it.Name, (uint8*)target + it.MemberOffset);
+
+					writer.WriteObjectEnd();
+				}
 			}
 
-			public bool ReadJson(JsonReader reader, Type type, void* target)
+			public override bool ReadJson(JsonReader2 reader, Type type, void* target)
 			{
-				bool created = false;
-				var ptr = (T*)target;
-				if (*ptr == null)
+				Object obj = Internal.UnsafeCastToObject(target);
+				var shouldDelete = obj == null;
+				void cleanUp()
 				{
-					*ptr = new T();
-					created = true;
+					if (shouldDelete)
+					{
+						delete obj;
+						*(int*)target = 0;
+					}
+				}
+				defer cleanUp();
+
+				if (obj == null)
+				{
+					if (type.CreateObject() case .Ok(out obj))
+					{
+						let ptr = Internal.UnsafeCastToPtr(obj);
+						*(int*)target = *(int*)ptr;
+					}
+					else
+						Runtime.FatalError(scope $"Failed CreateObject for type '{type.GetName( .. scope String())}'");
 				}
 
-				if (!OnReadJson(reader, ptr))
+
+				let count = reader.Current.elements;
+				if (reader.Expect(.ObjectStart))
 				{
-					if (created)
+					for (var i < count)
 					{
-						delete *ptr;
-						*ptr = null;
+						if (!reader.Expect(.Field))
+							return false;
+
+						var foundField = false;
+						for (var it in _fields)
+						{
+							if (StringView.Compare(it.Name, reader.Current.text, true) == 0)
+							{
+								foundField = true;
+								reader.Next();
+
+									//offset ptr to field value
+								let ptr = (uint8*)target + it.MemberOffset;
+								if (!reader.Parse(it.FieldType, ptr))
+									return false;
+
+								break;
+							}
+						}
+
+						if (!foundField)
+						{
+							reader.AddError(scope $"Field '{reader.Current.text}' not found on type '{_type.GetName(.. scope String())}'");
+							return false;
+						}
 					}
-					return false;
+
+					if (reader.Expect(.ObjectEnd))
+					{
+						shouldDelete = false;
+						return true;
+					}
 				}
 
 				return true;
@@ -102,8 +158,10 @@ namespace Atma
 		{
 			if (type.GetCustomAttribute<SerializableAttribute>() case .Ok)
 			{
-				if (_converters.TryGetValue(type, ?))
-					return true;
+				if (!_converters.TryAdd(type, ?, var ptr))
+					*ptr = new ObjectConverter(type);
+
+				return true;
 			}
 			return false;
 		}
@@ -129,8 +187,19 @@ namespace Atma
 				OnWriteJson(writer, ptr);
 		}
 
-		public override bool ReadJson(JsonReader reader, Type type, void* target)
+		public override bool ReadJson(JsonReader2 reader, Type type, void* target)
 		{
+			if (reader.Current.type == .Null)
+			{
+				if (*(int*)target != 0)
+				{
+					delete target;
+					*(int*)target = 0;
+				}
+
+				return true;
+			}
+
 			bool created = false;
 			var ptr = (T*)target;
 			if (*ptr == null)
@@ -165,11 +234,14 @@ namespace Atma
 				writer.WriteRaw(str);
 			}
 
-			protected override bool OnReadJson(JsonReader reader, T* target)
+			protected override bool OnReadJson(JsonReader2 reader, T* target)
 			{
-				if (reader.ParseNumber(let number))
+				if(!reader.Expect(.Number))
+					return false;
+
+				if(double.Parse(reader.Current.text) case .Ok(let val))
 				{
-					*target = (T)number;
+					*target = (T)val;
 					return true;
 				}
 				return false;
@@ -180,21 +252,21 @@ namespace Atma
 
 		static this()
 		{
-			_converters.Add(new JsonNumberConverter<char8>());
 
 			_converters.Add(new JsonNumberConverter<uint8>());
 			_converters.Add(new JsonNumberConverter<uint16>());
 			_converters.Add(new JsonNumberConverter<uint32>());
 			_converters.Add(new JsonNumberConverter<uint64>());
+			_converters.Add(new JsonNumberConverter<uint>());
 
 			_converters.Add(new JsonNumberConverter<int8>());
 			_converters.Add(new JsonNumberConverter<int16>());
 			_converters.Add(new JsonNumberConverter<int32>());
 			_converters.Add(new JsonNumberConverter<int64>());
-
 			_converters.Add(new JsonNumberConverter<int>());
-			_converters.Add(new JsonNumberConverter<uint>());
 
+
+			_converters.Add(new JsonNumberConverter<char8>());
 			_converters.Add(new JsonNumberConverter<float>());
 			_converters.Add(new JsonNumberConverter<double>());
 		}
@@ -220,7 +292,7 @@ namespace Atma
 			}
 		}
 
-		public override bool ReadJson(JsonReader reader, Type type, void* target)
+		public override bool ReadJson(JsonReader2 reader, Type type, void* target)
 		{
 			for (var it in _converters)
 				if (it.CanConvert(type))
@@ -237,12 +309,16 @@ namespace Atma
 			writer.WriteString(*target);
 		}
 
-		protected override bool OnReadJson(JsonReader reader, String* target)
+		protected override bool OnReadJson(JsonReader2 reader, String* target)
 		{
-			if (reader.ParseString(*target))
-				return true;
+			if (!reader.Expect(.String))
+				return false;
 
-			return false;
+			if (*target == null)
+				*target = new String(reader.Current.text.Length);
+
+			reader.Current.GetString(*target);
+			return true;
 		}
 	}
-}*/
+}

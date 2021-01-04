@@ -255,7 +255,7 @@ static
 		return left == right;
 	}
 
-	public static mixin Dispose(var container)
+	public static mixin ClearContainerAndDisposeItems(var container)
 	{
 		if (container != null)
 		{
@@ -263,34 +263,17 @@ static
 			{
 				value.Dispose();
 			}
+			container.Clear();
 		}
 	}
 
-	public static mixin DeleteContainerItems(var container)
-	{
-		for (var value in container)
-			delete value;
-	}
-
-	public static mixin DeleteAndDispose(var container)
+	public static mixin DeleteContainerAndDisposeItems(var container)
 	{
 		if (container != null)
 		{
 			for (var value in container)
 			{
 				value.Dispose();
-			}
-			delete container;
-		}
-	}
-
-	public static mixin DeleteDictionaryAndItems(var container)
-	{
-		if (container != null)
-		{
-			for (var value in container)
-			{
-				delete value.value;
 			}
 			delete container;
 		}
@@ -324,7 +307,7 @@ namespace System
 
 	public extension String
 	{
-		public static explicit operator Span<char8>(String it) => Span<char8>(it.Ptr, it.Length);
+		//public static explicit operator Span<char8>(String it) => Span<char8>(it.Ptr, it.Length);
 
 	}
 

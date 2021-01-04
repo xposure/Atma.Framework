@@ -30,6 +30,29 @@ namespace Atma
 		public TokenType type;
 		public uint32 elements;
 		public StringView text;
+
+		public void GetString(String str)
+		{
+			var t = StringView(text, 1, text.Length - 2);
+			for (var i < t.Length)
+			{
+				if (t[i] == '\\')
+				{
+					switch (t[i + 1]) {
+					case 'n','N': str.Append('\n');
+					case 'r','R': str.Append('\r');
+					case 't','T': str.Append('\t');
+					case 'b','B': str.Append('\b');
+					case 'f','F': str.Append('\f');
+					case '"': str.Append('"');
+					case '/': str.Append('/');
+					case '\\': str.Append('\\');
+					}
+				}
+				else
+					str.Append(t[i]);
+			}
+		}
 	}
 	public class JsonParser
 	{
@@ -529,12 +552,12 @@ namespace Atma
 			return true;
 		}
 
-		private void AddError(int line, int pos, StringView error)
+		internal void AddError(int line, int pos, StringView error)
 		{
 			_errors.Add(scope $"[{line}, {pos + _lookAheadPos}] {error}");
 		}
 
-		private void AddError(StringView error)
+		internal void AddError(StringView error)
 		{
 			_errors.Add(scope $"[{line}, {pos + _lookAheadPos}] {error}");
 		}

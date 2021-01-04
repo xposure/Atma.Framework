@@ -30,11 +30,11 @@ namespace Atma
 			let defaultCharacter = ' ';
 
 			let characters = scope List<char8>();
-			characters.AddRange((Span<char8>)"abcdefghijklmnopqrstuvwxyz");
-			characters.AddRange((Span<char8>)"ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-			characters.AddRange((Span<char8>)"0123456789");
-			characters.AddRange((Span<char8>)"!@#$%^&*()");
-			characters.AddRange((Span<char8>)" `~-_=+[{]};:'\",<.>/?\\|");
+			characters.AddRange("abcdefghijklmnopqrstuvwxyz");
+			characters.AddRange("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+			characters.AddRange("0123456789");
+			characters.AddRange("!@#$%^&*()");
+			characters.AddRange(" `~-_=+[{]};:'\",<.>/?\\|");
 
 			//let glyphs = scope List<SDL2.SDL.Surface*>(characters.Count);
 			let packer = new Packer(path);

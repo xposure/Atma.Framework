@@ -84,6 +84,17 @@ namespace Atma
 			WriteRaw("}");
 		}
 
+		public void WriteField(Type type, StringView name, void* target)
+		{
+			WriteComma();
+			WriteString(name);
+			WriteRaw(':');
+
+			if (type.IsObject)
+				WriteValue(type, *(void**)target);
+
+			WriteValue(type, target);
+		}
 		public void WriteString(StringView text)
 		{
 			WriteRaw("\"");
@@ -128,17 +139,17 @@ namespace Atma
 				{
 					let array = (Array)Internal.UnsafeCastToObject(*(void**)target);
 					var ptr = (void*)(*(int*)target + type.[Friend]mMemberDataOffset);
-					WriteArray(arrayType.GetGenericArg(0), ptr, array.Count); 
+					WriteArray(arrayType.GetGenericArg(0), ptr, array.Count);
 				}
-				else if(let sizedType = type as SizedArrayType)
+				else if (let sizedType = type as SizedArrayType)
 				{
-					WriteArray(sizedType.UnderlyingType, target, sizedType.ElementCount); 
+					WriteArray(sizedType.UnderlyingType, target, sizedType.ElementCount);
 				}
 				else if (type.IsObject)
 				{
 					WriteObject(type, *(void**)target);
 				}
-				else if(type.IsValueType)
+				else if (type.IsValueType)
 				{
 					WriteObject(type, target);
 				}

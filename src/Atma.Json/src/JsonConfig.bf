@@ -2,6 +2,32 @@ using System.Collections;
 using System;
 namespace Atma
 {
+	public static class JsonConfig2
+	{
+		internal static List<JsonConverter> _converters = new .() ~ DeleteContainerAndItems!(_);
+
+		static this()
+		{
+			//_converters.Add(new JsonBoolConverter());
+			_converters.Add(new JsonNumberConverter());
+			_converters.Add(new JsonStringConverter());
+		}
+
+		public static bool GetConverter(Type type, out JsonConverter converter)
+		{
+			for (var it in _converters)
+				if (it.CanConvert(type))
+				{
+					converter = it;
+					return true;
+				}
+
+			converter = null;
+			return false;
+		}
+	}
+
+
 	public static class JsonConfig
 	{
 		internal static Dictionary<Type, JsonSerializer> _serializers;

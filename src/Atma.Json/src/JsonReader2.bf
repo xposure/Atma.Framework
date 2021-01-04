@@ -14,23 +14,57 @@ namespace Atma
 		private JsonParser _parser = new JsonParser() ~ delete _;
 
 		private int _tokenIndex = 0;
-		private Token Current => _parser._tokens[_tokenIndex];
+		public Token Current => _parser._tokens[_tokenIndex];
 
 		public List<String>.Enumerator Errors => _parser._errors.GetEnumerator();
 
 		public Result<T> Parse<T>(StringView text)
 		{
-			if(!_parser.Tokenize(text))
+			if (!_parser.Tokenize(text))
 				return .Err;
 
 			T t = default;
-			return .Err;
-			/*if(!Parse(typeof(T), &t))
+			if (!Parse(typeof(T), &t))
 				return .Err;
 
-			return .Ok(t);*/
+			return .Ok(t);
 		}
 
-		
+		public bool Parse(Type type, void* target)
+		{
+			if (!JsonConfig2.GetConverter(type, let converter))
+				Runtime.FatalError(scope $"Could not find a converter for type '{ type.GetName(.. scope String()) }'.");
+
+			return converter.ReadJson(this, type, target);
+		}
+
+		public void Next()
+		{
+			_tokenIndex++;
+		}
+
+		public bool Peek(TokenType type)
+		{
+			if (_tokenIndex + 1 < _parser._tokens.Count)
+				return _parser._tokens[_tokenIndex + 1].type == type;
+
+			return false;
+		}
+
+		public bool Expect(TokenType type)
+		{
+			if (Current.type != type)
+			{
+				AddError(scope $"Expected token type '{type}' but found '{Current.type}'");
+				return false;
+			}
+			Next();
+			return true;
+		}
+
+		public void AddError(StringView msg)
+		{
+			_parser.AddError(Current.line, Current.pos, msg);
+		}
 	}
 }
