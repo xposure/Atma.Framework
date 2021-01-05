@@ -115,6 +115,8 @@ namespace Atma
 			WriteRaw("\"");
 		}
 
+		public int Write<T>(String str, T t, JsonWriterOptions options = default) => Write<T>(scope StringStream(str, .Reference), t);
+
 		public int Write<T>(Stream stream, T t, JsonWriterOptions options = default)
 		{
 			_stream = stream;
@@ -128,7 +130,12 @@ namespace Atma
 
 		public void WriteValue(Type type, void* target)
 		{
-			//if we have a custom serializer, we use it
+			if (!JsonConfig2.GetConverter(type, let converter))
+				Runtime.FatalError(scope $"Could not find a converter for type '{ type.GetName(.. scope String()) }'.");
+
+			converter.WriteJson(this, type, target);
+
+		/*//if we have a custom serializer, we use it
 			if (JsonConfig._serializers.TryGetValue(type, let serializer))
 			{
 				serializer.Serialize(this, target);
@@ -170,7 +177,7 @@ namespace Atma
 				}*/
 				else
 					Runtime.FatalError("Not supported.");
-			}
+			}*/
 		}
 
 		private void WriteArray(Type type, void* target, int count)

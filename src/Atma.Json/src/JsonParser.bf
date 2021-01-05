@@ -100,6 +100,17 @@ namespace Atma
 		private uint32 _line, _pos;
 		private List<int> _tokenDepth = new .() ~ delete _;
 
+		public this()
+		{
+		}
+
+		internal this(StringView json)
+		{
+			_buffer = json;
+			pos = 1;
+			line = 1;
+		}
+
 		public bool Tokenize(StringView text)
 		{
 			_buffer = text;

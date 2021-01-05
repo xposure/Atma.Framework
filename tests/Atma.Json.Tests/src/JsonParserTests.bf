@@ -1,4 +1,4 @@
-/*using System;
+using System;
 namespace Atma.Json.Tests
 {
 	using internal Atma;
@@ -97,7 +97,7 @@ namespace Atma.Json.Tests
 			ReadBool("NULL");
 		}
 
-		typealias JToken = (JsonParser.TokenType type, StringView text);
+		typealias JToken = (TokenType type, StringView text);
 
 		private static void ReadArray(StringView json, int elements)
 		{
@@ -171,4 +171,4 @@ namespace Atma.Json.Tests
 			ReadObject("{ hello : true , \"test\" : 123 }", (.ObjectStart, "{"), (.Field, "hello"), (.Bool, "true"), (.Field, "test"), (.Number, "123"), (.ObjectEnd, "}"));
 		}
 	}
-}*/
+}

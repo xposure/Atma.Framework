@@ -9,6 +9,7 @@ namespace Atma
 		static this()
 		{
 			//_converters.Add(new JsonBoolConverter());
+			_converters.Add(new JsonArrayConverter());
 			_converters.Add(new JsonNumberConverter());
 			_converters.Add(new JsonStringConverter());
 			_converters.Add(new JsonBoolConverter());
