@@ -13,6 +13,7 @@ namespace Atma
 			_converters.Add(new JsonNumberConverter());
 			_converters.Add(new JsonStringConverter());
 			_converters.Add(new JsonBoolConverter());
+			_converters.Add(new JsonStructFactory());
 		}
 
 		public static bool GetConverter(Type type, out JsonConverter converter)

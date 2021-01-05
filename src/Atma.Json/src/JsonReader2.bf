@@ -38,6 +38,50 @@ namespace Atma
 			return converter.ReadJson(this, type, target);
 		}
 
+		public bool ReadFields(Type type, void* target)
+		{
+			let _fields = scope List<FieldInfo>();
+			_fields.AddRange(type.GetFields());
+
+			if (_fields.Count == 0)
+				Runtime.FatalError(scope $"Found no fields to populate in type '{type.GetName(.. scope String())}' did you forget to add SerializableAttribute?");
+
+			let count = Current.elements;
+			if (!Expect(.ObjectStart, ?))
+				return false;
+
+			for (var i < count)
+			{
+				if (!Expect(.Field, let fieldName))
+					return false;
+
+				var foundField = false;
+				for (var it in _fields)
+				{
+					if (StringView.Compare(it.Name, fieldName.text, true) == 0)
+					{
+						foundField = true;
+
+						//offset ptr to field value
+						let ptr = (uint8*)target + it.MemberOffset;
+						if (!Parse(it.FieldType, ptr))
+							return false;
+
+						break;
+					}
+				}
+
+				if (!foundField)
+				{
+					AddError(scope $"Field '{fieldName.text}' not found on type '{type.GetName(.. scope String())}'");
+					return false;
+				}
+			}
+
+
+			return Expect(.ObjectEnd, ?);
+		}
+
 		public Token Next()
 		{
 			_tokenIndex++;

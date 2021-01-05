@@ -39,21 +39,21 @@ namespace Atma
 
 		public override void WriteJson(JsonWriter writer, Type type, void* target)
 		{
-			OnWriteJson(writer, (T*)target);
+			OnWriteJson(writer, type, (T*)target);
 		}
 
 		public override bool ReadJson(JsonReader2 reader, Type type, void* target)
 		{
-			return OnReadJson(reader, (T*)target);
+			return OnReadJson(reader, type, (T*)target);
 		}
 
-		protected abstract void OnWriteJson(JsonWriter writer, T* target);
-		protected abstract bool OnReadJson(JsonReader2 reader, T* target);
+		protected abstract void OnWriteJson(JsonWriter writer, Type type, T* target);
+		protected abstract bool OnReadJson(JsonReader2 reader, Type type, T* target);
 	}
 
 	public class JsonBoolConverter : JsonStructConverter<bool>
 	{
-		protected override void OnWriteJson(JsonWriter writer, bool* target)
+		protected override void OnWriteJson(JsonWriter writer, Type type, bool* target)
 		{
 			if (*target)
 				writer.WriteRaw("true");
@@ -61,7 +61,7 @@ namespace Atma
 				writer.WriteRaw("false");
 		}
 
-		protected override bool OnReadJson(JsonReader2 reader, bool* target)
+		protected override bool OnReadJson(JsonReader2 reader, Type type, bool* target)
 		{
 			*target = false;
 			if (reader.Current.type == .Number)
@@ -82,6 +82,31 @@ namespace Atma
 		}
 	}
 
+	public class JsonStructFactory : JsonStructConverter<void>
+	{
+		public override bool CanConvert(Type type)
+		{
+			let realType = this.[Friend]GetRealType(type);
+			if (realType == null)
+				return false;
+
+			if (realType.GetCustomAttribute<SerializableAttribute>() case .Ok)
+				return true;
+
+			return false;
+		}
+
+		protected override void OnWriteJson(JsonWriter writer, Type type, void* target)
+		{
+			writer.WriteFields(type, target);
+		}
+
+		protected override bool OnReadJson(JsonReader2 reader, Type type, void* target)
+		{
+			return reader.ReadFields(type, target);
+		}
+	}
+
 	public abstract class JsonStructConverter<T> : JsonConverter<T>
 	{
 		public override void WriteJson(JsonWriter writer, Type type, void* target)
@@ -92,7 +117,7 @@ namespace Atma
 				if (p == null)
 					writer.WriteRaw("null");
 				else
-					OnWriteJson(writer, p);
+					OnWriteJson(writer, type, p);
 			}
 			else if (type.IsNullable)
 			{
@@ -104,11 +129,11 @@ namespace Atma
 				else
 				{
 					T t = n.Value;
-					OnWriteJson(writer, &t);
+					OnWriteJson(writer, type, &t);
 				}
 			}
 			else
-				OnWriteJson(writer, (T*)target);
+				OnWriteJson(writer, type, (T*)target);
 		}
 
 		public override bool ReadJson(JsonReader2 reader, Type type, void* target)
@@ -128,7 +153,7 @@ namespace Atma
 					if (p == null)
 					{
 						*(T**)target = new T[1]*;
-						if (!OnReadJson(reader, *(T**)target))
+						if (!OnReadJson(reader, type, *(T**)target))
 						{
 							delete (void*)*(T**)target;
 							return false;
@@ -138,7 +163,7 @@ namespace Atma
 					}
 					else
 					{
-						return OnReadJson(reader, *(T**)target);
+						return OnReadJson(reader, type, *(T**)target);
 					}
 				}
 			}
@@ -154,35 +179,43 @@ namespace Atma
 				else
 				{
 					T t = ?;
-					let result = OnReadJson(reader, &t);
+					let result = OnReadJson(reader, type, &t);
 					if (!result)
 						return false;
 					*n = t;
 					return true;
 				}
 			}
-			return OnReadJson(reader, (T*)target);
+			return OnReadJson(reader, type, (T*)target);
 		}
 
 		public override bool CanConvert(Type type)
 		{
+			let realType = GetRealType(type);
+			if (realType == null)
+				return false;
+
+			return base.CanConvert(realType);
+		}
+
+		private Type GetRealType(Type type)
+		{
 			if (type.IsPointer)
 			{
 				let t = (PointerType)type;
-				return base.CanConvert(t.UnderlyingType);
+				return t.UnderlyingType;
 			}
 			else if (type.IsValueType)
 			{
 				if (type.IsNullable)
 				{
 					let t = (SpecializedGenericType)type;
-					return base.CanConvert(t.GetGenericArg(0));
+					return t.GetGenericArg(0);
 				}
 
-				return base.CanConvert(type);
+				return type;
 			}
-
-			return false;
+			return null;
 		}
 	}
 
@@ -198,7 +231,7 @@ namespace Atma
 
 		public override void WriteJson(JsonWriter writer, Type type, void* target)
 		{
-			var obj = Internal.UnsafeCastToObject(target);
+			var obj = Internal.UnsafeCastToObject(*(void**)target);
 			if (obj == null)
 			{
 				writer.WriteRaw("null");
@@ -208,7 +241,7 @@ namespace Atma
 				let arrayType = (ArrayType)type;
 				let genericType = arrayType.GetGenericArg(0);
 				let array = (Array)obj;
-				var ptr = (uint8*)(void*)(*(int*)target + sizeof(Array) - genericType.Size);
+				var ptr = ((uint8*)Internal.UnsafeCastToPtr(obj) + type.InstanceSize - genericType.Size);
 				writer.WriteArrayStart();
 				for (var i < array.Count)
 				{
@@ -281,118 +314,95 @@ namespace Atma
 
 	public abstract class JsonObjectFactory : JsonConverter
 	{
-		public class ObjectConverter : JsonConverter
+		public override void WriteJson(JsonWriter writer, Type type, void* target)
 		{
-			private Type _type;
-			private List<FieldInfo> _fields = new .() ~ delete _;
-			public this(Type type)
-			{
-				_type = type;
-				for (var it in _type.GetFields())
-					_fields.Add(it);
-			}
-
-			public override bool CanConvert(Type type) => _type == type;
-
-			public override void WriteJson(JsonWriter writer, Type type, void* target)
-			{
-				var ptr = *(int*)target;
-				if (ptr == 0)
-					writer.WriteRaw("null");
-				else
-				{
-					writer.WriteObjectStart();
-
-					for (var it in _fields)
-						writer.WriteField(it.FieldType, it.Name, (uint8*)target + it.MemberOffset);
-
-					writer.WriteObjectEnd();
-				}
-			}
-
-			public override bool ReadJson(JsonReader2 reader, Type type, void* target)
-			{
-				//Should we support class pointers which are basically a double pointer?
-
-				Object obj = Internal.UnsafeCastToObject(target);
-				var shouldDelete = obj == null;
-				void cleanUp()
-				{
-					if (shouldDelete)
-					{
-						delete obj;
-						*(int*)target = 0;
-					}
-				}
-				defer cleanUp();
-
-				if (obj == null)
-				{
-					if (type.CreateObject() case .Ok(out obj))
-					{
-						let ptr = Internal.UnsafeCastToPtr(obj);
-						*(int*)target = *(int*)ptr;
-					}
-					else
-						Runtime.FatalError(scope $"Failed CreateObject for type '{type.GetName( .. scope String())}'");
-				}
-
-
-				let count = reader.Current.elements;
-				if (reader.Expect(.ObjectStart, ?))
-				{
-					for (var i < count)
-					{
-						if (!reader.Expect(.Field, let fieldName))
-							return false;
-
-						var foundField = false;
-						for (var it in _fields)
-						{
-							if (StringView.Compare(it.Name, fieldName.text, true) == 0)
-							{
-								foundField = true;
-								reader.Next();
-
-									//offset ptr to field value
-								let ptr = (uint8*)target + it.MemberOffset;
-								if (!reader.Parse(it.FieldType, ptr))
-									return false;
-
-								break;
-							}
-						}
-
-						if (!foundField)
-						{
-							reader.AddError(scope $"Field '{fieldName.text}' not found on type '{_type.GetName(.. scope String())}'");
-							return false;
-						}
-					}
-
-					if (reader.Expect(.ObjectEnd, ?))
-					{
-						shouldDelete = false;
-						return true;
-					}
-				}
-
-				return true;
-			}
-
+			var ptr = *(int*)target;
+			if (ptr == 0)
+				writer.WriteRaw("null");
+			else
+				writer.WriteFields(type, *(void**)target);
 		}
 
-		private static Dictionary<Type, JsonConverter> _converters = new .() ~ DeleteDictionaryAndValues!(_);
+		public override bool ReadJson(JsonReader2 reader, Type type, void* target)
+		{
+			//Should we support class pointers which are basically a double pointer?
+
+			Object obj = Internal.UnsafeCastToObject(target);
+			var shouldDelete = obj == null;
+			void cleanUp()
+			{
+				if (shouldDelete)
+				{
+				}
+			}
+			defer cleanUp();
+
+			if (obj == null)
+			{
+				if (type.CreateObject() case .Ok(out obj))
+				{
+					let ptr = Internal.UnsafeCastToPtr(obj);
+					*(int*)target = *(int*)ptr;
+				}
+				else
+					Runtime.FatalError(scope $"Failed CreateObject for type '{type.GetName( .. scope String())}'");
+			}
+
+			if (reader.ReadFields(type, Internal.UnsafeCastToPtr(obj)))
+				return true;
+
+			if (shouldDelete)
+			{
+				delete obj;
+				*(int*)target = 0;
+			}
+			return false;
+			/*let count = reader.Current.elements;
+			if (reader.Expect(.ObjectStart, ?))
+			{
+				for (var i < count)
+				{
+					if (!reader.Expect(.Field, let fieldName))
+						return false;
+
+					var foundField = false;
+					for (var it in _fields)
+					{
+						if (StringView.Compare(it.Name, fieldName.text, true) == 0)
+						{
+							foundField = true;
+							reader.Next();
+
+								//offset ptr to field value
+							let ptr = (uint8*)target + it.MemberOffset;
+							if (!reader.Parse(it.FieldType, ptr))
+								return false;
+
+							break;
+						}
+					}
+
+					if (!foundField)
+					{
+						reader.AddError(scope $"Field '{fieldName.text}' not found on type '{_type.GetName(.. scope
+		String())}'"); return false;
+					}
+				}
+
+				if (reader.Expect(.ObjectEnd, ?))
+				{
+					shouldDelete = false;
+					return true;
+				}
+			}
+
+			return true;*/
+		}
 
 		public override bool CanConvert(Type type)
 		{
-			if (type.GetCustomAttribute<SerializableAttribute>() case .Ok)
-			{
-				if (!_converters.TryAdd(type, ?, var ptr))
-					*ptr = new ObjectConverter(type);
-
+			if (type.IsObject && type.GetCustomAttribute<SerializableAttribute>() case .Ok)
 				return true;
-			}
 			return false;
 		}
 	}
@@ -410,11 +420,11 @@ namespace Atma
 
 		public override void WriteJson(JsonWriter writer, Type type, void* target)
 		{
-			var ptr = (T*)target;
+			var ptr = *(T*)target;
 			if (ptr == null)
 				writer.WriteRaw("null");
 			else
-				OnWriteJson(writer, ptr);
+				OnWriteJson(writer, type,(T*)target);
 		}
 
 		public override bool ReadJson(JsonReader2 reader, Type type, void* target)
@@ -426,7 +436,7 @@ namespace Atma
 					delete target;
 					*(int*)target = 0;
 				}
-
+				reader.Next();
 				return true;
 			}
 
@@ -438,17 +448,15 @@ namespace Atma
 				created = true;
 			}
 
-			if (!OnReadJson(reader, ptr))
-			{
-				if (created)
-				{
-					delete *ptr;
-					*ptr = null;
-				}
-				return false;
-			}
+			if (OnReadJson(reader, type, ptr))
+				return true;
 
-			return true;
+			if (created)
+			{
+				delete *ptr;
+				*ptr = null;
+			}
+			return false;
 		}
 	}
 
@@ -471,14 +479,14 @@ namespace Atma
 				_parseType = parseType;
 			}
 
-			protected override void OnWriteJson(JsonWriter writer, T* target)
+			protected override void OnWriteJson(JsonWriter writer, Type type, T* target)
 			{
 				let str = scope String();
 				(*target).ToString(str);
 				writer.WriteRaw(str);
 			}
 
-			protected override bool OnReadJson(JsonReader2 reader, T* target)
+			protected override bool OnReadJson(JsonReader2 reader, Type type, T* target)
 			{
 				if (!reader.Expect(.Number, let token))
 					return false;
@@ -566,12 +574,12 @@ namespace Atma
 
 	public class JsonStringConverter : JsonObjectConverter<String>
 	{
-		protected override void OnWriteJson(JsonWriter writer, String* target)
+		protected override void OnWriteJson(JsonWriter writer, Type type, String* target)
 		{
 			writer.WriteString(*target);
 		}
 
-		protected override bool OnReadJson(JsonReader2 reader, String* target)
+		protected override bool OnReadJson(JsonReader2 reader, Type type, String* target)
 		{
 			if (!reader.Expect(.String, let token))
 				return false;

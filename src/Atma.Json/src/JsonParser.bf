@@ -567,12 +567,12 @@ namespace Atma
 
 		internal void AddError(int line, int pos, StringView error)
 		{
-			_errors.Add(scope $"[{line}, {pos + _lookAheadPos}] {error}");
+			_errors.Add(new $"[{line}, {pos + _lookAheadPos}] {error}");
 		}
 
 		internal void AddError(StringView error)
 		{
-			_errors.Add(scope $"[{line}, {pos + _lookAheadPos}] {error}");
+			_errors.Add(new $"[{line}, {pos + _lookAheadPos}] {error}");
 		}
 
 	}

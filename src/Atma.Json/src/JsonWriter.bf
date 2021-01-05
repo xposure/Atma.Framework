@@ -90,8 +90,8 @@ namespace Atma
 			WriteString(name);
 			WriteRaw(':');
 
-			if (type.IsObject)
-				WriteValue(type, *(void**)target);
+			/*if (type.IsObject)
+				WriteValue(type, *(void**)target);*/
 
 			WriteValue(type, target);
 		}
@@ -209,6 +209,22 @@ namespace Atma
 				let ptr = (uint8*)target + it.MemberOffset;
 				WriteValue(it.FieldType, ptr);
 			}
+			WriteObjectEnd();
+		}
+
+		public void WriteFields(Type type, void* target)
+		{
+			let _fields = scope List<FieldInfo>();
+			_fields.AddRange(type.GetFields());
+
+			if (_fields.Count == 0)
+				Runtime.FatalError(scope $"Found no fields to populate in type '{type.GetName(.. scope String())}' did you forget to add SerializableAttribute?");
+
+			WriteObjectStart();
+
+			for (var it in _fields)
+				WriteField(it.FieldType, it.Name, (uint8*)target + it.MemberOffset);
+
 			WriteObjectEnd();
 		}
 	}
