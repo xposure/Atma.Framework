@@ -438,7 +438,7 @@ namespace Atma
 			{
 				while (_iterator.GetNext() case .Ok(let val))
 				{
-					if (let it = val as T && _predicate?.Invoke(it) == true)
+					if (let it = val as T && (_predicate == null || _predicate.Invoke(it) == true))
 					{
 						_current = it;
 						return true;

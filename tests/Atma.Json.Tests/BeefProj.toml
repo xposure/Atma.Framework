@@ -1,7 +1,0 @@
-FileVersion = 1
-Dependencies = {corlib = "*", "Atma.Common" = "*", "Atma.Json" = "*"}
-
-[Project]
-Name = "Atma.Json.Tests"
-TargetType = "BeefTest"
-StartupObject = "Atma.Json.Tests.Program"

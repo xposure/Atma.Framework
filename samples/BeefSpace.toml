@@ -1,5 +1,5 @@
 FileVersion = 1
-Projects = {NeonShooter = {Path = "NeonShooter"}, SDL2 = "*", MiniZ = "*", "Atma.Common" = {Path = "../src/Atma.Common"}, HelloWorld = {Path = "HelloWorld"}, "Atma.Entities" = {Path = "../src/Atma.Entities"}, "Atma.Json" = {Path = "../src/Atma.Json"}, "Atma.Json.Tests" = {Path = "../tests/Atma.Json.Tests"}}
+Projects = {NeonShooter = {Path = "NeonShooter"}, SDL2 = "*", MiniZ = "*", "Atma.Common" = {Path = "../src/Atma.Common"}, HelloWorld = {Path = "HelloWorld"}, "Atma.Entities" = {Path = "../src/Atma.Entities"}}
 Unlocked = ["corlib"]
 
 [Workspace]
