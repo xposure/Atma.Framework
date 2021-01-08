@@ -21,14 +21,14 @@ namespace Atma
 			for (let i < previousKeyboard.Count)
 			{
 				if (!previousKeyboard[i] && Platform_PollKeyboard((Keys)i))
-					lastKeypressTimes[i] = Time.RawTime;
+					lastKeypressTimes[i] = Time.Time;
 				previousKeyboard[i] = Platform_PollKeyboard((Keys)i);
 			}
 
 			for (var i < previousMouse.Count)
 			{
 				if (!previousMouse[i] && Platform_PollMouse((MouseButtons)i))
-					lastMouseTimes[i] = Time.RawTime;
+					lastMouseTimes[i] = Time.Time;
 				previousMouse[i] = Platform_PollMouse((MouseButtons)i);
 			}
 

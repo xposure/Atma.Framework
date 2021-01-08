@@ -50,16 +50,17 @@ namespace Atma
 
 			//Press
 			if (!last && Check)
-				lastPress = Time.RawTime;
-			Pressed = Check && lastPress > lastPressClear && (Time.RawTime - lastPress) <= pressBuffer;
-
+				lastPress = Time.Time;
+			Pressed = Check && (lastPress > lastPressClear && (Time.Time - lastPress) <= pressBuffer);
+			if(Pressed)
+				 System.Console.WriteLine("pressed");
 			//Repeat
-			if (Check && repeatStart > 0 && (Time.RawTime - lastPress) >= repeatStart)
+			if (Check && repeatStart > 0 && (Time.Time - lastPress) >= repeatStart)
 			{
 				Repeating = true;
 
-				let a = (Time.RawPrevTime - lastPress) / repeatInterval;
-				let b = (Time.RawTime - lastPress) / repeatInterval;
+				let a = (Time.PrevTime - lastPress) / repeatInterval;
+				let b = (Time.Time - lastPress) / repeatInterval;
 				if (a != b)
 					Pressed = true;
 			}
@@ -67,24 +68,24 @@ namespace Atma
 				Repeating = false;
 
 			//Release
-			if (last && !Check)
-				lastRelease = Time.RawTime;
+			if (last && !Pressed)
+				lastRelease = Time.Time;
 
-			let check0 = !Check;
+			let check0 = !Pressed;
 			let check1 = lastRelease > lastReleaseClear;
-			let check2 = (Time.RawTime - lastRelease) <= releaseBuffer;
+			let check2 = (Time.Time - lastRelease) <= releaseBuffer;
 
 			Released = check0 && check1 && check2;
 		}
 
 		public void ClearPressBuffer()
 		{
-			lastPressClear = Time.RawTime;
+			lastPressClear = Time.Time;
 		}
 
 		public void ClearReleaseBuffer()
 		{
-			lastReleaseClear = Time.RawTime;
+			lastReleaseClear = Time.Time;
 		}
 
 		// Setup Calls

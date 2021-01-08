@@ -75,6 +75,8 @@ namespace Atma
 		/// </summary>
 		public static int FPS;*/
 
+
+
 		/// <summary>
 		/// Returns true when the elapsed time passes a given interval based on the delta time
 		/// </summary>
@@ -118,14 +120,17 @@ namespace Atma
 		public const double MicroToSeconds = 1000000.0;
 
 		public static int64 RawPrevTime, RawTime, RawSceneTime;
+		public static int64 PrevTime, Time, SceneTime;
 
-		public static float TargetDelta => TargetMilliseconds / 1000f;
+		/*public static float TargetDelta => TargetMilliseconds / 1000f;
 
-		public static int64 TargetMilliseconds = 1666;
+		public static int64 TargetMilliseconds = 1666;*/
+		public static int TargetFPS = 60;
 
-		public static int64 FixedTimestep = (.)(1.0 / 60 * MicroToSeconds);
+		public static int64 FixedTimestep => (.)((1.0 / TargetFPS * MicroToSeconds) * TimeScale);
+		public static int64 RawFixedTimestep => (.)(1.0 / TargetFPS * MicroToSeconds);
+		public static int64 InverseFixedTimestep => (.)((1.0 / TargetFPS * MicroToSeconds)  / TimeScale);
 		public static int64 MaxSteps => 3;
-
 
 		/// <summary>
 		/// total time the game has been running
@@ -136,25 +141,24 @@ namespace Atma
 		public static double PreviousElapsed;
 		public static float PreviousElapsedf;
 
+		public static double RawElapsed;
+		public static float RawElapsedf;
+
+		public static double RawPreviousElapsed;
+		public static float RawPreviousElapsedf;
+
 		/// <summary>
 		/// delta time from the previous frame to the current, scaled by timeScale
 		/// </summary>
 		public static float Delta;
-
-		/// <summary>
-		/// unscaled version of deltaTime. Not affected by timeScale
-		/// </summary>
-		public static float UnscaledDelta;
-
-		/// <summary>
-		/// secondary deltaTime for use when you need to scale two different deltas simultaneously
-		/// </summary>
+		public static float RawDelta;
 		public static float AltDelta;
 
 		/// <summary>
 		/// total time since the Scene was loaded
 		/// </summary>
 		public static double TimeSinceSceneLoad;
+		public static double RawTimeSinceSceneLoad;
 
 		/// <summary>
 		/// time scale of deltaTime
@@ -177,30 +181,40 @@ namespace Atma
 
 		public static void SetTargetFramerate(int fps)
 		{
-			FixedTimestep = (.)(1.0 / fps * MicroToSeconds);
+			TargetFPS = fps;
 		}
 
 		//internal static float Integrate(int64 time) => (time % FixedTimestep) / (float)FixedTimestep;
 
 		internal static void Step()
 		{
+			PrevTime = Time;
+			Time += FixedTimestep;
+
 			RawPrevTime = RawTime;
-			RawTime += FixedTimestep;
+			RawTime += RawFixedTimestep;
 
-			let dt = (RawTime - RawPrevTime) / MicroToSeconds;
+			let dt = (Time - PrevTime) / MicroToSeconds;
+			let rawdt = (RawTime - RawPrevTime) / MicroToSeconds;
 
-			Delta = (float)(dt * TimeScale);
-			AltDelta = (float)(dt * AltTimeScale);
-			UnscaledDelta = (float)dt;
+			Delta = (.)(rawdt * TimeScale) ;
+			AltDelta = (.)(rawdt * AltTimeScale);
+			RawDelta = (.)rawdt;
 
-			Elapsed = RawTime / MicroToSeconds;
-			Elapsedf = (float)(RawTime / MicroToSeconds);
-			PreviousElapsed = RawPrevTime / MicroToSeconds;
-			PreviousElapsedf = (float)(RawPrevTime / MicroToSeconds);
+			Elapsed = Time / MicroToSeconds;
+			Elapsedf = (float)(Time / MicroToSeconds);
+			PreviousElapsed = PrevTime / MicroToSeconds;
+			PreviousElapsedf = (float)(PrevTime / MicroToSeconds);
+
+			RawElapsed = RawTime / MicroToSeconds;
+			RawElapsedf = (float)(RawTime / MicroToSeconds);
+			RawPreviousElapsed = RawPrevTime / MicroToSeconds;
+			RawPreviousElapsedf = (float)(RawPrevTime / MicroToSeconds);
 		}
 
 		internal static void SceneChanged()
 		{
+			SceneTime = Time;
 			RawSceneTime = RawTime;
 		}
 
@@ -211,6 +225,17 @@ namespace Atma
 		/// </summary>
 		[Inline]
 		public static bool CheckEvery(float interval)
+		{
+			// we subtract deltaTime since timeSinceSceneLoad already includes this update ticks deltaTime
+			return (int)(TimeSinceSceneLoad / interval) > (int)((TimeSinceSceneLoad - Delta) / interval);
+		}
+
+		/// <summary>
+		/// Allows to check in intervals. Should only be used with interval values above deltaTime,
+		/// otherwise it will always return true.
+		/// </summary>
+		[Inline]
+		public static bool CheckEvery(double interval)
 		{
 			// we subtract deltaTime since timeSinceSceneLoad already includes this update ticks deltaTime
 			return (int)(TimeSinceSceneLoad / interval) > (int)((TimeSinceSceneLoad - Delta) / interval);

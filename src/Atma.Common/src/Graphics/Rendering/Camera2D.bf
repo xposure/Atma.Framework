@@ -306,7 +306,7 @@ namespace Atma
 
 			let noiseScale = 1500f;
 			let cameraShakeAmount = Math.Min(cameraTrauma, 1f);
-			let cameraShakeDistance = float2(Core.Noise.GetSimplex((float)Time.RawTime / noiseScale, 0, 0), Core.Noise.GetSimplex((float)Time.RawTime / noiseScale, 0, 5000))
+			let cameraShakeDistance = float2(Core.Noise.GetSimplex((float)Time.Time / noiseScale, 0, 0), Core.Noise.GetSimplex((float)Time.Time / noiseScale, 0, 5000))
 				* cameraShakeAmount * cameraShakeAmount * cameraShake;
 			Position = (int2)(Position + cameraShakeDistance);
 

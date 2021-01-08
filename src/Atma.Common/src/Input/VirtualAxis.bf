@@ -56,16 +56,16 @@ namespace Atma
 
 			//Press
 			if (last != Valuei && Valuei != 0)
-				lastPress = (.)Time.Elapsed;
-			Pressed = Valuei != 0 && lastPress > lastPressClear && (int64)(Time.Elapsed - lastPress) <= pressBuffer;
+				lastPress = Time.Time;
+			Pressed = Valuei != 0 && lastPress > lastPressClear && (Time.Time - lastPress) <= pressBuffer;
 
 			//Repeat
-			if (Valuei != 0 && repeatStart > 0 && (int64)(Time.Elapsed - lastPress) >= repeatStart)
+			if (Valuei != 0 && repeatStart > 0 && (int64)(Time.Time - lastPress) >= repeatStart)
 			{
 				Repeating = true;
 
-				let a = ((int64)(Time.PreviousElapsed - lastPress) / repeatInterval);
-				let b = ((int64)(Time.Elapsed - lastPress) / repeatInterval);
+				let a = ((Time.PrevTime - lastPress) / repeatInterval);
+				let b = ((Time.Time - lastPress) / repeatInterval);
 				if (a != b)
 					Pressed = true;
 			}
@@ -74,18 +74,18 @@ namespace Atma
 
 			//Release
 			if (last != 0 && Valuei == 0)
-				lastRelease = (.)Time.Elapsed;
-			Released = Valuei == 0 && lastRelease > lastReleaseClear && (int64)(Time.Elapsed - lastRelease) <= releaseBuffer;
+				lastRelease = Time.Time;
+			Released = Valuei == 0 && lastRelease > lastReleaseClear && (Time.Time - lastRelease) <= releaseBuffer;
 		}
 
 		public void ClearPressBuffer()
 		{
-			lastPressClear = (.)Time.Elapsed;
+			lastPressClear = Time.Time;
 		}
 
 		public void ClearReleaseBuffer()
 		{
-			lastReleaseClear = (.)Time.Elapsed;
+			lastReleaseClear = Time.Time;
 		}
 
 		// Setup Calls

@@ -14,21 +14,22 @@ namespace Atma
 			Reset(duration);
 		}
 
-		public float t => 1f - (Math.Max(_end - Time.RawTime, 0) / (float)_duration);
-		public float Remaining => Math.Max(_end - Time.RawTime, 0);
+		public float t => 1f - (Remaining / (float)_duration);
+		public int64 Remaining => Math.Max(_end - Time.Time, 0);
 		public bool Completed => _end > 0 && Remaining == 0;
 
 		public static implicit operator bool(Timer it) => it.Completed;
 
 		public void Reset() mut
 		{
-			_end = Time.RawTime + _duration;
+			_end = Time.Time + _duration;
 		}
 
 		public void Reset(float duration) mut
 		{
-			_duration = (.)(duration * Time.MicroToSeconds);
-			_end = Time.RawTime + _duration;
+
+			_duration = (.)(duration * Time.MicroToSeconds) ;
+			_end = Time.Time + _duration;
 		}
 
 		public void Clear() mut
@@ -49,21 +50,21 @@ namespace Atma
 			Reset(duration);
 		}
 
-		public float t => 1f - (Math.Max(_end - Time.RawTime, 0) / (float)_duration);
-		public float Remaining => Math.Max(_end - Time.RawTime, 0);
+		public float t => 1f - (Math.Max(_end - Time.Time, 0) / (float)_duration);
+		public float Remaining => Math.Max(_end - Time.Time, 0);
 		public bool Completed => _end > 0 && Remaining > 0;
 
 		public static implicit operator bool(Duration it) => it.Completed;
 
 		public void Reset() mut
 		{
-			_end = Time.RawTime + _duration;
+			_end = Time.Time + _duration;
 		}
 
 		public void Reset(float duration) mut
 		{
 			_duration = (.)(duration * Time.MicroToSeconds);
-			_end = Time.RawTime + _duration;
+			_end = Time.Time + _duration;
 		}
 
 		public void Clear() mut

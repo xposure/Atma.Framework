@@ -42,13 +42,15 @@ namespace Atma
 		public static TextureFilter DefaultTextureFilter = .Linear;
 		public static TextureWrap DefaultTextureWrap = TextureWrap.Clamp;
 
-		private const int MAXUPDATEFRAMES = 100;
-		private static int64[MAXUPDATEFRAMES] updateFrameList;
+		private const uint MAXFRAMECAPTURES = 100;
+		private static int64[MAXFRAMECAPTURES] renderFrameList;
+		private static int64[MAXFRAMECAPTURES] updateFrameList;
 
 		public static uint64 FrameCount;
 		public static uint64 UpdateCount;
 
 		public static int FPS;
+		public static int UPS;
 		private Window.WindowArgs _windowArgs ~ delete _windowArgs.Title;
 
 		public this(StringView title, int width, int height, Window.WindowFlags windowFlags = .Hidden)
@@ -101,25 +103,30 @@ namespace Atma
 			Emitter.EmitNow(CoreEvents.Initialize());
 		}
 
+		private static int CalculateFPS(ref int64[MAXFRAMECAPTURES] captures, int64 time, ref uint64 counter){
+
+			captures[counter++ % MAXFRAMECAPTURES] = time;
+
+			let start = captures[counter % MAXFRAMECAPTURES];
+			let end =  captures[(counter - 1) % MAXFRAMECAPTURES];
+			let totalTime = end - start;
+			let frames = Math.Min(MAXFRAMECAPTURES, counter);
+			let avgDelta = (totalTime / (.)frames / Time.MicroToSeconds);
+			return (int)Math.Floor(1.0 / avgDelta);
+
+			//Core.Window.Title = scope $"FPS @{FPS}";
+		}
+
 		private static void InternalUpdate()
 		{
 			Core.TimeRuler.BeginMark("Update", .Green);
 			Time.Step();
 
-			Core.Window.Title = scope $"FPS @{FPS}";
-
-			UpdateCount++;
-			int64 frameSum = 0;
-			for (var i < MAXUPDATEFRAMES)
-				frameSum += updateFrameList[i];
-
-			FPS = (int)(1.0 / (frameSum / MAXUPDATEFRAMES / Time.MicroToSeconds));
-
-			if (!Core.UpdateInputInFixedStep)
+			/*if (!Core.UpdateInputInFixedStep)
 			{
 				Platform_Update();
 				Input.Update();
-			}
+			}*/
 
 			Emitter.Signal();
 
@@ -129,16 +136,13 @@ namespace Atma
 			Core.TimeRuler.EndMark("Update");
 		}
 
-		private static void InternalFixedUpdate()
+		private static void InternalFixedUpdate(int64 time)
 		{
+			UPS = CalculateFPS(ref updateFrameList, time, ref UpdateCount);
+
 			Core.TimeRuler.BeginMark("FixedUpdate", .Green);
 			Time.Step();
 
-			if (Core.UpdateInputInFixedStep)
-			{
-				Platform_Update();
-				Input.Update();
-			}
 
 			Emitter.Signal();
 
@@ -148,10 +152,12 @@ namespace Atma
 			Core.TimeRuler.EndMark("FixedUpdate");
 		}
 
-		protected static void InternalRender()
+		protected static void InternalRender(int64 time)
 		{
+			FPS = CalculateFPS(ref renderFrameList, time, ref FrameCount);
+			Core.Window.Title = scope $"FPS @{FPS}, UPS @{UPS}";
+
 			Core.TimeRuler.BeginMark("Render", .Red);
-			FrameCount++;
 
 			Emitter.EmitNow(CoreEvents.RenderBegin());
 			Graphics.BeforeFrame();
@@ -171,7 +177,7 @@ namespace Atma
 			Core.TimeRuler.ShowLog = true;*/
 
 			Core.Window.VSync = true;
-			int64 prevTime = Internal.GetTickCountMicro() - Time.FixedTimestep;
+			int64 prevTime = Internal.GetTickCountMicro() - Time.InverseFixedTimestep;
 			while (!IsExiting)
 			{
 				Core.TimeRuler.StartFrame();
@@ -181,16 +187,17 @@ namespace Atma
 
 				int64 time = Internal.GetTickCountMicro();
 
-				updateFrameList[FrameCount % MAXUPDATEFRAMES] = Math.Max(time - prevTime, 1);
+				Platform_Update();
+				Input.Update();
 
-				var msCounter = (time - prevTime);
-				if (msCounter >= Time.FixedTimestep)
+				var msCounter = time - prevTime;
+				if (msCounter >= Time.InverseFixedTimestep)
 				{
 					//Make sure everything is at its next state
 					Core.Integration.Integrate(1f);
 
 					var steps = Time.MaxSteps;
-					while (msCounter >= Time.FixedTimestep)
+					while (msCounter >= Time.InverseFixedTimestep)
 					{
 						//only step X frames and then let time catch up
 						//this needs to be handled better and probably should leverage
@@ -202,24 +209,24 @@ namespace Atma
 							//fix how the time class works
 							InternalUpdate();
 							//Console.WriteLine(scope $"Fixed {time}");
-							InternalFixedUpdate();
+							InternalFixedUpdate(time);
 						}
 
-						msCounter -= Time.FixedTimestep;
-						prevTime += Time.FixedTimestep;
+						msCounter -= Time.InverseFixedTimestep;
+						prevTime += Time.InverseFixedTimestep;
 					}
 
 					//Snapshot state
 					Core.Integration.Advance();
 				}
 
-				let integration = msCounter / (float)Time.FixedTimestep;
+				let integration = msCounter / (float)Time.InverseFixedTimestep;
 				//Console.WriteLine(scope $"{integration}");
 				Core.Integration.Integrate(integration);
 
-				Time.Delta = msCounter / (float)Time.MicroToSeconds;
-				InternalRender();
-				Time.Delta = (.)(Time.FixedTimestep / Time.MicroToSeconds);
+				//Time.Delta = msCounter / (float)Time.MicroToSeconds;
+				InternalRender(time);
+				//Time.Delta = (.)(Time.InverseFixedTimestep / Time.MicroToSeconds);
 			}
 
 			Emitter.EmitNow(CoreEvents.Shutdown());
