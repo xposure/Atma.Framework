@@ -1326,7 +1326,7 @@ namespace Atma
 				color, washed);
 		}
 
-		public void Image(Texture texture, Color color, bool washed = false)
+		public void Image(Texture texture, Color color = Color.White, bool washed = false)
 		{
 			SetTexture(texture);
 			Quad(

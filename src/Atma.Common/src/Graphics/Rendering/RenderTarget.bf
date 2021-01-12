@@ -28,7 +28,7 @@ namespace Atma
 
 		protected abstract bool InternalResize(int2 size);
 
-		public float4x4 Matrix => .Ortho(0, Width, 0, Height);
+		public virtual float4x4 Matrix => .Ortho(0, Width,  0, Height);
 
 	}
 }

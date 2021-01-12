@@ -309,5 +309,7 @@ namespace Atma
 		{
 			isVisible = true;
 		}
+
+		public override float4x4 Matrix => .Ortho(0, Width, Height, 0);
 	}
 }
