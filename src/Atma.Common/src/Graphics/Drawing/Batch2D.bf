@@ -1128,6 +1128,30 @@ namespace Atma
 			}
 		}
 
+		public void HollowSemiCircle(float2 center, float turnStart, float turnEnd, float radius, float thickness, int steps, Color color)
+		{
+			if (turnStart > turnEnd || turnEnd - turnStart <= 0)
+				return;
+
+			var steps;
+			steps = Math.Min((int)((turnEnd - turnStart) * steps) + 1, steps);
+
+			var last = Calc.AngleToVector(turnStart * Calc.TAU, radius);
+
+			for (int i = 1; i < steps; i++)
+			{
+				let r = Calc.Map(((i / (float)steps)), 0, 1, turnStart, turnEnd) * Calc.TAU; 
+				var next = Calc.AngleToVector(r, radius);
+				Line(center + last, center + next, thickness, color);
+				last = next;
+			}
+			{
+				let r = (Calc.TAU * turnEnd);
+				var next = Calc.AngleToVector(r, radius);
+				Line(center + last, center + next, thickness, color);
+			}
+		}
+
 		#endregion
 
 		#region Hollow Rect
