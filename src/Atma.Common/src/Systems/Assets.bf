@@ -257,7 +257,7 @@ namespace Atma
 			where T : delete
 		{
 			let id = typeof(T).TypeId;
-			if (_assets.TryAdd(id, ?, var ptr))
+			if (_assets.TryAdd((.)id, ?, var ptr))
 				*ptr = new AssetList<T>();
 
 			return (AssetList<T>)*ptr;
@@ -279,7 +279,7 @@ namespace Atma
 			for (var i = stk.Count; --i >= 0;)
 			{
 				let assets = stk[i]._assets;
-				if (assets.TryGetValue(id, let list))
+				if (assets.TryGetValue((.)id, let list))
 				{
 					let typedList = (AssetList<T>)list;
 					if (typedList.Assets.TryGetValue(key, let asset))
@@ -288,7 +288,7 @@ namespace Atma
 			}
 
 			//we didn't find it, so lets load it to our asset list
-			if (_assets.TryAdd(id, ?, var ptr))
+			if (_assets.TryAdd((.)id, ?, var ptr))
 				*ptr = new AssetList<T>();
 
 			let list = *(AssetList<T>*)ptr;

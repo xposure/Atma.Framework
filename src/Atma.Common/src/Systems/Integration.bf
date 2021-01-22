@@ -235,7 +235,7 @@ namespace Atma
 			where T : IntegratorType
 		{
 			let typeid = typeof(T).TypeId;
-			if (_integrators.TryAdd(typeid, ?, var ptr))
+			if (_integrators.TryAdd((.)typeid, ?, var ptr))
 				*ptr = new T();
 
 			return *(T*)ptr;
