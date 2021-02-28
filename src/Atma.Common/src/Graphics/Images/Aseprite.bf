@@ -15,8 +15,8 @@ namespace Atma
 		typealias LONG = int32;
 		typealias FIXED = float;
 
-		typealias RGBA = BYTE[4];
-		typealias Grayscale = BYTE[2];
+		typealias RGBA = uint8[4];
+		typealias Grayscale = uint8[2];
 		typealias Indexed = BYTE;
 
 		[CRepr, Packed, Ordered]

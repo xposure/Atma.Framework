@@ -296,7 +296,7 @@ namespace Atma
 		{
 			let scale = _resolution.Size / (float2)_resolution.DrawRect.Size;
 			let pos = ((screenPosition - MouseOffset) - _viewport.TopLeft * GetTargetSize());
-			return (int2)(InverseViewMatrix * ((pos - _resolution.DrawRect.TopLeft - _position) * scale));
+			return (int2)(InverseViewMatrix * ((pos - _resolution.DrawRect.TopLeft /*- _position*/) * scale));
 		}
 
 
