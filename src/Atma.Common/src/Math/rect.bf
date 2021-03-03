@@ -152,6 +152,23 @@ namespace Atma
 			return rect;
 		}
 
+		/// <summary>
+		///		Extends the box to encompass the specified point (if needed).
+		/// </summary>
+		/// <param name="point"></param>
+		public void Merge(int2 point) mut
+		{
+			if (point.x > Right)
+				Right = point.x;
+			else if (point.x < X)
+				X = point.x;
+
+			if (point.y > Bottom)
+				Bottom = point.y;
+			else if (point.y < Y)
+				Y = point.y;
+		}
+
 		public rect Inflate(int amount)
 		{
 			return rect(X - amount, Y - amount, Width + amount * 2, Height + amount * 2);
