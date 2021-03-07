@@ -2,6 +2,7 @@ namespace Atma
 {
 	using System;
 	using System.Diagnostics;
+	using System.Collections;
 
 	/// <summary>
 	///		A 2D box aligned with the x/y axes.
@@ -755,6 +756,7 @@ namespace Atma
 		}
 
 
+		public aabb2i Inflate(int size) => Inflate(.(size, size));
 		public aabb2i Inflate(int x, int y) => Inflate(.(x, y));
 
 		public aabb2i Inflate(int2 size)

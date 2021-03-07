@@ -152,6 +152,14 @@ namespace ParticleSim
 
 		protected override void Render()
 		{
+			var min = int2(57,57);
+			var max = int2(0,0);
+
+			test = .(min, max);
+
+			Core.Draw.Text(Core.DefaultFont, .(0,0), scope $"min: {min}, max: {max}", Color.White);
+
+
 			chunk.Render();
 			
 			test = aabb2i(100, 100,0,0);
