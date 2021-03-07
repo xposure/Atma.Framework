@@ -11,6 +11,7 @@ namespace HelloWorld
 
 		protected override void Render()
 		{
+
 			//move the rect to the center of the screen
 			var pos = (float2)Screen.Size / 2f;
 

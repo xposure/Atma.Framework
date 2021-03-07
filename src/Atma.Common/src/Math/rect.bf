@@ -158,6 +158,8 @@ namespace Atma
 		/// <param name="point"></param>
 		public void Merge(int2 point) mut
 		{
+			
+
 			if (point.x > Right)
 				Right = point.x;
 			else if (point.x < X)
@@ -450,6 +452,9 @@ namespace Atma
 		public static rect FromDimensions(int2 p, int w, int h) => .(p.x, p.y, w, h);
 		public static rect FromCenter(int2 p, int extents) => .(p - extents, p + extents + int2.Ones);
 		public static rect FromCenter(int2 p, int2 extents) => .(p - extents, p + extents + int2.Ones);
+
+		public static implicit operator rect(aabb2i it) => rect(it.x0, it.y0, it.Size); 
+		public static implicit operator aabb2i(rect it) => aabb2i(it.X, it.Y, it.Right, it.Bottom); 
 
 
 		public List<rect> ToAlignedGrid(int2 gridSize, List<rect> rects)

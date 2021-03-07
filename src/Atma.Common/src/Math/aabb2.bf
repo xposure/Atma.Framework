@@ -644,4 +644,474 @@ namespace Atma
 			return rect((.)x0, (.)y0, (.)Size);
 		}
 	}
+
+	public struct aabb2i : IHashable
+	{
+		#region Fields
+
+		public int2 Min;
+		public int2 Max;
+
+		#endregion Fields
+
+		#region Constructors
+
+		public this(int x0, int y0, int x1, int y1) : this(.(x0, y0), .(x1, y1))
+		{
+		}
+
+		public this(int2 min, int2 max)
+		{
+			Min = min;
+			Max = max;
+		}
+
+		public this(aabb2i other)
+		{
+			Min = other.Min;
+			Max = other.Max;
+		}
+
+		#endregion Constructors
+
+		#region Public methods
+
+		public int Height
+		{
+			get { return Max.y - Min.y; }
+		}
+
+		public int Width
+		{
+			get { return Max.x - Min.x; }
+		}
+
+		public int2 this[int index]
+		{
+			get
+			{
+				switch (index) {
+				case 0: return TopLeft;
+				case 1: return TopRight;
+				case 2: return BottomRight;
+				case 3: return BottomLeft;
+				default:
+					Runtime.FatalError("Index out of range.");
+				}
+			}
+		}
+
+		public int x0 { get { return Min.x; } }
+
+		public int x1 { get { return Max.x; } }
+
+		public int y0 { get { return Min.y; } }
+
+		public int y1 { get { return Max.y; } }
+
+		public int2 xy => Min.xy;
+
+		public int2 TopLeft => .(x0, y0);
+		public int2 TopRight => .(x1, y0);
+		public int2 BottomLeft => .(x0, y1);
+		public int2 BottomRight => .(x1, y1);
+
+		/// <summary>
+		///     Return new bounding box from the supplied dimensions.
+		/// </summary>
+		/// <param name="center">Center of the new box</param>
+		/// <param name="size">Entire size of the new box</param>
+		/// <returns>New bounding box</returns>
+		public static aabb2i FromDimensions(int2 center, int2 size)
+		{
+			int2 halfSize = size / 2;
+
+			return .(center - halfSize, center + halfSize);
+		}
+
+		// public static AxisAlignedBox2 FromRect(Rectangle rect)
+		// {
+		//     var min = .(rect.x, rect.y);
+		//     var max = .(rect.Width, rect.Height) + min;
+		//     return .(min, max);
+		// }
+
+		public static aabb2i FromRect(int x, int y, int w, int h)
+		{
+			var min = int2(x, y);
+			var max = int2(w, h) + min;
+			return .(min, max);
+		}
+
+		public static aabb2i FromRect(int2 min, int w, int h)
+		{
+			var max = int2(w, h) + min;
+			return .(min, max);
+		}
+
+		public static aabb2i FromRect(int2 min, int2 size)
+		{
+			return .(min, min + size);
+		}
+
+
+		public aabb2i Inflate(int x, int y) => Inflate(.(x, y));
+
+		public aabb2i Inflate(int2 size)
+		{
+			let half = size / 2;
+			return .(Min - half, Max + half);
+		}
+
+		/// <summary>
+		///		Allows for merging two boxes together (combining).
+		/// </summary>
+		/// <param name="box">Source box.</param>
+		public void Merge(aabb2i other) mut
+		{
+			if (other.Min.x < Min.x)
+				Min.x = other.Min.x;
+			if (other.Max.x > Max.x)
+				Max.x = other.Max.x;
+
+			if (other.Min.y < Min.y)
+				Min.y = other.Min.y;
+			if (other.Max.y > Max.y)
+				Max.y = other.Max.y;
+		}
+
+		/// <summary>
+		///		Extends the box to encompass the specified point (if needed).
+		/// </summary>
+		/// <param name="point"></param>
+		public void Merge(int2 point) mut
+		{
+			if (point.x > Max.x)
+				Max.x = point.x;
+			else if (point.x < Min.x)
+				Min.x = point.x;
+
+			if (point.y > Max.y)
+				Max.y = point.y;
+			else if (point.y < Min.y)
+				Min.y = point.y;
+		}
+
+		/// <summary>
+		///    Scales the size of the box by the supplied factor.
+		/// </summary>
+		/// <param name="factor">Factor of scaling to apply to the box.</param>
+		public void Scale(int2 factor) mut
+		{
+			SetExtents(Min * factor, Max * factor);
+		}
+
+		/// <summary>
+		///		Sets both Minimum and Maximum at once, so that UpdateCorners only
+		///		needs to be called once as well.
+		/// </summary>
+		/// <param name="min"></param>
+		/// <param name="max"></param>
+		public void SetExtents(int2 min, int2 max) mut
+		{
+			Min = min;
+			Max = max;
+		}
+
+		public aabb2i Offset(int2 offset) => .(Min + offset, Max + offset);
+
+		#endregion Public methods
+
+		#region Contain methods
+
+		/// <summary>
+		/// Tests whether the given point contained by this box.
+		/// </summary>
+		/// <param name="v"></param>
+		/// <returns>True if the vector is contained inside the box.</returns>
+		public bool Contains(int2 v)
+		{
+			return Min.x <= v.x && v.x <= Max.x &&
+				Min.y <= v.y && v.y <= Max.y;
+		}
+
+		public bool Contains(aabb2i other)
+		{
+			return Contains(other.Min) && Contains(other.Max);
+		}
+
+		#endregion Contain methods
+
+		#region Intersection Methods
+
+		public mtv Collide(aabb2i box2)
+		{
+			if (Intersection(box2, let overlap))
+			{
+				var axis = axis();
+				var minOverlap = 0.0;
+				let adjust = overlap.Size;
+
+				if (adjust.x < adjust.y)
+				{
+					minOverlap = adjust.x;
+					if (overlap.Center.x < box2.Center.x)
+						axis.edge = .(overlap.x0, overlap.y0) - .(overlap.x0, overlap.y1);
+					else
+						axis.edge = .(overlap.x1, overlap.y1) - .(overlap.x1, overlap.y0);
+				}
+				else
+				{
+					minOverlap = adjust.y;
+					if (overlap.Center.y > box2.Center.y)
+						axis.edge = .(overlap.x0, overlap.y0) - .(overlap.x1, overlap.y0);
+					else
+						axis.edge = .(overlap.x1, overlap.y1) - .(overlap.x0, overlap.y1);
+				}
+
+				axis.unit = axis.edge.Perpendicular;
+				//axis.unit = axis.edge.PerpendicularRight;
+				axis.normal = axis.unit.Normalized;
+				return .(axis, minOverlap);
+			}
+			return .Zero;
+		}
+
+		public mtv CollideX(aabb2i box2)
+		{
+			//var overlap = Intersection(box2);
+			if (Intersection(box2, let overlap))
+			{
+				var axis = axis();
+				var minOverlap = 0.0;
+				var adjust = overlap.Size;
+
+				minOverlap = adjust.x;
+				if (overlap.Center.x < box2.Center.x)
+					axis.edge = .(overlap.x0, overlap.y0) - .(overlap.x0, overlap.y1);
+				else
+					axis.edge = .(overlap.x1, overlap.y1) - .(overlap.x1, overlap.y0);
+
+				//axis.unit = axis.edge.PerpendicularRight;
+				axis.unit = axis.edge.Perpendicular;
+				axis.normal = axis.unit.Normalized;
+				return .(axis, minOverlap);
+			}
+			return .Zero;
+		}
+
+		public mtv CollideY(aabb2i box2)
+		{
+			//var overlap = Intersection(box2);
+			if (Intersection(box2, let overlap))
+			{
+				var axis = axis();
+				var minOverlap = 0.0;
+				var adjust = overlap.Size;
+
+				minOverlap = adjust.y;
+				if (overlap.Center.y > box2.Center.y)
+					axis.edge = .(overlap.x0, overlap.y0) - .(overlap.x1, overlap.y0);
+				else
+					axis.edge = .(overlap.x1, overlap.y1) - .(overlap.x0, overlap.y1);
+
+				//axis.unit = axis.edge.PerpendicularRight;
+				axis.unit = axis.edge.Perpendicular;
+				axis.normal = axis.unit.Normalized;
+				return .(axis, minOverlap);
+			}
+			return .Zero;
+		}
+
+		public aabb2i Intersection(aabb2i b2)
+		{
+			if (Intersection(b2, let result))
+				return result;
+
+			return .(int2.Zero, int2.Zero);
+		}
+
+		/// <summary>
+		///		Calculate the area of intersection of this box and another
+		/// </summary>
+		public bool Intersection(aabb2i b2, out aabb2i intersection)
+		{
+			if (!Intersects(b2))
+			{
+				intersection = .(int2.Zero, int2.Zero);
+				return false;
+			}
+
+			int2 intMin = int2.Zero;
+			int2 intMax = int2.Zero;
+
+			int2 b2max = b2.Max;
+			int2 b2min = b2.Min;
+
+			if (b2max.x > Max.x && Max.x > b2min.x)
+				intMax.x = Max.x;
+			else
+				intMax.x = b2max.x;
+			if (b2max.y > Max.y && Max.y > b2min.y)
+				intMax.y = Max.y;
+			else
+				intMax.y = b2max.y;
+
+			if (b2min.x < Min.x && Min.x < b2max.x)
+				intMin.x = Min.x;
+			else
+				intMin.x = b2min.x;
+			if (b2min.y < Min.y && Min.y < b2max.y)
+				intMin.y = Min.y;
+			else
+				intMin.y = b2min.y;
+
+			intersection = .(intMin, intMax);
+			return true;
+		}
+
+		/// <summary>
+		///		Returns whether or not this box intersects another.
+		/// </summary>
+		/// <param name="box2"></param>
+		/// <returns>True if the 2 boxes intersect, false otherwise.</returns>
+		public bool Intersects(aabb2i box2)
+		{
+			// Use up to 6 separating planes
+			if (this.Max.x <= box2.Min.x)
+				return false;
+			if (this.Max.y <= box2.Min.y)
+				return false;
+
+			if (this.Min.x >= box2.Max.x)
+				return false;
+			if (this.Min.y >= box2.Max.y)
+				return false;
+
+			// otherwise, must be intersecting
+			return true;
+		}
+
+		/// <summary>
+		///		Returns whether or not this box intersects another.
+		/// </summary>
+		/// <param name="box2"></param>
+		/// <returns>True if the 2 boxes intersect, false otherwise.</returns>
+		public bool Intersects(Span<aabb2i> boxes, out int index)
+		{
+			index = -1;
+			for (var i = 0; i < boxes.Length; i++)
+			{
+				if (this.Intersects(boxes[i]))
+				{
+					index = i;
+					return true;
+				}
+			}
+			return false;
+		}
+
+
+		/// <summary>
+		///		Tests whether the vector point is within this box.
+		/// </summary>
+		/// <param name="vector"></param>
+		/// <returns>True if the vector is within this box, false otherwise.</returns>
+		public bool Intersects(int2 vector)
+		{
+			return (vector.x >= Min.x && vector.x <= Max.x &&
+				vector.y >= Min.y && vector.y <= Max.y);
+		}
+
+		#endregion Intersection Methods
+
+		#region Properties
+
+		/// <summary>
+		///    Get/set the center point of this bounding box.
+		/// </summary>
+		public int2 Center
+		{
+			get
+			{
+				return (Min + Max) / 2;
+			}
+			set mut
+			{
+				int2 halfSize =  Size / 2;
+				Min = value - halfSize;
+				Max = value + halfSize;
+			}
+		}
+
+		public int2 HalfSize
+		{
+			get
+			{
+				return (Max - Min) / 2;
+			}
+		}
+
+		/// <summary>
+		///     Get/set the size of this bounding box.
+		/// </summary>
+		public int2 Size
+		{
+			get
+			{
+				return Max - Min;
+			}
+			set mut
+			{
+				int2 center = Center;
+				int2 halfSize = value / 2;
+				Min = center - halfSize;
+				Max = center + halfSize;
+			}
+		}
+
+		/// <summary>
+		///     Calculate the volume of this box
+		/// </summary>
+		public int Volume
+		{
+			get
+			{
+				int2 diff = Max - Min;
+				return diff.x * diff.y;
+			}
+		}
+
+		#endregion Properties
+
+		#region Operator Overloads
+
+		public static bool operator!=(aabb2i left, aabb2i right)
+		{
+			return left.Min != right.Min || left.Max != right.Max;
+		}
+
+		public static bool operator==(aabb2i left, aabb2i right)
+		{
+			return left.Min == right.Min && left.Max == right.Max;
+		}
+
+		[Unchecked]
+		public int GetHashCode()
+		{
+			return (Min.GetHashCode() * 397) + Max.GetHashCode();
+		}
+
+		public override void ToString(String output)
+		{
+			output.AppendF("{0}:{1}", this.Min, this.Max);
+		}
+
+		#endregion Operator Overloads
+
+		public rect ToRect()
+		{
+			return rect((.)x0, (.)y0, (.)Size);
+		}
+	}
 }

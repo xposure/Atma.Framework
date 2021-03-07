@@ -1,0 +1,6 @@
+FileVersion = 1
+Dependencies = {corlib = "*", "Atma.Common" = "*"}
+
+[Project]
+Name = "ParticleSim"
+StartupObject = "ParticleSim.Program"

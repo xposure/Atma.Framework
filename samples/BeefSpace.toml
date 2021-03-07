@@ -1,6 +1,6 @@
 FileVersion = 1
-Projects = {NeonShooter = {Path = "NeonShooter"}, SDL2 = "*", MiniZ = "*", "Atma.Common" = {Path = "../src/Atma.Common"}, HelloWorld = {Path = "HelloWorld"}, "Atma.Entities" = {Path = "../src/Atma.Entities"}}
+Projects = {NeonShooter = {Path = "NeonShooter"}, SDL2 = "*", MiniZ = "*", "Atma.Common" = {Path = "../src/Atma.Common"}, HelloWorld = {Path = "HelloWorld"}, "Atma.Entities" = {Path = "../src/Atma.Entities"}, ParticleSim = {Path = "ParticleSim"}}
 Unlocked = ["corlib"]
 
 [Workspace]
-StartupProject = "NeonShooter"
+StartupProject = "ParticleSim"
